@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Mark Learner Submissions | CHIETA</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    .content {
+      padding: 20px;
+      background-color: #efeaea;
+      background-image: url("images/Frame.png");
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+    thead {
+      background-color: #580658;
+      color: white;
+    }
+    textarea {
+      width: 100%;
+      padding: 6px;
+      resize: vertical;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    input[type="number"] {
+      width: 60px;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    select {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .submit-btn {
+      margin-top: 20px;
+      float: right;
+      background: linear-gradient(to right, #552a74, #360459);
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dashboard-container">
+    <div class="sidebar">
+      <div class="graduate-icon">
+        <img src="/images/logo_simplebbbbbbbbbbbbbb.png" alt="CHIETA Logo" style="width: 130px;">
+      </div><br><br>
+      <ul>
+   <li><a href="marking_feedback.html" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="marker_analytics.html" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
+        <li>🔔 Notifications</li>
+        <li>🛠️ Help & Support</li><br><br><br><br>
+        <button class="fixy">⚙️ Settings</button>
+        <button class="fix">🚪 Log Out</button><br>
+      </ul>
+      <img src="/images/rb_2149331949.png" alt="Sidebar Art" width="199px">
+    </div>
+
+    <div class="content">
+      <h2 style="text-align: center;">Marking: Learner Submissions</h2>
+      <p style="text-align: center;" id="batchLabel">Assessment Batch</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Learner Name</th>
+            <th>Submitted File</th>
+            <th>Mark (%)</th>
+            <th>Competency</th>
+            <th>Feedback</th>
+          </tr>
+        </thead>
+        <tbody id="learnerTableBody">
+          <!-- JS renders this -->
+        </tbody>
+      </table>
+
+      <button class="submit-btn" onclick="submitToModerator()">Submit Marked Batch to Internal Moderator</button>
+    </div>
+  </div>
+
+  <div id="previewModal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000;">
+    <div style="padding: 10px; text-align:right;">
+      <button onclick="closePreview()"
+        style="padding: 6px 10px; background:#552a74; color:white; border:none; border-radius:5px;">Close</button>
+    </div>
+    <iframe id="previewFrame" style="width:100%; height:90%; border:none;"></iframe>
+  </div>
+
+<script>
+  const currentBatch = localStorage.getItem("currentBatch") || "EISA-1234";
+  document.getElementById("batchLabel").innerText = "Assessment Batch: " + currentBatch;
+
+  const learners = [
+    { name: "Lerato Mokoena", file: "Lerato_Mokoena_1A.pdf" },
+    { name: "Thabo Dlamini", file: "Thabo_Dlamini_1A.pdf" },
+    { name: "Amanda Naidoo", file: "Amanda_Naidoo_1A.pdf" }
+  ];
+
+  const tbody = document.getElementById("learnerTableBody");
+  learners.forEach((learner, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${learner.name}</td>
+      <td><a href="#" onclick="openPreview('uploads/${learner.file}', ${index})">📄 ${learner.file}</a></td>
+      <td><input type="number" min="0" max="100" id="mark-${index}" placeholder="e.g. 85"></td>
+      <td>
+        <select id="competency-${index}">
+          <option value="Not Yet Competent" selected>Not Yet Competent</option>
+          <option value="Competent">Competent</option>
+        </select>
+      </td>
+      <td><textarea id="feedback-${index}" placeholder="Enter feedback..."></textarea></td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  function submitToModerator() {
+    const results = learners.map((learner, i) => ({
+      name: learner.name,
+      mark: document.getElementById(`mark-${i}`).value,
+      competency: document.getElementById(`competency-${i}`).value,
+      feedback: document.getElementById(`feedback-${i}`).value
+    }));
+
+    console.log("Batch Results:", results);
+    alert("Marked batch submitted to Internal Moderator successfully!");
+    window.location.href = "marking_feedback.html";
+  }
+
+  function openPreview(filePath, index) {
+    document.getElementById("previewModal").style.display = "block";
+    document.getElementById("previewFrame").src = filePath;
+  }
+
+  function closePreview() {
+    document.getElementById("previewModal").style.display = "none";
+    document.getElementById("previewFrame").src = "";
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QCTO Dashboard | CHIETA</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    .dashboard-content {
+      padding: 30px;
+    }
+
+    .metrics {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .metric-box {
+      flex: 1 1 30%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .metric-box:hover {
+      transform: translateY(-4px);
+    }
+
+    .metric-box h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .metric-box .count {
+      font-size: 32px;
+      font-weight: bold;
+      color: #552a74;
+    }
+
+    .alerts {
+      margin-top: 40px;
+      padding: 20px;
+      background: #fff;
+      border-left: 6px solid orange;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .alerts h4 {
+      color: #552a74;
+      margin-bottom: 10px;
+    }
+
+    .alerts ul {
+      list-style: none;
+      padding-left: 20px;
+    }
+
+    .alerts li {
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .view-link {
+      color: #552a74;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+        .content{
+    background-color: #efeaea;
+    background-image: url("/images/Frame.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="sidebar">
+      <div class="graduate-icon">
+        <img src="/images/logo_simplebbbbbbbbbbbbbb.png" alt="CHIETA Logo" style="width: 130px;">
+      </div><br><br>
+      <ul>
+        <li><a href="qcto_dashboard.html" class="nav-item active"><i class="fa fa-chart-bar"></i> Dashboard</a></li>
+        <li><a href="qcto_assessment_review.html" class="nav-item"><i class="fa fa-check-square"></i> Review Final Assessments</a></li>
+        <li><a href="qcto_compliance.html" class="nav-item"><i class="fa fa-clipboard-check"></i> Compliance & Reports</a></li>
+        <li><a href="qcto_archive.html" class="nav-item"><i class="fa fa-archive"></i> Assessment Archive</a></li>
+        <li>🔔 Notifications</li>
+        <li>🛠️ Help & Support</li><br><br><br><br>
+        <button class="fixy">⚙️ Settings</button>
+        <button class="fix">🚪 Log Out</button><br>
+      </ul>
+       <img src="/images/rb_2149331949.png" alt="Sidebar Art" width="199px">
+    </div>
+
+    
+
+    <div class="content">
+       <div class="topbar">
+        <input type="search" placeholder="Search...">
+      </div>
+
+      <div class="welcome-container">
+        <div class="image-container">
+          <img src="/images/rb_2148892786.png" alt="Profile Picture" width="390px" height="190px">
+        </div>
+        <div class="welcome-box">
+          <p>Welcome, QCTO</p>
+          <div class="date">Below is an overview of submitted assessments and their current moderation status.</div>
+          <button class="gradient-button">Innovating for Impact</button>
+        </div>
+      </div>
+      <!-- <h2 style="text-align: center; margin-top: 20px;">QCTO Dashboard</h2> -->
+      <div class="dashboard-content">
+
+        <div class="metrics">
+          <div class="metric-box">
+            <h3>Total Assessments Reviewed</h3>
+            <div class="count">128</div>
+          </div>
+          <div class="metric-box">
+            <h3>Pending QCTO Decisions</h3>
+            <div class="count">14</div>
+          </div>
+          <div class="metric-box">
+            <h3>Approved Assessments</h3>
+            <div class="count">102</div>
+          </div>
+          <div class="metric-box">
+            <h3>Rejected Assessments</h3>
+            <div class="count">12</div>
+          </div>
+          <div class="metric-box">
+            <h3>Compliance Alerts</h3>
+            <div class="count" style="color: orange;">3</div>
+          </div>
+        </div>
+
+         <h2 style="text-align: center;">QCTO Compliance Overview & Reports</h2>
+
+
+
+        <div class="alerts">
+          <h4>⚠️ Compliance Alerts</h4>
+          <ul>
+            <li>Missing MEMO for Assessment Batch EISA-1047 <a href="qcto_compliance.html" class="view-link">View</a></li>
+            <li>Inconsistent SAQA ID in Quality Controller 2B <a href="qcto_compliance.html" class="view-link">Resolve</a></li>
+            <li>Late submission from Assessment Centre CPT02 <a href="qcto_compliance.html" class="view-link">Follow Up</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+    <script>
+    function exportCompliance() {
+      alert("Compliance report exported successfully!");
+      // Real export logic goes here (CSV, PDF or API)
+    }
+  </script>
+</body>
+</html>
