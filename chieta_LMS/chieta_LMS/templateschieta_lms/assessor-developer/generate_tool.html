@@ -95,6 +95,51 @@
       </div>
     </div>
 
+<form id="demoForm" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="form-section">
+    <h3>Step 1: Select Qualification & Marks</h3>
+    <select id="qualification" name="qualification">
+      <option>Maintenance Planner</option>
+      <option>Quality Controller</option>
+    </select>
+    <input type="number" id="markTarget" name="mark_target" placeholder="Total marks">
+    <input type="file" id="paperFile" name="file" accept=".pdf">
+    <button type="submit" class="gradient-button">Generate Paper</button>
+  </div>
+</form>
+
+<div class="selected-questions">
+  <h3>Step 2: Preview Paper</h3>
+  <ul id="selectedList"></ul>
+</div>
+
+<script>
+document.getElementById("demoForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const form = e.target;
+  const fd   = new FormData(form);
+
+  const resp = await fetch("{% url 'generate_paper' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+    },
+    body: fd
+  });
+  if (!resp.ok) return alert("Error generating paper");
+
+  const { questions } = await resp.json();
+  const ul = document.getElementById("selectedList");
+  ul.innerHTML = "";
+  questions.forEach(q => {
+    const li = document.createElement("li");
+    li.textContent = `${q.text} (${q.marks} marks)`;
+    ul.appendChild(li);
+  });
+});
+</script>
+
     <div class="form-section">
       <h3>Step 1: Select Qualification & Marks</h3>
       <label for="qualification">Qualification</label>
@@ -112,6 +157,7 @@
       <ul id="selectedList"></ul>
       <div>
         <button class="gradient-button" onclick="submitToModerator()">Forward to Moderator</button>
+      
       </div>
     </div>
   </div>
