@@ -7,7 +7,7 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 
 from .question_bank import QUESTION_BANK
-from .utils import extract_text  # your PDF/DOCX helpers
+from .utils import extract_text  
 
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
