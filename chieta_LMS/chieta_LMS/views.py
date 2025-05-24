@@ -12,6 +12,34 @@ from .models import Assessment
 
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
+
+from django.shortcuts import render
+from .models import Assessment
+
+def assessment_archive(request):
+  
+    qs = Assessment.objects.all()
+
+    # Optional server-side filtering
+    qual  = request.GET.get("qualification", "")
+    paper = request.GET.get("paper", "").strip()
+    status= request.GET.get("status", "")
+
+    if qual:
+        qs = qs.filter(qualification=qual)
+    if paper:
+        qs = qs.filter(paper__icontains=paper)
+    if status:
+        qs = qs.filter(status=status)
+
+    return render(request, "chieta_lms/assessment_archive.html", {
+        "assessments": qs,
+        "filter_qualification": qual,
+        "filter_paper": paper,
+        "filter_status": status,
+    })
+
+
 def assessor_dashboard(request):
     assessments = Assessment.objects.all()
     return render(
