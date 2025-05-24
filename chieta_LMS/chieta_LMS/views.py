@@ -13,8 +13,6 @@ from .models import Assessment
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-from django.shortcuts import render
-from .models import Assessment
 
 def assessment_archive(request):
   
