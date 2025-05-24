@@ -2,7 +2,7 @@
  
  <div class="welcome-container">
   <div class="image-container">
-    <img src="{% static 'chieta_lms/images/rb_2148892786.png' %}" alt="Profile Picture" width="390" height="190">
+    <img src="{% static 'chieta_LMS/images/rb_2148892786.png' %}" alt="Profile Picture" width="390" height="190">
   </div>
   <div class="welcome-box">
     <p>Welcome, Assessor (Developer)</p>
@@ -46,6 +46,11 @@
       {% empty %}
       <tr><td colspan="6" style="padding: 10px; text-align: center;">No assessments found.</td></tr>
       {% endfor %}
+  
     </tbody>
   </table>
 </section>
+{% block extra_js %}
+<script src="{% static 'chieta_LMS/js/assessor_dashboard.js' %}"></script>
+{% endblock %}
+
