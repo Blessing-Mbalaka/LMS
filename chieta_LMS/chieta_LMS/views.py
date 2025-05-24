@@ -5,11 +5,28 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
-
 from .question_bank import QUESTION_BANK
 from .utils import extract_text  
+from django.shortcuts import render, get_object_or_404
+from .models import Assessment
 
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+def assessor_dashboard(request):
+    assessments = Assessment.objects.all()
+    return render(
+request,
+'chieta_lms/assessor_dashboard.html',
+{'assessments': assessments}
+)
+
+def view_assessment(request, eisa_id):
+    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+    return render(
+request,
+'chieta_lms/view_assessment.html',
+{'assessment': assessment}
+)
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, JSONParser])
@@ -54,7 +71,7 @@ def generate_paper(request):
         # fallback: just grab from the demo bank
         pool = QUESTION_BANK.get(qual, [])
 
-    # 5) randomize and pick until we hit the target marks
+    # 5) randomize and pick until we hit the target marks the assessor uses.
     random.shuffle(pool)
     selected, total = [], 0
     for q in pool:
@@ -63,3 +80,4 @@ def generate_paper(request):
             total += q.get("marks", 0)
 
     return JsonResponse({"questions": selected, "total": total})
+
