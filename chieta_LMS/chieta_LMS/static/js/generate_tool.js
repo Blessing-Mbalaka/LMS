@@ -197,3 +197,37 @@ function showToast(message) {
 }
 
 window.onload = renderQuestions;
+
+document.getElementById("demoForm")
+      .addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const fd = new FormData(form);
+
+        const resp = await fetch(form.dataset.url, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+          },
+          body: fd
+        });
+
+        if (!resp.ok) {
+          return alert("Error generating paper");
+        }
+
+        const { questions, total } = await resp.json();
+        const ul = document.getElementById("selectedList");
+        ul.innerHTML = "";
+
+        questions.forEach(q => {
+          const li = document.createElement("li");
+          li.textContent = `${q.text} (${q.marks} marks)`;
+          ul.appendChild(li);
+        });
+      });
+
+    function submitToModerator() {
+      // TODO: hook up to your moderation endpoint
+      alert("Assessment forwarded to Moderator.");
+    }

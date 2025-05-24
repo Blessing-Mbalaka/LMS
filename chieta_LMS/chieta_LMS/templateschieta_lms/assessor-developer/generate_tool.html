@@ -6,60 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generate Assessment Tool | CHIETA</title>
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-  <link rel="stylesheet" 
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <style>
-    .content {
-      flex: 1;
-      padding: 20px;
-      background-color: #efeaea;
-      background-image: url("{% static 'images/Frame.png' %}");
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
-    .topbar {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .topbar input[type="search"] {
-      padding: 10px;
-      width: 60%;
-      border-radius: 20px;
-      border: 1px solid #ccc;
-    }
-    .gradient-button {
-      background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #360459);
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 5px;
-    }
-    .gradient-button:hover {
-      opacity: 0.9;
-    }
-    .form-section, .selected-questions {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      margin-top: 20px;
-    }
-    .form-section select, .form-section input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    .selected-questions ul {
-      list-style-type: disc;
-      padding-left: 20px;
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/generate_tool.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
 </head>
 <body>
   <div class="dashboard-container">
@@ -123,39 +72,7 @@
   </div>
 
   <script>
-    document.getElementById("demoForm")
-      .addEventListener("submit", async function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const fd   = new FormData(form);
-
-        const resp = await fetch("{% url 'generate_paper' %}", {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
-          },
-          body: fd
-        });
-
-        if (!resp.ok) {
-          return alert("Error generating paper");
-        }
-
-        const { questions, total } = await resp.json();
-        const ul = document.getElementById("selectedList");
-        ul.innerHTML = "";
-
-        questions.forEach(q => {
-          const li = document.createElement("li");
-          li.textContent = `${q.text} (${q.marks} marks)`;
-          ul.appendChild(li);
-        });
-      });
-
-    function submitToModerator() {
-      // TODO: hook up to your moderation endpoint
-      alert("Assessment forwarded to Moderator.");
-    }
+      src="{% static 'chieta_lms/js/generate_tool.js' %}"
   </script>
 </body>
 </html>

@@ -1,148 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assessor (Developer) Dashboard | CHIETA</title>
-  <link rel="stylesheet" href="/css/dashboard.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <style>
-    .upload-section {
-      display: flex;
-      justify-content: flex-end;
-      padding: 20px;
-    }
-    .gradient-button {
-      margin-left: 15px;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 20px;
-      text-transform: uppercase;
-      font-weight: bold;
-      text-decoration: none;
-      transition: 0.3s;
-      background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #360459);
-      color: white;
-    }
-    .gradient-button:hover {
-      transform: scale(1.05);
-      text-decoration: none;
-    }
-    .status-approved { color: green; }
-    .status-pending { color: orange; }
-    .status-not-sent { color: gray; }
-    .content {
-      background-color: #efeaea;
-      background-image: url("images/Frame.png");
-      background-repeat: no-repeat;
-      background-size: cover;
-      opacity: 0.9;
-    }
-  </style>
-</head>
-<body>
-<div class="dashboard-container">
-  <div class="sidebar">
-    <div class="graduate-icon">
-      <img src="/images/logo_simplebbbbbbbbbbbbbb.png" alt="CHIETA Logo" style="width: 130px;">
-    </div><br><br>
-    <ul>
-  <li><a href="assessor_dashboard.html" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
-        <li><a href="upload_assessment.html" class="nav-item"><i class="fa fa-upload"></i> Upload Assessment</a></li>
-        <li><a href="generate_tool.html" class="nav-item"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
-        <li><a href="assessment_archive.html" class="nav-item"><i class="fa fa-archive"></i> Assessment History</a></li>
-        <li><a href="assessor_reports.html" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
-      <li>🔔 Notifications</li>
-      <li>🛠️ Help & Support</li><br><br><br><br>
-      <button class="fixy">⚙️ Settings</button>
-      <button class="fix">🚪 Log Out</button><br>
-    </ul>
-    <img src="/images/rb_2149331949.png" alt="Sidebar Art" width="199px">
+ {%load static%}
+ 
+ <div class="welcome-container">
+  <div class="image-container">
+    <img src="{% static 'chieta_lms/images/rb_2148892786.png' %}" alt="Profile Picture" width="390" height="190">
   </div>
-
-  <div class="content">
-    <div class="topbar">
-      <input type="search" placeholder="Search...">
-    </div>
-
-    <div class="welcome-container">
-      <div class="image-container">
-        <img src="/images/rb_2148892786.png" alt="Profile Picture" width="390px" height="190px">
-      </div>
-      <div class="welcome-box">
-        <p>Welcome, Assessor (Developer)</p>
-        <div class="date">Below is an overview of submitted assessments and their current moderation status.</div>
-        <button class="gradient-button">Innovating for Impact</button>
-      </div>
-    </div>
-
-    <div class="upload-section">
-      <a href="upload_assessment.html" class="gradient-button">Upload Assessment</a>
-      <a href="generate_tool.html" class="gradient-button">Generate EISA Tool</a>
-    </div>
-
-    <section class="master" style="margin-top: 40px;">
-      <h2 style="width: 100%; text-align: center;">Assessment Tracking Overview</h2>
-      <table style="width: 100%; border-collapse: collapse; background-color: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <thead style="background-color: #580658; color: white;">
-          <tr>
-            <th style="padding: 12px;">EISA ID</th>
-            <th style="padding: 12px;">Qualification</th>
-            <th style="padding: 12px;">Paper No.</th>
-            <th style="padding: 12px;">Moderator</th>
-            <th style="padding: 12px;">Status</th>
-            <th style="padding: 12px;">Action</th>
-          </tr>
-        </thead>
-        <tbody id="assessmentTableBody">
-          <!-- Dynamic Rows -->
-        </tbody>
-      </table>
-    </section>
+  <div class="welcome-box">
+    <p>Welcome, Assessor (Developer)</p>
+    <div class="date">Below is an overview of submitted assessments and their current moderation status.</div>
+    <button class="gradient-button">Innovating for Impact</button>
   </div>
 </div>
 
-<script>
-  const assessments = JSON.parse(localStorage.getItem("submittedAssessments")) || [
-    {
-      id: "EISA 1",
-      qualification: "Maintenance Planner",
-      paper: "1A",
-      moderator: "Pending",
-      status: "Pending"
-    },
-    {
-      id: "EISA 2",
-      qualification: "Quality Controller",
-      paper: "2A",
-      moderator: "Approved",
-      status: "Submitted"
-    }
-  ];
+<div class="upload-section">
+  <a href="{% url 'upload_assessment' %}" class="gradient-button">Upload Assessment</a>
+  <a href="{% url 'generate_assessment' %}" class="gradient-button">Generate EISA Tool</a>
+</div>
 
-  const tbody = document.getElementById("assessmentTableBody");
-  assessments.forEach(row => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="padding: 10px; text-align: center;">${row.id}</td>
-      <td style="padding: 10px; text-align: center;">${row.qualification}</td>
-      <td style="padding: 10px; text-align: center;">${row.paper}</td>
-      <td style="padding: 10px; text-align: center;">${row.moderator}</td>
-      <td style="padding: 10px; text-align: center;">${row.status}</td>
-      <td style="padding: 10px; text-align: center;">
-        <button class="gradient-button" style="padding: 6px 12px; font-size: 12px;" onclick="viewAssessment('${row.id}')">View</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  function viewAssessment(eisaId) {
-    const all = JSON.parse(localStorage.getItem("submittedAssessments")) || [];
-    const found = all.find(a => a.id === eisaId);
-    if (!found) return alert("Assessment not found.");
-    localStorage.setItem("selectedAssessment", JSON.stringify(found));
-    window.location.href = "view_assessment.html";
-  }
-</script>
-</body>
-</html>
+<section class="master" style="margin-top: 40px;">
+  <h2 style="width: 100%; text-align: center;">Assessment Tracking Overview</h2>
+  <table style="width: 100%; border-collapse: collapse; background-color: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <thead style="background-color: #580658; color: white;">
+      <tr>
+        <th style="padding: 12px;">EISA ID</th>
+        <th style="padding: 12px;">Qualification</th>
+        <th style="padding: 12px;">Paper No.</th>
+        <th style="padding: 12px;">Moderator</th>
+        <th style="padding: 12px;">Status</th>
+        <th style="padding: 12px;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for assessment in assessments %}
+      <tr>
+        <td style="padding: 10px; text-align: center;">{{ assessment.eisa_id }}</td>
+        <td style="padding: 10px; text-align: center;">{{ assessment.qualification }}</td>
+        <td style="padding: 10px; text-align: center;">{{ assessment.paper }}</td>
+        <td style="padding: 10px; text-align: center;">{{ assessment.moderator }}</td>
+        <td style="padding: 10px; text-align: center;" class="status-{{ assessment.status|slugify }}">{{ assessment.status }}</td>
+        <td style="padding: 10px; text-align: center;">
+          <a href="{% url 'view_assessment' assessment.eisa_id %}" class="gradient-button" style="padding: 6px 12px; font-size: 12px;">
+            View
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="padding: 10px; text-align: center;">No assessments found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
