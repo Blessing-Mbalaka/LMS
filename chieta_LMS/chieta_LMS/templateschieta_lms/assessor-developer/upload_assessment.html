@@ -1,3 +1,5 @@
+{%load static%}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -114,10 +116,8 @@
     </section>
   </div>
 </div>
-
-<script>
-src= "{% static 'chieta_lms/js/upload_assessment.js' %}"
-</script>
-
+{%block extra_js%}
+<script src= "{% static 'chieta_lms/js/upload_assessment.js' %}"></script>
+{%block extra_js%}
 </body>
 </html>
