@@ -1,9 +1,11 @@
+
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Assessor Developer Reports | CHIETA</title>
-  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="{% static /css/dashboard.css %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
@@ -12,20 +14,20 @@
 <div class="dashboard-container">
   <div class="sidebar">
     <div class="graduate-icon">
-      <img src="/images/logo_simplebbbbbbbbbbbbbb.png" alt="CHIETA Logo" style="width: 130px;">
+      <img src="{% static /images/logo_simplebbbbbbbbbbbbbb.png %}" alt="CHIETA Logo" style="width: 130px;">
     </div><br><br>
     <ul>
-      <li><a href="assessor_dashboard.html" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
-      <li><a href="upload_assessment.html" class="nav-item"><i class="fa fa-upload"></i> Upload Assessment</a></li>
-      <li><a href="generate_tool.html" class="nav-item"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
-      <li><a href="assessment_archive.html" class="nav-item"><i class="fa fa-archive"></i> Assessment History</a></li>
-      <li><a href="assessor_reports.html" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
+      <li><a href="{% url 'assessor_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
+      <li><a href="{% url 'upload_assessment' %}" class="nav-item"><i class="fa fa-upload"></i> Upload Assessment</a></li>
+      <li><a href="{% url 'generate_tool' %}" class="nav-item"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
+      <li><a href="{% url 'assessment_archive' %}" class="nav-item"><i class="fa fa-archive"></i> Assessment History</a></li>
+      <li><a href="{% url assessor_reports %}" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
       <li>🔔 Notifications</li>
       <li>🛠️ Help & Support</li><br><br><br><br>
       <button class="fixy">⚙️ Settings</button>
       <button class="fix">🚪 Log Out</button>
     </ul>
-    <img src="/images/rb_2149331949.png" alt="Sidebar Art" width="199px">
+    <img src="{% static /images/rb_2149331949.png %}" alt="Sidebar Art" width="199px">
   </div>
 
   <div class="content">
@@ -60,66 +62,7 @@
   </div>
 </div>
 
-<script>
-  const data = [
-    { qualification: "Maintenance Planner", toolsGenerated: 10, toolsSubmitted: 8, questionsAdded: 5 },
-    // { qualification: "Quality Controller", toolsGenerated: 15, toolsSubmitted: 12, questionsAdded: 9 }
-  ];
 
-  let chartInstance;
 
-  function updateCounts(filtered) {
-    document.getElementById("toolsGenerated").innerText = filtered.reduce((sum, r) => sum + r.toolsGenerated, 0);
-    document.getElementById("toolsSubmitted").innerText = filtered.reduce((sum, r) => sum + r.toolsSubmitted, 0);
-    document.getElementById("questionsAdded").innerText = filtered.reduce((sum, r) => sum + r.questionsAdded, 0);
-  }
-
-  function renderChart(filtered) {
-    const labels = filtered.map(d => d.qualification);
-    const generated = filtered.map(d => d.toolsGenerated);
-    const submitted = filtered.map(d => d.toolsSubmitted);
-    const added = filtered.map(d => d.questionsAdded);
-
-    const ctx = document.getElementById("assessorChart").getContext("2d");
-    if (chartInstance) chartInstance.destroy();
-
-    chartInstance = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          { label: "Tools Generated", data: generated, backgroundColor: "#734e94" },
-          { label: "Tools Submitted", data: submitted, backgroundColor: "#c7811f" },
-          { label: "Questions Added", data: added, backgroundColor: "#360459" }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: "top" } },
-        scales: { y: { beginAtZero: true } }
-      }
-    });
-  }
-
-  function filterChart() {
-    const selected = document.getElementById("qualificationFilter").value;
-    const filtered = selected ? data.filter(d => d.qualification === selected) : data;
-    updateCounts(filtered);
-    renderChart(filtered);
-  }
-
-  function exportCSV() {
-    const csvHeader = "Qualification,Tools Generated,Tools Submitted,Questions Added\n";
-    const rows = data.map(r => `${r.qualification},${r.toolsGenerated},${r.toolsSubmitted},${r.questionsAdded}`).join("\n");
-    const blob = new Blob([csvHeader + rows], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "assessor_developer_reports.csv";
-    link.click();
-  }
-
-  filterChart();
-</script>
 </body>
 </html>

@@ -7,90 +7,34 @@
   <title>Upload EISA Tool | CHIETA</title>
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <style>
-    .upload-section label {
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-    .upload-section input,
-    .upload-section select,
-    .upload-section textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    form#uploadForm {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    .generate-section,
-    .submitted-section {
-      background-color: #f9f9f9;
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 30px;
-    }
-    .gradient-button {
-      background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #360459);
-      color: white;
-      border: none;
-      border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: bold;
-      text-decoration: none;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
-    .gradient-button:hover {
-      transform: scale(1.05);
-      background: linear-gradient(to right, #734e94, #552a74);
-    }
-    .badge {
-      font-size: 13px;
-      padding: 5px 10px;
-      border-radius: 12px;
-      font-weight: 500;
-    }
-    .content {
-      background-color: #efeaea;
-      background-image: url("/images/Frame.png");
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
-  </style>
+  
 </head>
 
 <body>
 <div class="dashboard-container">
   <div class="sidebar">
     <div class="graduate-icon">
-      <img src="/images/logo_simplebbbbbbbbbbbbbb.png" alt="CHIETA Logo" style="width: 130px;">
+      <img src="{%static /images/logo_simplebbbbbbbbbbbbbb.png %}" alt="CHIETA Logo" style="width: 130px;">
     </div>
     <ul>
-     <li><a href="assessor_dashboard.html" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
-        <li><a href="upload_assessment.html" class="nav-item"><i class="fa fa-upload"></i> Upload Assessment</a></li>
-        <li><a href="generate_tool.html" class="nav-item"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
-        <li><a href="assessment_archive.html" class="nav-item"><i class="fa fa-archive"></i> Assessment History</a></li>
-        <li><a href="assessor_reports.html" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
+     <li><a href="{% url 'assessor_dashboard'%}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="{% url 'upload_assessment' %}" class="nav-item"><i class="fa fa-upload"></i> Upload Assessment</a></li>
+        <li><a href="{% url 'generate_tool' %}" class="nav-item"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
+        <li><a href="{% url 'assessment_archive' %}" class="nav-item"><i class="fa fa-archive"></i> Assessment History</a></li>
+        <li><a href="{% url 'assessor_reports' %}" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
       <li>🔔 Notifications</li>
       <li>🛠️ Help & Support</li>
       <br><br><br>
       <button class="fixy">⚙️ Settings</button>
       <button class="fix">🚪 Log Out</button>
     </ul>
-    <img src="/images/rb_2149331949.png" alt="Sidebar Art" width="199px">
+    <img src="{% static /images/rb_2149331949.png %}" alt="Sidebar Art" width="199px">
   </div>
 
   <div class="content p-4">
           <div class="welcome-container">
         <div class="image-container">
-          <img src="images/rb_2148892786.png" alt="Profile Picture" width="390px" height="190px">
+          <img src="{% static /images/rb_2148892786.png %}" alt="Profile Picture" width="390px" height="190px">
         </div>
         <div class="welcome-box">
           <h2>Upload EISA Assessment Tool</h2>
@@ -145,12 +89,12 @@
 
     <div class="mt-4">
       <p>Missing a question?</p>
-      <a href="databank.html" class="btn btn-outline-secondary">Add Question to Databank</a>
+      <a href="{% url databank %}" class="btn btn-outline-secondary">Add Question to Databank</a>
     </div>
 
     <section class="generate-section">
       <h3>Or Generate Tool from Question Bank</h3>
-      <a href="generate_tool.html" class="btn-generate gradient-button">Go to Question Bank</a>
+      <a href="{% url 'generate_tool' %}" class="btn-generate gradient-button">Go to Question Bank</a>
     </section>
 
     <section class="submitted-section">
@@ -171,73 +115,6 @@
   </div>
 </div>
 
-<script>
-  document.getElementById("uploadForm").addEventListener("submit", function (e) {
-    e.preventDefault();
 
-    const qualification = document.getElementById("qualification").value;
-    const paperNumber = document.getElementById("paperNumber").value;
-    const saqaID = document.getElementById("saqaID").value;
-    const fileName = document.getElementById("fileInput").files[0]?.name || "Not uploaded";
-    const memoName = document.getElementById("memoFile").files[0]?.name || "Not uploaded";
-    const comment = document.getElementById("commentBox").value || "No comment provided";
-    const forward = document.getElementById("forwardToModerator").checked ? "Yes" : "No";
-
-    const newRecord = {
-      id: `EISA-${Date.now().toString().slice(-4)}`,
-      qualification,
-      paper: paperNumber,
-      saqaID,
-      file: fileName,
-      memo: memoName,
-      comment: comment,
-      forwardToModerator: forward,
-      internal: "Pending",
-      external: "Not Yet Sent",
-      qcto: "Not Yet Sent"
-    };
-
-    const existing = JSON.parse(localStorage.getItem("submittedAssessments")) || [];
-    existing.push(newRecord);
-    localStorage.setItem("submittedAssessments", JSON.stringify(existing));
-
-    alert("Assessment uploaded and submitted successfully!");
-    window.location.href = "assessor_dashboard.html";
-  });
-
-  window.onload = function () {
-    const tbody = document.getElementById("submittedListBody");
-    const list = JSON.parse(localStorage.getItem("submittedAssessments")) || [];
-    list.forEach(assessment => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <tr style="vertical-align: middle;">
-          <td><strong>${assessment.id}</strong></td>
-          <td>${assessment.qualification}</td>
-          <td>${assessment.paper}</td>
-          <td><span class="badge ${getStatusClass(assessment.internal)}">${assessment.internal}</span></td>
-          <td><button class="gradient-button btn-sm" style="font-size: 13px; padding: 5px 12px;" onclick="viewAssessment('${assessment.id}')">✏️ View/Edit</button></td>
-        </tr>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function viewAssessment(eisaId) {
-    const all = JSON.parse(localStorage.getItem("submittedAssessments")) || [];
-    const found = all.find(a => a.id === eisaId);
-    if (!found) return alert("Assessment not found.");
-    localStorage.setItem("selectedAssessment", JSON.stringify(found));
-    window.location.href = "view_assessment.html";
-  }
-
-  function getStatusClass(status) {
-    const lower = status.toLowerCase();
-    if (lower.includes("pending")) return "bg-warning text-dark";
-    if (lower.includes("approved")) return "bg-success";
-    if (lower.includes("rejected")) return "bg-danger";
-    return "bg-secondary";
-  }
-</script>
 </body>
 </html>
