@@ -14,11 +14,35 @@ genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
 
+
+def assessor_reports(request):
+    # — This dummy data will be changed later for something real!!!! —
+    data = [
+        {
+            "qualification": "Maintenance Planner",
+            "toolsGenerated": 10,
+            "toolsSubmitted": 8,
+            "questionsAdded": 5,
+        },
+        {
+            "qualification": "Quality Controller",
+            "toolsGenerated": 15,
+            "toolsSubmitted": 12,
+            "questionsAdded": 9,
+        },
+    ]
+
+    # Pass it in as a JSON-encoded string for the JS to pick up
+    return render(request, "chieta_lms/assessor_reports.html", {
+        "report_data": json.dumps(data)
+    })
+
+
 def assessment_archive(request):
   
     qs = Assessment.objects.all()
 
-    # Optional server-side filtering
+    #server-side filtering
     qual  = request.GET.get("qualification", "")
     paper = request.GET.get("paper", "").strip()
     status= request.GET.get("status", "")

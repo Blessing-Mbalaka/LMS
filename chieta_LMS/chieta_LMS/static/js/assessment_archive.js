@@ -1,6 +1,4 @@
 
-
-
     function exportArchive() {
   // Gather all rows
   const rows = Array.from(document.querySelectorAll('table tbody tr'))
