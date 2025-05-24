@@ -9,10 +9,66 @@ from .question_bank import QUESTION_BANK
 from .utils import extract_text  
 from django.shortcuts import render, get_object_or_404
 from .models import Assessment
+import time
 
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
+from .models import Assessment, GeneratedQuestion
+
+def view_assessment(request, eisa_id):
+
+    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+    questions = assessment.questions.all()
+
+    if request.method == 'POST':
+        notes = request.POST.get('moderator_notes', '').strip()
+        assessment.moderator_notes = notes
+        assessment.internal = 'Submitted to Moderator'
+        assessment.forward_to_moderator = True
+        assessment.save()
+        return redirect('assessor_dashboard')
+
+    return render(
+        request,
+        'chieta_lms/view_assessment.html',
+        {'assessment': assessment, 'questions': questions}
+    )
+
+def upload_assessment(request):
+    if request.method == "POST":
+        # Generate a unique EISA ID
+        eisa_id = f"EISA-{str(int(time.time()))[-4:]}"
+
+        # Grab form data
+        qual   = request.POST["qualification"]
+        paper  = request.POST["paper_number"]
+        saqa   = request.POST["saqa_id"]
+        file   = request.FILES.get("file_input")
+        memo   = request.FILES.get("memo_file")
+        comment = request.POST.get("comment_box", "")
+        forward = request.POST.get("forward_to_moderator") == "on"
+
+        # Save to DB
+        Assessment.objects.create(
+            eisa_id              = eisa_id,
+            qualification        = qual,
+            paper                = paper,
+            saqa_id              = saqa,
+            file                 = file,
+            memo                 = memo,
+            comment              = comment,
+            forward_to_moderator = forward,
+        )
+
+        # Redirect back to dashboard (or wherever)
+        return redirect("assessor_dashboard")
+
+    # GET → show the form + list all submitted
+    submissions = Assessment.objects.all().order_by("-created_at")
+    return render(request, "chieta_lms/upload_assessment.html", {
+        "submissions": submissions
+    })
 
 
 def assessor_reports(request):
