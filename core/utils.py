@@ -1,4 +1,4 @@
-# chieta_lms/utils.py
+# chieta_LMS/utils.py
 import io
 from PyPDF2 import PdfReader
 import docx

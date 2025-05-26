@@ -1,0 +1,2 @@
+1. the core is the main APP, housing all App files, templates and static files.
+2. chieta_LMS is the project 

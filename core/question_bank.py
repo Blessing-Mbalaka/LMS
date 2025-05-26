@@ -1,4 +1,4 @@
-# chieta_lms/question_bank.py
+# chieta_LMS/question_bank.py
 
 QUESTION_BANK = {
     "Maintenance Planner": [
