@@ -31,7 +31,7 @@ def view_assessment(request, eisa_id):
 
     return render(
         request,
-        'chieta_lms/view_assessment.html',
+        'chieta_LMS/view_assessment.html',
         {'assessment': assessment, 'questions': questions}
     )
 
@@ -66,7 +66,7 @@ def upload_assessment(request):
 
     # GET → show the form + list all submitted
     submissions = Assessment.objects.all().order_by("-created_at")
-    return render(request, "chieta_lms/upload_assessment.html", {
+    return render(request, "chieta_LMS/upload_assessment.html", {
         "submissions": submissions
     })
 
@@ -89,7 +89,7 @@ def assessor_reports(request):
     ]
 
     # Pass it in as a JSON-encoded string for the JS to pick up
-    return render(request, "chieta_lms/assessor_reports.html", {
+    return render(request, "chieta_LMS/assessor_reports.html", {
         "report_data": json.dumps(data)
     })
 
@@ -110,7 +110,7 @@ def assessment_archive(request):
     if status:
         qs = qs.filter(status=status)
 
-    return render(request, "chieta_lms/assessment_archive.html", {
+    return render(request, "chieta_LMS/assessment_archive.html", {
         "assessments": qs,
         "filter_qualification": qual,
         "filter_paper": paper,
@@ -122,7 +122,7 @@ def assessor_dashboard(request):
     assessments = Assessment.objects.all()
     return render(
 request,
-'chieta_lms/assessor_dashboard.html',
+'chieta_LMS/assessor_dashboard.html',
 {'assessments': assessments}
 )
 
@@ -130,7 +130,7 @@ def view_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
     return render(
 request,
-'chieta_lms/view_assessment.html',
+'chieta_LMS/view_assessment.html',
 {'assessment': assessment}
 )
 

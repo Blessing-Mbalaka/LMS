@@ -1,7 +1,7 @@
 
 from django.contrib import admin
 from django.urls import path, include
-from chieta_LMS.views import generate_paper, assessor_dashboard, view_assessment
+from core.views import generate_paper, assessor_dashboard, view_assessment
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,7 +14,7 @@ urlpatterns = [
     path('assessor/assessment/<str:eisa_id>/', view_assessment, name='view_assessment'),
 
     # All the rest of your app’s URLs (upload, archive, reports, generate page, etc.)
-    path('', include('chieta_lms.urls')),
+    path('', include('chieta_LMS.urls')),
 ]
 
 
