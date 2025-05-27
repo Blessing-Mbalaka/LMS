@@ -36,3 +36,18 @@ class Assessment(models.Model):
 
     def __str__(self):
         return self.eisa_id
+    
+class GeneratedQuestion(models.Model):
+    assessment   = models.ForeignKey(
+        Assessment,
+        related_name='generated_questions',
+        on_delete=models.CASCADE
+    )
+    text         = models.TextField()
+    marks        = models.PositiveIntegerField()
+    case_study   = models.CharField(max_length=200, blank=True)
+
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.text[:50]}… ({self.marks} marks)"

@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Assessor Dashboard | CHIETA</title>
+  <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="sidebar">
+     
+    <div class="graduate-icon">
+      <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
+    </div><br><br>
+    <ul>
+  <li><a href="{% url 'assessor_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="{% url 'upload_assessment' %}" class="nav-item"><i class="fa fa-upload"></i> Upload Assessment</a></li>
+        <li><a href="{% url 'generate_tool' %}" class="nav-item"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
+        <li><a href="{% url 'assessment_archive' %}" class="nav-item"><i class="fa fa-archive"></i> Assessment History</a></li>
+        <li><a href="{% url 'assessor_reports' %}" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
+       
+      <li>🔔 Notifications</li>
+      <li>🛠 Help & Support</li><br><br><br><br>
+      <button class="fixy">⚙ Settings</button>
+      <button class="fix">🚪 Log Out</button><br>
+    </ul>
+    <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
+  </div>
+
+    <div class="content">
+      {% comment %} Welcome Box {% endcomment %}
+      <div class="welcome-container">
+        <div class="image-container">
+          <img src="{% static 'core/images/rb_2148892786.png' %}" 
+               alt="Profile Picture" width="390" height="190">
+        </div>
+        <div class="welcome-box">
+          <p>Welcome, Assessor (Developer)</p>
+          <div class="date">
+            Below is an overview of submitted assessments and their current moderation status.
+          </div>
+          <button class="gradient-button">Innovating for Impact</button>
+        </div>
+      </div>
+
+      {% comment %} Upload / Generate Buttons {% endcomment %}
+      <div class="upload-section">
+        <a href="{% url 'upload_assessment' %}" class="gradient-button">
+          Upload Assessment
+        </a>
+        <a href="{% url 'generate_tool' %}" class="gradient-button">
+          Generate EISA Tool
+        </a>
+      </div>
+        
+
+      {% comment %} Assessment Table {% endcomment %}
+      <section class="master" style="margin-top: 40px;">
+        <h2 style="text-align: center;">Assessment Tracking Overview</h2>
+        <table class="assessment-table">
+          <thead>
+            <tr>
+              <th>EISA ID</th>
+              <th>Qualification</th>
+              <th>Paper No.</th>
+              <th>Moderator</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for assessment in assessments %}
+            <tr>
+              <td>{{ assessment.eisa_id }}</td>
+              <td>{{ assessment.qualification }}</td>
+              <td>{{ assessment.paper }}</td>
+              <td>{{ assessment.moderator }}</td>
+              <td class="status-{{ assessment.status|slugify }}">{{ assessment.status }}</td>
+              <td>
+                <a href="{% url 'view_assessment' assessment.eisa_id %}" 
+                   class="gradient-button small">
+                  View        </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;">No assessments found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  {% comment %} Page-specific JS {% endcomment %}
+  <script src="{% static 'core/js/assessor_dashboard.js' %}"></script>
+</body>
+</html>

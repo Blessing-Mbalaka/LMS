@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import os
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -24,14 +23,16 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework',
+    'rest_framework',               #required for django rest framework
+    'widget_tweaks',                #required dependency
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
+    'core',                         #Appname so we don't delete---only modify.
+
     
 ]
 

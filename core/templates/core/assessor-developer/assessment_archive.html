@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Assessment Archive | Assessor | CHIETA</title>
+  <!-- Global CSS -->
+  <link
+    rel="stylesheet"
+    href="{% static 'chieta_LMS/css/dashboard.css' %}"
+    href="{% static 'assessment_archive' %}"
+    
+  >
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  >
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="sidebar">
+      <div class="graduate-icon">
+        <img
+          src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}"
+          alt="CHIETA Logo" style="width:130px;"
+        >
+      </div><br><br>
+      <ul>
+        <li><a href="{% url 'assessor_dashboard' %}" class="nav-item">
+          <i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="{% url 'upload_assessment' %}" class="nav-item">
+          <i class="fa fa-upload"></i> Upload Assessment</a></li>
+        <li><a href="{% url 'generate_tool' %}" class="nav-item">
+          <i class="fa fa-cogs"></i> Generate Assessment</a></li>
+        <li><a href="{% url 'assessment_archive' %}" class="nav-item">
+          <i class="fa fa-archive"></i> Assessment History</a></li>
+        <li><a href="{% url 'assessor_reports' %}" class="nav-item">
+          <i class="fa fa-chart-bar"></i> Reports</a></li>
+        <li>🔔 Notifications</li>
+        <li>🛠️ Help & Support</li><br><br><br><br>
+        <button class="fixy">⚙️ Settings</button>
+        <button class="fix">🚪 Log Out</button><br>
+      </ul>
+      <img
+        src="{% static 'core/images/rb_2149331949.png' %}"
+        alt="Sidebar Art" width="199px"
+      >
+    </div>
+
+    <div class="content">
+      <div class="topbar">
+        <input type="search" placeholder="Search...">
+      </div>
+
+      <div class="welcome-container">
+        <div class="image-container">
+          <img
+            src="{% static 'core/images/rb_2148892786.png' %}"
+            alt="Profile Picture" width="390" height="190"
+          >
+        </div>
+        <div class="welcome-box">
+          <p>Assessment Archive</p>
+          <div class="date">Archived Assessments</div>
+          <button class="gradient-button">Innovating for Impact</button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <form method="get" class="filter-form">
+          <select name="qualification" id="filterQualification" onchange="this.form.submit()">
+            <option value="">All Qualifications</option>
+            <option value="Maintenance Planner" {% raw %}{% if filter_qualification == "Maintenance Planner" %}selected{% endif %}{% endraw %}>Maintenance Planner</option>
+            <option value="Quality Controller" {% raw %}{% if filter_qualification == "Quality Controller" %}selected{% endif %}{% endraw %}>Quality Controller</option>
+          </select>
+          <input type="text" name="paper" id="filterPaper"
+                 placeholder="Paper Number (e.g. 1A)"
+                 value="{% raw %}{{ filter_paper }}{% endraw %}"
+                 oninput="this.form.submit()">
+          <select name="status" id="filterStatus" onchange="this.form.submit()">
+            <option value="">All Statuses</option>
+            <option value="Uploaded" {% raw %}{% if filter_status == "Uploaded" %}selected{% endif %}{% endraw %}>Uploaded</option>
+            <option value="Generated" {% raw %}{% if filter_status == "Generated" %}selected{% endif %}{% endraw %}>Generated</option>
+            <option value="Marked" {% raw %}{% if filter_status == "Marked" %}selected{% endif %}{% endraw %}>Marked</option>
+          </select>
+          <button type="button" class="export-btn" onclick="exportArchive()">Export</button>
+        </form>
+      </div>
+
+      <table class="archive-table">
+        <thead>
+          <tr>
+            <th>EISA ID</th>
+            <th>Qualification</th>
+            <th>Paper</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% raw %}{% for assessment in assessments %}{% endraw %}
+          <tr>
+            <td>{% raw %}{{ assessment.eisa_id }}{% endraw %}</td>
+            <td>{% raw %}{{ assessment.qualification }}{% endraw %}</td>
+            <td>{% raw %}{{ assessment.paper }}{% endraw %}</td>
+            <td>{% raw %}{{ assessment.status }}{% endraw %}</td>
+            <td>{% raw %}{{ assessment.created_at|date:"Y-m-d" }}{% endraw %}</td>
+          </tr>
+          {% raw %}{% empty %}{% endraw %}
+          <tr>
+            <td colspan="5" style="text-align:center;">No archived assessments.</td>
+          </tr>
+          {% raw %}{% endfor %}{% endraw %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- JS for export functionality -->
+  <script src="{% static 'core/js/assessment_archive.js' %}"></script>
+</body>
+</html>

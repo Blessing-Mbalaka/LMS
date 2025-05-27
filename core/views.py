@@ -1,23 +1,65 @@
 # chieta_lms/views.py
-import json, random
+import json, random, time
 from django.conf import settings
 from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 from .question_bank import QUESTION_BANK
-from .utils import extract_text  
-from django.shortcuts import render, get_object_or_404
-from .models import Assessment
-import time
-
-genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
-
+from .utils import extract_text
 from .models import Assessment, GeneratedQuestion
 
-def view_assessment(request, eisa_id):
+# Gemini client setup
+genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
+# --- GET: Render Generate Tool Page ---
+def generate_tool_page(request):
+    return render(request, "core/assessor-developer/generate_tool.html")
+
+# --- POST: Generate Questions via Gemini or Question Bank ---
+@api_view(["POST"])
+@parser_classes([MultiPartParser, JSONParser])
+def generate_tool(request):
+    try:
+        qual = request.data.get("qualification")
+        target = int(request.data.get("mark_target", 0))
+        demo_file = request.FILES.get("file", None)
+
+        if demo_file:
+            text = extract_text(demo_file, demo_file.content_type)
+            samples = QUESTION_BANK.get(qual, [])[:3]
+            examples = "\n".join(f"- {q['text']}" for q in samples)
+            prompt = (
+                f"You’re an assessment generator for **{qual}**.\n"
+                f"Here are some example questions:\n{examples}\n\n"
+                "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
+                "where each item has 'text', 'marks' and 'case_study'.\n\n"
+                f"Past‐Papers Text:\n{text}"
+            )
+
+            resp = genai_client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=[prompt]
+            )
+            all_qs = json.loads(resp.text)["questions"]
+        else:
+            all_qs = QUESTION_BANK.get(qual, [])
+
+        random.shuffle(all_qs)
+        selected, total = [], 0
+        for q in all_qs:
+            if total + q.get("marks", 0) <= target:
+                selected.append(q)
+                total += q.get("marks", 0)
+
+        return JsonResponse({"questions": selected, "total": total})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def view_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
     questions = assessment.questions.all()
 
@@ -27,52 +69,47 @@ def view_assessment(request, eisa_id):
         assessment.internal = 'Submitted to Moderator'
         assessment.forward_to_moderator = True
         assessment.save()
-        return redirect('assessor_dashboard')
+        return redirect('core/assessor-developer/assessor_dashboard')
 
     return render(
         request,
-        'chieta_LMS/view_assessment.html',
+        'core/assessor-developer/view_assessment.html',
         {'assessment': assessment, 'questions': questions}
     )
 
+
 def upload_assessment(request):
     if request.method == "POST":
-        # Generate a unique EISA ID
         eisa_id = f"EISA-{str(int(time.time()))[-4:]}"
-
-        # Grab form data
-        qual   = request.POST["qualification"]
-        paper  = request.POST["paper_number"]
-        saqa   = request.POST["saqa_id"]
-        file   = request.FILES.get("file_input")
-        memo   = request.FILES.get("memo_file")
+        qual = request.POST["qualification"]
+        paper = request.POST["paper_number"]
+        saqa = request.POST["saqa_id"]
+        file = request.FILES.get("file_input")
+        memo = request.FILES.get("memo_file")
         comment = request.POST.get("comment_box", "")
         forward = request.POST.get("forward_to_moderator") == "on"
 
-        # Save to DB
         Assessment.objects.create(
-            eisa_id              = eisa_id,
-            qualification        = qual,
-            paper                = paper,
-            saqa_id              = saqa,
-            file                 = file,
-            memo                 = memo,
-            comment              = comment,
-            forward_to_moderator = forward,
+            eisa_id=eisa_id,
+            qualification=qual,
+            paper=paper,
+            saqa_id=saqa,
+            file=file,
+            memo=memo,
+            comment=comment,
+            forward_to_moderator=forward,
         )
 
-        # Redirect back to dashboard (or wherever)
-        return redirect("assessor_dashboard")
+        return redirect('assessor_dashboard')
 
-    # GET → show the form + list all submitted
+
     submissions = Assessment.objects.all().order_by("-created_at")
-    return render(request, "chieta_LMS/upload_assessment.html", {
+    return render(request, "core/assessor-developer/upload_assessment.html", {
         "submissions": submissions
     })
 
 
 def assessor_reports(request):
-    # — This dummy data will be changed later for something real!!!! —
     data = [
         {
             "qualification": "Maintenance Planner",
@@ -87,21 +124,16 @@ def assessor_reports(request):
             "questionsAdded": 9,
         },
     ]
-
-    # Pass it in as a JSON-encoded string for the JS to pick up
-    return render(request, "chieta_LMS/assessor_reports.html", {
+    return render(request, "core/assessor-developer/assessor_reports.html", {
         "report_data": json.dumps(data)
     })
 
 
 def assessment_archive(request):
-  
     qs = Assessment.objects.all()
-
-    #server-side filtering
-    qual  = request.GET.get("qualification", "")
+    qual = request.GET.get("qualification", "")
     paper = request.GET.get("paper", "").strip()
-    status= request.GET.get("status", "")
+    status = request.GET.get("status", "")
 
     if qual:
         qs = qs.filter(qualification=qual)
@@ -110,7 +142,7 @@ def assessment_archive(request):
     if status:
         qs = qs.filter(status=status)
 
-    return render(request, "chieta_LMS/assessment_archive.html", {
+    return render(request, "core/assessor-developer/assessment_archive.html", {
         "assessments": qs,
         "filter_qualification": qual,
         "filter_paper": paper,
@@ -121,69 +153,7 @@ def assessment_archive(request):
 def assessor_dashboard(request):
     assessments = Assessment.objects.all()
     return render(
-request,
-'chieta_LMS/assessor_dashboard.html',
-{'assessments': assessments}
-)
-
-def view_assessment(request, eisa_id):
-    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
-    return render(
-request,
-'chieta_LMS/view_assessment.html',
-{'assessment': assessment}
-)
-
-@api_view(["POST"])
-@parser_classes([MultiPartParser, JSONParser])
-def generate_paper(request):
-    qual       = request.data.get("qualification")
-    target     = int(request.data.get("mark_target", 0))
-    demo_file  = request.FILES.get("file", None)
-
-    if demo_file:
-        # 1) pull raw text from the uploaded PDF
-        text = extract_text(demo_file, demo_file.content_type)
-
-        # 2) build a prompt that includes 3 sample questions from your bank
-        samples = QUESTION_BANK.get(qual, [])[:3]
-        examples = "\n".join(f"- {q['text']}" for q in samples)
-        prompt   = (
-          f"You’re an assessment generator for **{qual}**.\n"
-          f"Here are some example questions:\n{examples}\n\n"
-          "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
-          "where each item has 'text', 'marks' and 'case_study'.\n\n"
-          f"Past‐Papers Text:\n{text}"
-        )
-
-        # 3) call Gemini
-        try:
-            resp = genai_client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=[prompt]
-            )
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-
-        # 4) parse its JSON payload
-        try:
-            all_qs = json.loads(resp.text)["questions"]
-        except Exception:
-            return JsonResponse({"error": "Couldn’t parse Gemini JSON", "raw": resp.text}, status=500)
-
-        pool = all_qs
-
-    else:
-        # fallback: just grab from the demo bank
-        pool = QUESTION_BANK.get(qual, [])
-
-    # 5) randomize and pick until we hit the target marks the assessor uses.
-    random.shuffle(pool)
-    selected, total = [], 0
-    for q in pool:
-        if total + q.get("marks", 0) <= target:
-            selected.append(q)
-            total += q.get("marks", 0)
-
-    return JsonResponse({"questions": selected, "total": total})
-
+        request,
+        'core/assessor-developer/assessor_dashboard.html',
+        {'assessments': assessments}
+    )

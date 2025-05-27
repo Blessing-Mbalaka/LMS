@@ -1,0 +1,35 @@
+{% raw %}{% load static %}
+<div class="card">
+  <h4>Assessment Details</h4>
+  <p><strong>ID:</strong> {{ assessment.eisa_id }}</p>
+  <p><strong>Qualification:</strong> {{ assessment.qualification }}</p>
+  <p><strong>Paper Number:</strong> {{ assessment.paper }}</p>
+  <p><strong>SAQA ID:</strong> {{ assessment.saqa_id }}</p>
+</div>
+
+<div class="card mt-4">
+  <h4>Questions</h4>
+  <div id="questionList">
+  {% if questions.exists %}
+    {% for q in questions %}
+      <div class="question-block">
+        <h5>Question {{ forloop.counter }}</h5>
+        <textarea rows="3" readonly>{{ q.text }}</textarea>
+        <p><strong>Marks:</strong> {{ q.marks }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No questions found for this assessment.</p>
+  {% endif %}
+  </div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="card mt-4">
+    <h4>Add Notes or Justification</h4>
+    <textarea id="moderatorNotes" name="moderator_notes" rows="4"
+              placeholder="Add notes before forwarding to moderator...">{{ assessment.moderator_notes }}</textarea>
+    <button type="submit" class="gradient-button mt-3">Forward to Moderator</button>
+  </div>
+</form>
