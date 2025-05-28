@@ -13,14 +13,80 @@ from .models import Assessment, GeneratedQuestion
 # Gemini client setup
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-# --- GET: Render Generate Tool Page ---
+
+# core/views.py
+from django.shortcuts import render
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, JSONParser
+from django.http import JsonResponse
+from django.conf import settings
+import json, random
+
+from .utils import extract_text
+
+
+
+
+# Renders the HTML page
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def generate_tool_page(request):
+    if request.method == 'POST':
+        try:
+            qual = request.POST.get("qualification")
+            target = int(request.POST.get("mark_target", 0))
+            demo_file = request.FILES.get("file", None)
+
+            if demo_file:
+                text = extract_text(demo_file, demo_file.content_type)
+                samples = QUESTION_BANK.get(qual, [])[:3]
+                examples = "\n".join(f"- {q['text']}" for q in samples)
+                prompt = (
+                    f"You’re an assessment generator for **{qual}**.\n"
+                    f"Here are some example questions:\n{examples}\n\n"
+                    "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
+                    "where each item has 'text', 'marks' and 'case_study'.\n\n"
+                    f"Past‐Papers Text:\n{text}"
+                )
+
+                resp = genai_client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=[prompt]
+                )
+                all_qs = json.loads(resp.text)["questions"]
+            else:
+                all_qs = QUESTION_BANK.get(qual, [])
+
+            random.shuffle(all_qs)
+            selected, total = [], 0
+            for q in all_qs:
+                if total + q.get("marks", 0) <= target:
+                    selected.append(q)
+                    total += q.get("marks", 0)
+
+            return render(request, "core/assessor-developer/generate_tool.html", {
+                "questions": selected,
+                "total": total,
+            })
+
+        except Exception as e:
+            return render(request, "core/assessor-developer/generate_tool.html", {
+                "error": str(e)
+            })
+
     return render(request, "core/assessor-developer/generate_tool.html")
 
-# --- POST: Generate Questions via Gemini or Question Bank ---
+
+# Handles the POST request to generate the paper
 @api_view(["POST"])
 @parser_classes([MultiPartParser, JSONParser])
 def generate_tool(request):
+    
+
+    if request.method == "GET":
+        return JsonResponse({"error": "You must use POST for this endpoint."}, status=405)
+
     try:
         qual = request.data.get("qualification")
         target = int(request.data.get("mark_target", 0))
@@ -78,6 +144,8 @@ def view_assessment(request, eisa_id):
     )
 
 
+from django.contrib import messages  # import at the top if not already
+
 def upload_assessment(request):
     if request.method == "POST":
         eisa_id = f"EISA-{str(int(time.time()))[-4:]}"
@@ -100,8 +168,13 @@ def upload_assessment(request):
             forward_to_moderator=forward,
         )
 
-        return redirect('assessor_dashboard')
+        messages.success(request, "Assessment uploaded successfully.")
 
+        # Reload the page instead of redirecting
+        submissions = Assessment.objects.all().order_by("-created_at")
+        return render(request, "core/assessor-developer/upload_assessment.html", {
+            "submissions": submissions
+        })
 
     submissions = Assessment.objects.all().order_by("-created_at")
     return render(request, "core/assessor-developer/upload_assessment.html", {

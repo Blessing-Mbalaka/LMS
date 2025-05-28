@@ -30,7 +30,7 @@
           <i class="fa fa-home"></i> Dashboard</a></li>
         <li><a href="{% url 'upload_assessment' %}" class="nav-item">
           <i class="fa fa-upload"></i> Upload Assessment</a></li>
-        <li><a href="{% url 'generate_tool' %}" class="nav-item">
+        <li><a href="{% url 'generate_tool_page' %}" class="nav-item">
           <i class="fa fa-cogs"></i> Generate Assessment</a></li>
         <li><a href="{% url 'assessment_archive' %}" class="nav-item">
           <i class="fa fa-archive"></i> Assessment History</a></li>
@@ -70,18 +70,21 @@
         <form method="get" class="filter-form">
           <select name="qualification" id="filterQualification" onchange="this.form.submit()">
             <option value="">All Qualifications</option>
-            <option value="Maintenance Planner" {% raw %}{% if filter_qualification == "Maintenance Planner" %}selected{% endif %}{% endraw %}>Maintenance Planner</option>
-            <option value="Quality Controller" {% raw %}{% if filter_qualification == "Quality Controller" %}selected{% endif %}{% endraw %}>Quality Controller</option>
+            <option value="Maintenance Planner" {% if filter_qualification == "Maintenance Planner" %}selected{% endif %}>
+            <option value="Quality Controller" {% if filter_qualification == "Quality Controller" %}selected{% endif %}>Quality Controller</option>
+
           </select>
           <input type="text" name="paper" id="filterPaper"
                  placeholder="Paper Number (e.g. 1A)"
-                 value="{% raw %}{{ filter_paper }}{% endraw %}"
+                value="{{ filter_paper }}"
+
                  oninput="this.form.submit()">
           <select name="status" id="filterStatus" onchange="this.form.submit()">
-            <option value="">All Statuses</option>
-            <option value="Uploaded" {% raw %}{% if filter_status == "Uploaded" %}selected{% endif %}{% endraw %}>Uploaded</option>
-            <option value="Generated" {% raw %}{% if filter_status == "Generated" %}selected{% endif %}{% endraw %}>Generated</option>
-            <option value="Marked" {% raw %}{% if filter_status == "Marked" %}selected{% endif %}{% endraw %}>Marked</option>
+          <option value="">All Statuses</option>
+          <option value="Uploaded" {% if filter_status == "Uploaded" %}selected{% endif %}>Uploaded</option>
+          <option value="Generated" {% if filter_status == "Generated" %}selected{% endif %}>Generated</option>
+          <option value="Marked" {% if filter_status == "Marked" %}selected{% endif %}>Marked</option>
+
           </select>
           <button type="button" class="export-btn" onclick="exportArchive()">Export</button>
         </form>
@@ -97,21 +100,22 @@
             <th>Date</th>
           </tr>
         </thead>
-        <tbody>
-          {% raw %}{% for assessment in assessments %}{% endraw %}
-          <tr>
-            <td>{% raw %}{{ assessment.eisa_id }}{% endraw %}</td>
-            <td>{% raw %}{{ assessment.qualification }}{% endraw %}</td>
-            <td>{% raw %}{{ assessment.paper }}{% endraw %}</td>
-            <td>{% raw %}{{ assessment.status }}{% endraw %}</td>
-            <td>{% raw %}{{ assessment.created_at|date:"Y-m-d" }}{% endraw %}</td>
-          </tr>
-          {% raw %}{% empty %}{% endraw %}
-          <tr>
-            <td colspan="5" style="text-align:center;">No archived assessments.</td>
-          </tr>
-          {% raw %}{% endfor %}{% endraw %}
-        </tbody>
+       <tbody>
+  {% for assessment in assessments %}
+    <tr>
+      <td>{{ assessment.eisa_id }}</td>
+      <td>{{ assessment.qualification }}</td>
+      <td>{{ assessment.paper }}</td>
+      <td>{{ assessment.status }}</td>
+      <td>{{ assessment.created_at|date:"Y-m-d" }}</td>
+    </tr>
+  {% empty %}
+    <tr>
+      <td colspan="5" style="text-align:center;">No archived assessments.</td>
+    </tr>
+  {% endfor %}
+</tbody>
+
       </table>
     </div>
   </div>

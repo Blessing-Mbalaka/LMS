@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from core.views import (
+    generate_tool_page,
     generate_tool,
     assessor_dashboard,
     view_assessment,
@@ -18,9 +19,14 @@ urlpatterns = [
     path('upload_assessment/', upload_assessment,        name='upload_assessment'),
     path('assessor-developer/assessment_archive/', assessment_archive, name='assessment_archive'),
     path('reports/', assessor_reports,                   name='assessor_reports'),
-    path('generate-paper/', generate_tool,              name='generate_tool'),
-    
+    path('generate-paper/', generate_tool_page, name='generate_tool_page'),  # HTML page
+    path('api/generate-paper/', generate_tool, name='generate_tool'),        # POST API
 ]
+
+  
+
+    
+
 
 
 
