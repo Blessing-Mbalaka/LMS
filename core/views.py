@@ -1,41 +1,5 @@
 # chieta_lms/views.py
-import json, random, time,re
-from django.conf import settings
-from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, JSONParser
-from google import genai
-from .question_bank import QUESTION_BANK
-from .utils import extract_text
-from .models import Assessment, GeneratedQuestion
-
-
-
-
-
-# Gemini client setup
-genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
-
-# core/views.py
-from django.shortcuts import render
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, JSONParser
-from django.http import JsonResponse
-from django.conf import settings
-import json, random
-from .utils import extract_text
-
-
-
-
-# Renders the HTML page
-from django.views.decorators.csrf import csrf_exempt
-
-
-# chieta_lms/views.py
-import json, random, time
+import json, random, time, re
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -50,6 +14,9 @@ from django.contrib import messages
 
 # Gemini client setup
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+# Renders the HTML page
+from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def generate_tool_page(request):
@@ -98,22 +65,7 @@ def generate_tool_page(request):
 
     return render(request, "core/assessor-developer/generate_tool.html")
 
-# chieta_lms/views.py
-import json, random, time
-from django.conf import settings
-from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, JSONParser
-from google import genai
-from .question_bank import QUESTION_BANK
-from .utils import extract_text
-from .models import Assessment, GeneratedQuestion
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib import messages
 
-# Gemini client setup
-genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 @csrf_exempt
 def generate_tool_page(request):
@@ -262,14 +214,6 @@ def view_assessment(request, eisa_id):
         'core/assessor-developer/view_assessment.html',
         {'assessment': assessment, 'questions': questions}
     )
-
-
-
-
-
-
-
-
 
 from django.contrib import messages  # import at the top if not already
 
