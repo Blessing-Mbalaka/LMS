@@ -10,7 +10,7 @@ body {
     height: 100vh;
     /* width: 97%; */
 }
-.sidebar ul li {
+.ul li {
     transition: background-color 0.3s ease; /* Smooth transition for background color */
     /* border-bottom: 1px solid #8f6620; */
     border-top: 1.5px solid #580658;
@@ -32,7 +32,7 @@ background: linear-gradient(to right,
 #8c6e0b, /* Rich golden brown */
 #b68f40, /* Light gold */
 #7a5303, /* Deep brownish gold */
-#a67c00, /* Gold again */
+#a67c00, /* Gsidebarold again */
 #5e3b00, /* Darker brown */
 #8c6e0b /* Rich golden brown */
 ); /* Gradient transition from gold to brown shades */

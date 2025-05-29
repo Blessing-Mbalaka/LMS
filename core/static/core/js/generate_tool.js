@@ -199,35 +199,89 @@ function showToast(message) {
 window.onload = renderQuestions;
 
 document.getElementById("demoForm")
-      .addEventListener("submit", async function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const fd = new FormData(form);
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-        const resp = await fetch(form.dataset.url, {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
-          },
-          body: fd
-        });
+    const form = e.target;
+    const fd = new FormData(form);
+    const preview = document.getElementById("previewContainer");
+    preview.innerHTML = "<em>Loading...</em>";
 
-        if (!resp.ok) {
-          return alert("Error generating paper");
-        }
-
-        const { questions, total } = await resp.json();
-        const ul = document.getElementById("selectedList");
-        ul.innerHTML = "";
-
-        questions.forEach(q => {
-          const li = document.createElement("li");
-          li.textContent = `${q.text} (${q.marks} marks)`;
-          ul.appendChild(li);
-        });
+    try {
+      const resp = await fetch(form.dataset.url, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+        },
+        body: fd
       });
+
+      let data;
+      try {
+        data = await resp.json();
+      } catch (jsonErr) {
+        const fallback = await resp.text();
+        return alert("❌ Could not parse server response:\n" + fallback);
+      }
+
+      if (!resp.ok) {
+        return alert("❌ Error from server:\n" + (data.error || "Unknown error"));
+      }
+
+      const { questions, total } = data;
+
+      if (!questions || questions.length === 0) {
+        preview.innerHTML = "<em>No questions were generated.</em>";
+        return;
+      }
+
+      let content = "";
+      questions.forEach((q, i) => {
+        content += `Q${i + 1}: ${q.text}\nMarks: ${q.marks}\nCase Study: ${q.case_study}\n\n`;
+      });
+
+      preview.textContent = content;
+      showToast(`✅ Paper generated: ${questions.length} questions (${total} marks)`);
+
+    } catch (err) {
+      console.error(err);
+      preview.innerHTML = "<em>Failed to load questions.</em>";
+      alert("❌ A network or server error occurred.");
+    }
+  });
+
+document.getElementById("submitPaperForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const previewDiv = document.getElementById("previewContainer");
+    const qualification = document.getElementById("qualification").value;
+
+    // Set hidden fields before sending
+    document.getElementById("finalQualification").value = qualification;
+    document.getElementById("finalPaperContent").value = previewDiv.innerText;
+
+    const fd = new FormData(e.target);
+    const resp = await fetch(e.target.dataset.url, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": fd.get("csrfmiddlewaretoken")
+      },
+      body: fd
+    });
+
+    if (!resp.ok) {
+      const msg = await resp.text();
+      return alert("❌ Failed to forward paper:\n" + msg);
+    }
+
+    showToast("✅ Paper forwarded to Moderator.");
+  });
+
 
     function submitToModerator() {
       // TODO: hook up to your moderation endpoint
       alert("Assessment forwarded to Moderator.");
     }
+
+    

@@ -8,6 +8,8 @@ from core.views import (
     upload_assessment,
     assessment_archive,
     assessor_reports,
+    submit_generated_paper,
+
 )
 
 
@@ -21,6 +23,8 @@ urlpatterns = [
     path('reports/', assessor_reports,                   name='assessor_reports'),
     path('generate-paper/', generate_tool_page, name='generate_tool_page'),  # HTML page
     path('api/generate-paper/', generate_tool, name='generate_tool'),        # POST API
+    path("submit-generated-paper/", submit_generated_paper, name="submit_generated_paper"),
+
 ]
 
   
