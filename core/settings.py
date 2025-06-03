@@ -69,8 +69,12 @@ WSGI_APPLICATION = 'chieta_LMS.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', #Changing this to Postgresql
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'chieta_db',
+        'USER': 'postgres',
+        'PASSWORD': 'Revolution88@',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

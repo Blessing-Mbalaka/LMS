@@ -112,7 +112,14 @@
               <td>{{ a.qualification }}</td>
               <td>{{ a.paper }}</td>
               <td><span class="badge {{ a.internal|lower }}">{{ a.internal }}</span></td>
-              <td><a href="{% url 'view_assessment' a.eisa_id %}" class="gradient-button btn-sm" style="font-size:13px;padding:5px 12px;">✏️ View/Edit</a></td>
+              <td>
+  {% if a.eisa_id %}
+    <a href="{% url 'view_assessment' a.eisa_id %}" class="gradient-button btn-sm" style="font-size:13px;padding:5px 12px;">✏️ View/Edit</a>
+  {% else %}
+    <span class="text-muted">Invalid ID</span>
+  {% endif %}
+</td>
+
             </tr>
             {% empty %}
             <tr><td colspan="5" style="text-align:center;">No assessments submitted yet.</td></tr>

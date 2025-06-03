@@ -90,9 +90,29 @@ function addToSelection(id) {
 function renderSelected() {
   const list = document.getElementById("selectedList");
   list.innerHTML = "";
-  selected.forEach(q => {
+
+  selected.forEach((q, index) => {
     const li = document.createElement("li");
-    li.innerHTML = `<span>${q.text} (${q.marks} marks)</span>`;
+    li.innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px;">
+        <input type="text" value="${q.text}" onchange="updateSelectedText(${index}, this.value)" 
+               style="padding: 5px; width: 100%; border: 1px solid #ccc; border-radius: 4px;" />
+
+        <input type="number" value="${q.marks}" onchange="updateSelectedMarks(${index}, this.value)" 
+               style="width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" />
+
+        <div style="display: flex; gap: 10px;">
+          <button onclick="removeFromSelection(${index})" 
+                  style="background-color: #dc3545; color: white; border: none; border-radius: 4px; padding: 5px 10px;">
+            Remove
+          </button>
+          <button onclick="addToFinal(${index})" 
+                  style="background-color: #0d6efd; color: white; border: none; border-radius: 4px; padding: 5px 10px;">
+            Add to Final
+          </button>
+        </div>
+      </div>
+    `;
     list.appendChild(li);
   });
 }
@@ -143,8 +163,10 @@ function applyFilters() {
 
 function previewPaper() {
   const previewContent = selected.map(q => `${q.text} (${q.marks} marks)`).join("\n\n");
-  alert(`Previewing Paper with ${selected.length} questions:\n\n${previewContent}`);
+  const container = document.getElementById("finalPreview");
+  container.textContent = previewContent || "No questions selected yet.";
 }
+
 
 function exportPaper() {
   const qualification = prompt("Enter Qualification (e.g. Maintenance Planner):");

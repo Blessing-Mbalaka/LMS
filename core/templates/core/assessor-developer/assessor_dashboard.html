@@ -73,15 +73,22 @@
           <tbody>
             {% for assessment in assessments %}
             <tr>
-              <td>{{ assessment.eisa_id }}</td>
+              <td>{{ assessment.eisa_id|default:"N/A" }}</td>
               <td>{{ assessment.qualification }}</td>
               <td>{{ assessment.paper }}</td>
               <td>{{ assessment.moderator }}</td>
               <td class="status-{{ assessment.status|slugify }}">{{ assessment.status }}</td>
               <td>
-                <a href="{% url 'view_assessment' assessment.eisa_id %}" 
-                   class="gradient-button small">
-                  View        </a>
+                {% if assessment.eisa_id %}
+                  <a href="{% url 'view_assessment' assessment.eisa_id %}" 
+                     class="gradient-button small">
+                    View
+                  </a>
+                {% else %}
+                  <span class="disabled-button" style="color: #999; font-style: italic;">
+                    No ID Available
+                  </span>
+                {% endif %}
               </td>
             </tr>
             {% empty %}
@@ -96,4 +103,4 @@
   {% comment %} Page-specific JS {% endcomment %}
   <script src="{% static 'core/js/assessor_dashboard.js' %}"></script>
 </body>
-</html>
+</html>p

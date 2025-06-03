@@ -65,8 +65,6 @@ def generate_tool_page(request):
 
     return render(request, "core/assessor-developer/generate_tool.html")
 
-
-
 @csrf_exempt
 def generate_tool_page(request):
     if request.method == 'POST':
@@ -199,7 +197,7 @@ def generate_tool(request):
 
 def view_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
-    questions = assessment.questions.all()
+    questions = assessment.generated_questions.all()
 
     if request.method == 'POST':
         notes = request.POST.get('moderator_notes', '').strip()

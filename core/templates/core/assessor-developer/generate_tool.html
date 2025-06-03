@@ -3,103 +3,154 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generate Assessment Tool | CHIETA</title>
-  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
-  <link rel="stylesheet" href="{% static 'core/css/generate_tool.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-  <div class="dashboard-container">
-    <div class="sidebar">
-  
-      <div class="graduate-icon">
-        <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width:130px;">
-      </div>
-      <ul>
-        <li><a href="{% url 'assessor_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
-        <li><a href="{% url 'upload_assessment' %}" class="nav-item"><i class="fa fa-upload"></i> Upload Assessment</a></li>
-        <li><a href="{% url 'generate_tool_page' %}" class="nav-item"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
-        <li><a href="{% url 'assessment_archive' %}" class="nav-item"><i class="fa fa-archive"></i> Assessment History</a></li>
-        <li><a href="{% url 'assessor_reports' %}" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
-      </ul>
-      <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
-    </div>
+<style>
 
-    <div class="content">
-      <div class="topbar">
-        <input type="search" placeholder="Search...">
-      </div>
 
   
-      <div class="welcome-container">
-        <div class="image-container">
-          <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Profile Picture" width="390" height="190">
-        </div>
-        <div class="welcome-box">
-          <p>Generate EISA Assessment Tool</p>
-          <div class="date">Auto-generate assessments from the databank based on qualification and mark target.</div>
-          <button class="gradient-button">Innovating for Impact</button>
-        </div>
-      </div>
 
-  <form id="demoForm"
-      action="javascript:void(0);"
-      method="post"
-      enctype="multipart/form-data"
-      data-url="{% url 'generate_tool' %}">
-  {% csrf_token %}
-  <div class="form-section">
-    <h3>Step 1: Select Qualification & Marks</h3>
+  .form-section, .content .form-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
 
-    <label for="qualification">Qualification</label>
-    <select id="qualification" name="qualification">
-      <option>Maintenance Planner</option>
-      <option>Quality Controller</option>
-    </select>
+  .gradient-button {
+    background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #360459);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
 
-    <label for="markTarget">Total Marks</label>
-    <input type="number" id="markTarget" name="mark_target" placeholder="Enter total marks">
+  .gradient-button:hover {
+    opacity: 0.9;
+  }
 
-    <label for="paperFile">Upload Past Papers (PDF)</label>
-    <input type="file" id="paperFile" name="file" accept=".pdf">
-
-    <button type="submit" class="gradient-button">Generate Paper</button>
-  </div>
-</form>
-     
-  <div class="paper-preview">
-  <h3>Step 2: Edit Generated Paper</h3>
-  <div id="previewContainer" contenteditable="true" style="
-    max-height: 300px;
-    overflow-y: auto;
-    background: #fff;
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    white-space: pre-wrap;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-  ">
-  <form id="submitPaperForm" action="javascript:void(0);" data-url="{% url 'submit_generated_paper' %}">
-  {% csrf_token %}
-  <input type="hidden" name="qualification" id="finalQualification">
-  <input type="hidden" name="paper_content" id="finalPaperContent">
-  <button class="gradient-button" type="submit">Forward to Moderator</button>
-</form>
+  }
 
-    <em>Generated questions will appear here...</em>
+  #questionList details {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f6f6f6;
+    border-radius: 6px;
+  }
+
+  #questionList h4 {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  #questionList ul {
+    list-style: disc;
+    padding-left: 20px;
+  }
+
+  #selectedList li {
+    padding: 5px 0;
+  }
+
+  pre#previewContainer {
+    white-space: pre-wrap;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+</style>
+
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="graduate-icon">
+      <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
+    </div><br><br>
+    <ul class="sidebar-nav">
+      <li><a href="{% url 'assessor_dashboard' %}"><i class="fa fa-home"></i> Dashboard</a></li>
+      <li><a href="{% url 'upload_assessment' %}"><i class="fa fa-upload"></i> Upload Assessment</a></li>
+      <li><a href="{% url 'generate_tool_page' %}"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
+      <li><a href="{% url 'assessment_archive' %}"><i class="fa fa-archive"></i> Assessment History</a></li>
+      <li><a href="{% url 'assessor_reports' %}"><i class="fa fa-chart-bar"></i> Reports</a></li>
+    </ul>
   </div>
-  <button class="gradient-button" onclick="submitToModerator()">Forward to Moderator</button>
+
+  <!-- Content -->
+  <div class="content p-4">
+    <h2>Generate EISA Assessment Tool</h2>
+
+    <!-- Step 1: AI Generation -->
+    <form id="demoForm" method="post" enctype="multipart/form-data" data-url="{% url 'generate_tool' %}">
+      {% csrf_token %}
+      <div class="form-section">
+        <h4>Step 1: Upload for AI-based Generation</h4>
+        <label>Qualification:</label>
+        <select name="qualification" id="qualification">
+          <option value="Maintenance Planner">Maintenance Planner</option>
+          <option value="Quality Controller">Quality Controller</option>
+        </select>
+
+        <label>Mark Target:</label>
+        <input type="number" name="mark_target" placeholder="e.g. 25">
+
+        <label>Upload PDF/DOCX File:</label>
+        <input type="file" name="file" accept=".pdf,.docx">
+
+        <button type="submit" class="gradient-button mt-2">Generate with AI</button>
+      </div>
+    </form>
+
+    <!-- Step 2: Display Generated Output -->
+    <div class="form-section mt-4">
+      <h4>Step 2: Review Generated Questions</h4>
+      <pre id="previewContainer" class="p-3 bg-light border rounded"></pre>
+    </div>
+
+    <!-- Step 3: Submit to Moderator -->
+    <form id="submitPaperForm" method="post" data-url="{% url 'submit_generated_paper' %}">
+      {% csrf_token %}
+      <input type="hidden" name="qualification" id="finalQualification">
+      <input type="hidden" name="paper_content" id="finalPaperContent">
+      <button type="submit" class="gradient-button mt-3">Forward to Moderator</button>
+    </form>
+
+    <!-- Step 4: Optional - Databank Manual Selection -->
+    <div class="form-section mt-4">
+      <h4>Step 3: Add From Databank</h4>
+      <input type="text" placeholder="Filter by keyword..." id="keywordFilter" oninput="applyFilters()">
+      <div id="questionList" class="mt-3"></div>
+
+      <h5 class="mt-4">Selected Questions</h5>
+      <ul id="selectedList"></ul>
+      <button onclick="previewPaper()" class="gradient-button mt-2">Preview Paper</button>
+      <button onclick="exportPaper()" class="gradient-button mt-2">Submit with Manual Selection</button>
+
+   <!-- 🔽 Editable Live Preview + Forward to Moderator -->
+<hr>
+<h5 class="mt-4">📄 Live Preview (Editable)</h5>
+<textarea id="finalPreview" class="form-control" style="min-height: 180px; font-family: monospace;">No questions selected yet.</textarea>
+<button class="gradient-button mt-2" onclick="submitEditedPreview()">Forward to Moderator</button>
+
+    </div>
+  </div>
 </div>
 
-      </div>
-    </div>
-  </div>  
-  <script src="{% static 'core/js/generate_tool.js' %}"></script>
+<script src="{% static 'core/js/generate_tool.js' %}"></script>
 </body>
 </html>
