@@ -20,33 +20,36 @@ class Assessment(models.Model):
     moderator_notes      = models.TextField(blank=True)
     created_at           = models.DateTimeField(auto_now_add=True)
 
-    # Combined internal + status logic into one field
-    status = models.CharField(
-        max_length=30,
-        choices=[
-            ("Pending", "Pending"),
-            ("Submitted to Moderator", "Submitted to Moderator"),
-            ("Approved", "Approved"),
-            ("Rejected", "Rejected"),
-            ("Submitted", "Submitted"),
-            ("Not Sent", "Not Sent"),
-        ],
-        default="Pending"
-    )
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Submitted to Moderator", "Submitted to Moderator"),
+        ("Returned for Changes", "Returned for Changes"),
+        ("Approved by Moderator", "Approved by Moderator"),
+        ("Submitted to ETQA", "Submitted to ETQA"),
+        ("Approved by ETQA", "Approved by ETQA"),
+        ("Rejected", "Rejected"),
+    ]
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="Pending")
+
+    # Optional: add these if you'd like per-role feedback
+    # etqa_notes = models.TextField(blank=True)
+    # moderator_feedback_date = models.DateTimeField(null=True, blank=True)
+    # etqa_feedback_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.eisa_id
-    
+
+
 class GeneratedQuestion(models.Model):
-    assessment   = models.ForeignKey(
+    assessment = models.ForeignKey(
         Assessment,
         related_name='generated_questions',
         on_delete=models.CASCADE
     )
-    text         = models.TextField()
-    marks        = models.PositiveIntegerField()
-    case_study   = models.CharField(max_length=200, blank=True)
-    created_at   = models.DateTimeField(auto_now_add=True)
+    text = models.TextField()
+    marks = models.PositiveIntegerField()
+    case_study = models.ForeignKey('CaseStudy', on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.text[:50]}… ({self.marks} marks)"
@@ -61,6 +64,7 @@ class QuestionBankEntry(models.Model):
 
     def __str__(self):
         return f"{self.qualification}: {self.text[:50]}..."
+
 
 class CaseStudy(models.Model):
     title = models.CharField(max_length=200)

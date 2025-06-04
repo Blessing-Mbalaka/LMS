@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    .form-section, .content .form-section {
+    .form-section {
       background: white;
       padding: 20px;
       border-radius: 10px;
@@ -66,39 +66,38 @@
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-section">
-        <h4>Step 1: Upload for AI-based Generation</h4>
+        <h4>Step 1: Upload or Paste Case Study</h4>
 
         <label>Qualification:</label>
-        <select name="qualification">
+        <select name="qualification" required>
+          <option value="">-- Select Qualification --</option>
           <option value="Maintenance Planner">Maintenance Planner</option>
           <option value="Quality Controller">Quality Controller</option>
         </select>
 
-        <label>Mark Target:</label>
-        <input type="number" name="mark_target" placeholder="e.g. 25">
-
-        <label>Upload PDF/DOCX File:</label>
+        <label>Upload Case Study File (PDF/DOCX):</label>
         <input type="file" name="file" accept=".pdf,.docx">
+
+        <label>OR Paste Case Study:</label>
+        <textarea name="manual_case_study" rows="6" placeholder="Paste case study text here..."></textarea>
+
+        <label>Parsed Case Study Preview:</label>
+        <textarea id="parsed_case_study" class="form-control" readonly style="min-height: 120px;">{% if preview_text %}{{ preview_text }}{% endif %}</textarea>
+
+        <label>Mark Target:</label>
+        <input type="number" name="mark_target" placeholder="e.g. 25" required>
 
         <button type="submit" name="action" value="generate" class="gradient-button mt-2">Generate Paper</button>
       </div>
 
       {% if questions %}
       <div class="form-section mt-4">
-        <h4>Generated Assessment</h4>
-
-        <label>Case Study:</label>
-        <select id="caseStudySelect" class="form-control" onchange="updateCaseStudy()">
-          {% for cs in case_study_list %}
-            <option value="{{ cs.content|escapejs }}" {% if forloop.first %}selected{% endif %}>{{ cs.title }}</option>
-          {% endfor %}
-        </select>
-
-        <label>Preview Case Study:</label>
-        <textarea id="readonly_case_study" class="form-control" readonly style="min-height: 120px;"></textarea>
+        <h4>Generated Questions</h4>
 
         <label>Questions:</label>
-        <textarea name="question_block" class="form-control" style="min-height: 200px;">{{ question_block }}</textarea>
+        <textarea name="question_block" class="form-control" style="min-height: 200px;" readonly>{{ question_block }}</textarea>
+
+        <input type="hidden" name="case_study_id" id="caseStudyIdInput" value="{{ selected_case_study.id }}">
 
         <button type="submit" name="action" value="save" class="gradient-button mt-2">Save Paper</button>
       </div>
@@ -106,23 +105,46 @@
     </form>
 
     <div class="form-section mt-4">
+      <h4>Add a Case Study</h4>
+      <form method="POST" action="{% url 'add_case_study' %}">
+        {% csrf_token %}
+        <label>Case Study Title:</label>
+        <input type="text" name="cs_title" required>
+
+        <label>Case Study Content:</label>
+        <textarea name="cs_content" class="form-control" rows="5" required></textarea>
+
+        <button type="submit" class="gradient-button mt-2">Add Case Study</button>
+      </form>
+    </div>
+
+    <div class="form-section mt-4">
       <h4>Add a Question to the Question Bank</h4>
       <form method="POST" action="{% url 'add_question' %}">
         {% csrf_token %}
         <label>Qualification:</label>
-        <select name="q_qualification">
+        <select name="q_qualification" required>
+          <option value="">-- Select Qualification --</option>
           <option value="Maintenance Planner">Maintenance Planner</option>
           <option value="Quality Controller">Quality Controller</option>
         </select>
 
-        <label>Case Study:</label>
-        <textarea name="q_case_study" class="form-control"></textarea>
+        <label>Select Case Study (optional):</label>
+        <select name="q_case_study_select" class="form-control">
+          <option value="">-- Choose existing case study --</option>
+          {% for cs in case_study_list %}
+            <option value="{{ cs.id }}">{{ cs.title }}</option>
+          {% endfor %}
+        </select>
+
+        <label>Or Paste New Case Study:</label>
+        <textarea name="q_case_study" class="form-control" placeholder="Paste case study content here..."></textarea>
 
         <label>Question Text:</label>
-        <textarea name="q_text" class="form-control"></textarea>
+        <textarea name="q_text" class="form-control" required></textarea>
 
         <label>Marks:</label>
-        <input type="number" name="q_marks">
+        <input type="number" name="q_marks" required>
 
         <button type="submit" class="gradient-button mt-2">Add Question</button>
       </form>
@@ -133,6 +155,10 @@
       <h4>Previously Saved Questions</h4>
       <pre id="previewContainer">{{ saved_questions }}</pre>
     </div>
+    {% endif %}
+
+    {% if success %}
+      <div class="alert alert-success mt-3">{{ success }}</div>
     {% endif %}
 
     {% if error %}
@@ -150,15 +176,18 @@
 function updateCaseStudy() {
   const select = document.getElementById('caseStudySelect');
   const textarea = document.getElementById('readonly_case_study');
-  textarea.value = select.value;
+  const caseStudyInput = document.getElementById('caseStudyIdInput');
+
+  if (select && select.options.length > 0) {
+    textarea.value = select.value;
+    caseStudyInput.value = select.options[select.selectedIndex].getAttribute("data-id");
+  }
 }
 
 window.onload = function() {
-  const select = document.getElementById('caseStudySelect');
-  if (select && select.value) {
-    updateCaseStudy();
-  }
+  updateCaseStudy();
 };
 </script>
+
 </body>
 </html>

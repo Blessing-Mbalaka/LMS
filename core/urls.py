@@ -10,6 +10,7 @@ from core.views import (
     assessor_reports,
     submit_generated_paper,
     add_question,
+    add_case_study,
 
 
 )
@@ -26,6 +27,7 @@ urlpatterns = [
     path('api/generate-paper/', generate_tool, name='generate_tool'),
     path("submit-generated-paper/", submit_generated_paper, name="submit_generated_paper"),
     path('add-question/', add_question, name='add_question'), 
+    path('add-case-study/', add_case_study, name='add_case_study'),
 ]
 
 
