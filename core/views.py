@@ -12,6 +12,35 @@ from .models import Assessment, GeneratedQuestion
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import redirect
+from django.contrib import messages
+from .models import QuestionBankEntry  # make sure this model exists
+
+@csrf_exempt
+def add_question(request):
+    if request.method == 'POST':
+        qualification = request.POST.get('q_qualification')
+        case_study = request.POST.get('q_case_study')
+        text = request.POST.get('q_text')
+        marks = request.POST.get('q_marks')
+
+        # Validation
+        if not qualification or not text or not marks:
+            messages.error(request, "All fields are required.")
+            return redirect('generate_tool_page')
+
+        QuestionBankEntry.objects.create(
+            qualification=qualification,
+            text=text,
+            marks=marks,
+            case_study=case_study,
+        )
+
+        messages.success(request, "Question added to the databank.")
+        return redirect('generate_tool_page')
+
+
 # Gemini client setup
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
@@ -64,60 +93,17 @@ def generate_tool_page(request):
             })
 
     return render(request, "core/assessor-developer/generate_tool.html")
+from .models import CaseStudy  # ensure you have a CaseStudy model with fields `title`, `content`
 
-@csrf_exempt
-def generate_tool_page(request):
-    if request.method == 'POST':
-        try:
-            qual = request.POST.get("qualification")
-            target = int(request.POST.get("mark_target", 0))
-            demo_file = request.FILES.get("file", None)
-
-            if demo_file:
-                text = extract_text(demo_file, demo_file.content_type)
-                samples = QUESTION_BANK.get(qual, [])[:3]
-                examples = "\n".join(f"- {q['text']}" for q in samples)
-                prompt = (
-                    f"You’re an assessment generator for **{qual}**.\n"
-                    f"Here are some example questions:\n{examples}\n\n"
-                    "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
-                    "where each item has 'text', 'marks' and 'case_study'.\n\n"
-                    f"Past‐Papers Text:\n{text}"
-                )
-
-                resp = genai_client.models.generate_content(
-                    model="gemini-2.0-flash",
-                    contents=[prompt]
-                )
-                all_qs = json.loads(resp.text)["questions"]
-            else:
-                all_qs = QUESTION_BANK.get(qual, [])
-
-            random.shuffle(all_qs)
-            selected, total = [], 0
-            for q in all_qs:
-                if total + q.get("marks", 0) <= target:
-                    selected.append(q)
-                    total += q.get("marks", 0)
-
-            return render(request, "core/assessor-developer/generate_tool.html", {
-                "questions": selected,
-                "total": total,
-            })
-
-        except Exception as e:
-            return render(request, "core/assessor-developer/generate_tool.html", {
-                "error": str(e)
-            })
-
-    return render(request, "core/assessor-developer/generate_tool.html")
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, JSONParser
+from django.http import JsonResponse
+import json, random, re
+import traceback
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, JSONParser])
 def generate_tool(request):
-    if request.method == "GET":
-        return JsonResponse({"error": "You must use POST for this endpoint."}, status=405)
-
     try:
         qual = request.data.get("qualification")
         target = int(request.data.get("mark_target", 0))
@@ -140,27 +126,27 @@ def generate_tool(request):
                 contents=[prompt]
             )
 
-            print("RAW Gemini Output:")
-            print(resp.text)
+            raw = resp.text.strip()
+            if not raw:
+                return JsonResponse({"error": "Gemini returned an empty response."}, status=500)
 
-            cleaned_text = resp.text.strip()
-            cleaned_text = re.sub(r"^```json", "", cleaned_text)
-            cleaned_text = re.sub(r"```$", "", cleaned_text)
-            cleaned_text = cleaned_text.replace("“", '"').replace("”", '"')
+            cleaned = re.sub(r"^```json", "", raw)
+            cleaned = re.sub(r"```$", "", cleaned)
+            cleaned = cleaned.replace("“", '"').replace("”", '"')
 
             try:
-                data = json.loads(cleaned_text)
-            except json.JSONDecodeError as json_err:
+                data = json.loads(cleaned)
+            except json.JSONDecodeError as err:
                 return JsonResponse({
-                    "error": "JSON decoding failed.",
-                    "details": str(json_err),
-                    "raw_response": cleaned_text
+                    "error": "Invalid JSON received from Gemini.",
+                    "details": str(err),
+                    "raw": cleaned[:300]  # Show a snippet of the response
                 }, status=500)
 
             if "questions" not in data:
                 return JsonResponse({
                     "error": "Missing 'questions' key in Gemini output.",
-                    "raw_response": cleaned_text
+                    "raw": cleaned
                 }, status=500)
 
             all_qs = data["questions"]
@@ -173,10 +159,8 @@ def generate_tool(request):
 
         for q in all_qs:
             try:
-                raw_marks = q.get("marks", 0)
-                marks = int(float(raw_marks))
-            except Exception as m_err:
-                print(f"Error parsing marks for question: {q} — {m_err}")
+                marks = int(float(q.get("marks", 0)))
+            except:
                 marks = 0
 
             if total + marks <= target:
@@ -195,6 +179,78 @@ def generate_tool(request):
             "traceback": traceback.format_exc()
         }, status=500)
 
+@csrf_exempt
+def generate_tool_page(request):
+    from .models import CaseStudy  
+    case_studies = CaseStudy.objects.all()
+    context = {"case_study_list": case_studies}
+
+    if request.method == 'POST':
+        try:
+            qual = request.POST.get("qualification")
+            target = int(request.POST.get("mark_target", 0))
+            demo_file = request.FILES.get("file", None)
+
+            if demo_file:
+                text = extract_text(demo_file, demo_file.content_type)
+                samples = QUESTION_BANK.get(qual, [])[:3]
+                examples = "\n".join(f"- {q['text']}" for q in samples)
+
+                prompt = (
+                    f"You’re an assessment generator for **{qual}**.\n"
+                    f"Here are some example questions:\n{examples}\n\n"
+                    "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
+                    "where each item has 'text', 'marks' and 'case_study'.\n\n"
+                    f"Past‐Papers Text:\n{text}"
+                )
+
+                resp = genai_client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=[prompt]
+                )
+
+                raw = resp.text.strip()
+                if not raw:
+                    raise ValueError("Gemini API returned an empty response. Possibly out of tokens or rate limited.")
+
+                cleaned = re.sub(r"^```json", "", raw)
+                cleaned = re.sub(r"```$", "", cleaned)
+                cleaned = cleaned.replace("“", '"').replace("”", '"')
+
+                try:
+                    data = json.loads(cleaned)
+                except json.JSONDecodeError as err:
+                    raise ValueError(f"Gemini returned invalid JSON. Reason: {str(err)}")
+
+                if "questions" not in data:
+                    raise ValueError("No 'questions' key found in Gemini's output.")
+
+                all_qs = data["questions"]
+            else:
+                all_qs = QUESTION_BANK.get(qual, [])
+
+            random.shuffle(all_qs)
+            selected, total = [], 0
+            for q in all_qs:
+                try:
+                    marks = int(float(q.get("marks", 0)))
+                except:
+                    marks = 0
+                if total + marks <= target:
+                    selected.append(q)
+                    total += marks
+
+            context.update({
+                "questions": selected,
+                "total": total,
+                "question_block": "\n\n".join(f"{q['text']} ({q['marks']} marks)" for q in selected)
+            })
+
+        except Exception as e:
+            context["error"] = str(e)
+
+    return render(request, "core/assessor-developer/generate_tool.html", context)
+
 def view_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
     questions = assessment.generated_questions.all()
@@ -205,15 +261,13 @@ def view_assessment(request, eisa_id):
         assessment.internal = 'Submitted to Moderator'
         assessment.forward_to_moderator = True
         assessment.save()
-        return redirect('core/assessor-developer/assessor_dashboard')
+        return redirect('assessor_dashboard')  # check this name matches your URLs
 
     return render(
         request,
         'core/assessor-developer/view_assessment.html',
         {'assessment': assessment, 'questions': questions}
     )
-
-from django.contrib import messages  # import at the top if not already
 
 def upload_assessment(request):
     if request.method == "POST":

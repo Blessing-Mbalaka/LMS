@@ -9,23 +9,25 @@ from core.views import (
     assessment_archive,
     assessor_reports,
     submit_generated_paper,
+    add_question,
+
 
 )
 
 
 urlpatterns = [
-    
     path('', assessor_dashboard, name='home'),
     path('assessor/dashboard/', assessor_dashboard, name='assessor_dashboard'),
     path('assessor/assessment/<str:eisa_id>/', view_assessment, name='view_assessment'),
-    path('upload_assessment/', upload_assessment,        name='upload_assessment'),
+    path('upload_assessment/', upload_assessment, name='upload_assessment'),
     path('assessor-developer/assessment_archive/', assessment_archive, name='assessment_archive'),
-    path('reports/', assessor_reports,                   name='assessor_reports'),
-    path('generate-paper/', generate_tool_page, name='generate_tool_page'),  # HTML page
-    path('api/generate-paper/', generate_tool, name='generate_tool'),        # POST API
+    path('reports/', assessor_reports, name='assessor_reports'),
+    path('generate-paper/', generate_tool_page, name='generate_tool_page'),
+    path('api/generate-paper/', generate_tool, name='generate_tool'),
     path("submit-generated-paper/", submit_generated_paper, name="submit_generated_paper"),
-
+    path('add-question/', add_question, name='add_question'), 
 ]
+
 
   
 

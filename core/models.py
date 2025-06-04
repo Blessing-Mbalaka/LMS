@@ -50,3 +50,21 @@ class GeneratedQuestion(models.Model):
 
     def __str__(self):
         return f"{self.text[:50]}… ({self.marks} marks)"
+
+
+class QuestionBankEntry(models.Model):
+    qualification = models.CharField(max_length=255)
+    text = models.TextField()
+    marks = models.IntegerField()
+    case_study = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.qualification}: {self.text[:50]}..."
+
+class CaseStudy(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+
+    def __str__(self):
+        return self.title

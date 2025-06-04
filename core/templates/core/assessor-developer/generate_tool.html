@@ -7,77 +7,46 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    .form-section, .content .form-section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+    .gradient-button {
+      background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #360459);
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .gradient-button:hover {
+      opacity: 0.9;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    pre#previewContainer {
+      white-space: pre-wrap;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  </style>
 </head>
 <body>
-<style>
-
-
-  
-
-  .form-section, .content .form-section {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-  }
-
-  .gradient-button {
-    background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #360459);
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-
-  .gradient-button:hover {
-    opacity: 0.9;
-  }
-
-  input, select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-
-  #questionList details {
-    margin-top: 10px;
-    padding: 10px;
-    background: #f6f6f6;
-    border-radius: 6px;
-  }
-
-  #questionList h4 {
-    margin-top: 10px;
-    font-weight: bold;
-  }
-
-  #questionList ul {
-    list-style: disc;
-    padding-left: 20px;
-  }
-
-  #selectedList li {
-    padding: 5px 0;
-  }
-
-  pre#previewContainer {
-    white-space: pre-wrap;
-    background: #f8f9fa;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 8px;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-</style>
-
 <div class="dashboard-container">
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="graduate-icon">
       <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
@@ -91,17 +60,16 @@
     </ul>
   </div>
 
-  <!-- Content -->
   <div class="content p-4">
     <h2>Generate EISA Assessment Tool</h2>
 
-    <!-- Step 1: AI Generation -->
-    <form id="demoForm" method="post" enctype="multipart/form-data" data-url="{% url 'generate_tool' %}">
+    <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-section">
         <h4>Step 1: Upload for AI-based Generation</h4>
+
         <label>Qualification:</label>
-        <select name="qualification" id="qualification">
+        <select name="qualification">
           <option value="Maintenance Planner">Maintenance Planner</option>
           <option value="Quality Controller">Quality Controller</option>
         </select>
@@ -112,45 +80,85 @@
         <label>Upload PDF/DOCX File:</label>
         <input type="file" name="file" accept=".pdf,.docx">
 
-        <button type="submit" class="gradient-button mt-2">Generate with AI</button>
+        <button type="submit" name="action" value="generate" class="gradient-button mt-2">Generate Paper</button>
       </div>
+
+      {% if questions %}
+      <div class="form-section mt-4">
+        <h4>Generated Assessment</h4>
+
+        <label>Case Study:</label>
+        <select id="caseStudySelect" class="form-control" onchange="updateCaseStudy()">
+          {% for cs in case_study_list %}
+            <option value="{{ cs.content|escapejs }}" {% if forloop.first %}selected{% endif %}>{{ cs.title }}</option>
+          {% endfor %}
+        </select>
+
+        <label>Preview Case Study:</label>
+        <textarea id="readonly_case_study" class="form-control" readonly style="min-height: 120px;"></textarea>
+
+        <label>Questions:</label>
+        <textarea name="question_block" class="form-control" style="min-height: 200px;">{{ question_block }}</textarea>
+
+        <button type="submit" name="action" value="save" class="gradient-button mt-2">Save Paper</button>
+      </div>
+      {% endif %}
     </form>
 
-    <!-- Step 2: Display Generated Output -->
     <div class="form-section mt-4">
-      <h4>Step 2: Review Generated Questions</h4>
-      <pre id="previewContainer" class="p-3 bg-light border rounded"></pre>
+      <h4>Add a Question to the Question Bank</h4>
+      <form method="POST" action="{% url 'add_question' %}">
+        {% csrf_token %}
+        <label>Qualification:</label>
+        <select name="q_qualification">
+          <option value="Maintenance Planner">Maintenance Planner</option>
+          <option value="Quality Controller">Quality Controller</option>
+        </select>
+
+        <label>Case Study:</label>
+        <textarea name="q_case_study" class="form-control"></textarea>
+
+        <label>Question Text:</label>
+        <textarea name="q_text" class="form-control"></textarea>
+
+        <label>Marks:</label>
+        <input type="number" name="q_marks">
+
+        <button type="submit" class="gradient-button mt-2">Add Question</button>
+      </form>
     </div>
 
-    <!-- Step 3: Submit to Moderator -->
-    <form id="submitPaperForm" method="post" data-url="{% url 'submit_generated_paper' %}">
-      {% csrf_token %}
-      <input type="hidden" name="qualification" id="finalQualification">
-      <input type="hidden" name="paper_content" id="finalPaperContent">
-      <button type="submit" class="gradient-button mt-3">Forward to Moderator</button>
-    </form>
-
-    <!-- Step 4: Optional - Databank Manual Selection -->
+    {% if saved_questions %}
     <div class="form-section mt-4">
-      <h4>Step 3: Add From Databank</h4>
-      <input type="text" placeholder="Filter by keyword..." id="keywordFilter" oninput="applyFilters()">
-      <div id="questionList" class="mt-3"></div>
-
-      <h5 class="mt-4">Selected Questions</h5>
-      <ul id="selectedList"></ul>
-      <button onclick="previewPaper()" class="gradient-button mt-2">Preview Paper</button>
-      <button onclick="exportPaper()" class="gradient-button mt-2">Submit with Manual Selection</button>
-
-   <!-- 🔽 Editable Live Preview + Forward to Moderator -->
-<hr>
-<h5 class="mt-4">📄 Live Preview (Editable)</h5>
-<textarea id="finalPreview" class="form-control" style="min-height: 180px; font-family: monospace;">No questions selected yet.</textarea>
-<button class="gradient-button mt-2" onclick="submitEditedPreview()">Forward to Moderator</button>
-
+      <h4>Previously Saved Questions</h4>
+      <pre id="previewContainer">{{ saved_questions }}</pre>
     </div>
+    {% endif %}
+
+    {% if error %}
+      <div class="alert alert-danger mt-3">{{ error }}</div>
+    {% endif %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-success mt-3">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
   </div>
 </div>
 
-<script src="{% static 'core/js/generate_tool.js' %}"></script>
+<script>
+function updateCaseStudy() {
+  const select = document.getElementById('caseStudySelect');
+  const textarea = document.getElementById('readonly_case_study');
+  textarea.value = select.value;
+}
+
+window.onload = function() {
+  const select = document.getElementById('caseStudySelect');
+  if (select && select.value) {
+    updateCaseStudy();
+  }
+};
+</script>
 </body>
 </html>
