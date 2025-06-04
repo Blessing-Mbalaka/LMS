@@ -55,6 +55,7 @@ def add_question(request):
 # ----------------------------
 # 2) Add a new Case Study
 # ----------------------------
+
 @csrf_exempt
 def add_case_study(request):
     if request.method == "POST":
@@ -62,6 +63,7 @@ def add_case_study(request):
         content = request.POST.get("cs_content")
         if title and content:
             CaseStudy.objects.create(title=title, content=content)
+            messages.success(request, "Case study added successfully.")
     return redirect("generate_tool_page")
 
 
