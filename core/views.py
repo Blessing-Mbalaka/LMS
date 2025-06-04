@@ -16,7 +16,6 @@ from .question_bank import QUESTION_BANK
 from .utils import extract_text
 from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy
 
-
 # -------------------------------------------
 # 1) Add a new question to the Question Bank
 # -------------------------------------------
@@ -76,27 +75,30 @@ genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 @csrf_exempt
 def generate_tool_page(request):
-    """
-    Renders the 'generate_tool.html' template.
-    - If request.method == POST and action == "generate": call Gemini (or fallback),
-      collect questions up to mark_target, and show them in the template.
-    - If request.method == POST and action == "save": parse question_block lines,
-      create Assessment + GeneratedQuestion entries, and show a success message.
-    """
-    # Fetch all CaseStudy objects so dropdowns can populate
+    from .models import CaseStudy, Assessment, GeneratedQuestion
+
+    # 1) Fetch all case studies (for the “Add Question” dropdown)
     case_studies = CaseStudy.objects.all()
-    context = {"case_study_list": case_studies}
+
+    # 2) Fetch all saved assessments (for Preview & Feedback tabs)
+    assessments = Assessment.objects.all().order_by("-created_at")
+
+    # Build the base context
+    context = {
+        "case_study_list": case_studies,
+        "assessments": assessments,
+    }
 
     if request.method == 'POST':
         action = request.POST.get("action")
 
-        # --- HANDLE "Save Paper" ---
+        # ─── SAVE PAPER ────────────────────────────────────────────
         if action == "save":
             try:
                 qual = request.POST.get("qualification")
                 question_block = request.POST.get("question_block", "").strip()
 
-                # Only attempt to parse case_study_id if it's digits
+                # Only parse a numeric case_study_id
                 raw_cs_id = request.POST.get("case_study_id", "").strip()
                 case_study_obj = None
                 if raw_cs_id.isdigit():
@@ -110,7 +112,7 @@ def generate_tool_page(request):
                     comment="Generated and saved via tool",
                 )
 
-                # For each non-empty line in question_block, extract text + marks
+                # For each non-empty line, extract text + marks
                 for line in question_block.split("\n"):
                     text_line = line.strip()
                     if not text_line:
@@ -132,14 +134,11 @@ def generate_tool_page(request):
                     )
 
                 context["success"] = "Assessment and questions saved successfully."
-                return render(request, "core/assessor-developer/generate_tool.html", context)
-
             except Exception as e:
                 context["error"] = str(e)
-                return render(request, "core/assessor-developer/generate_tool.html", context)
 
-        # --- HANDLE "Generate Paper" ---
-        if action == "generate":
+        # ─── GENERATE PAPER ────────────────────────────────────────
+        elif action == "generate":
             try:
                 qual = request.POST.get("qualification")
                 target = int(request.POST.get("mark_target", 0))
@@ -149,10 +148,7 @@ def generate_tool_page(request):
                     raise ValueError("Qualification is required.")
 
                 if demo_file:
-                    # Extract text from uploaded PDF/DOCX
                     text = extract_text(demo_file, demo_file.content_type)
-
-                    # Grab a few sample questions from QUESTION_BANK to prime the prompt
                     samples = QUESTION_BANK.get(qual, [])[:3]
                     examples = "\n".join(f"- {q['text']}" for q in samples)
 
@@ -173,7 +169,6 @@ def generate_tool_page(request):
                     if not raw:
                         raise ValueError("Gemini API returned an empty response.")
 
-                    # Clean the triple-backtick markers and smart quotes
                     cleaned = re.sub(r"^```json", "", raw)
                     cleaned = re.sub(r"```$", "", cleaned)
                     cleaned = cleaned.replace("“", '"').replace("”", '"')
@@ -183,12 +178,9 @@ def generate_tool_page(request):
                         raise ValueError("Missing 'questions' key in Gemini output.")
 
                     all_qs = data["questions"]
-
                 else:
-                    # No file: fall back to QUESTION_BANK for this qualification
                     all_qs = QUESTION_BANK.get(qual, [])
 
-                # Shuffle and pick questions until reaching mark_target
                 random.shuffle(all_qs)
                 selected, total = [], 0
                 for q in all_qs:
@@ -196,22 +188,20 @@ def generate_tool_page(request):
                         marks = int(float(q.get("marks", 0)))
                     except:
                         marks = 0
-
                     if total + marks <= target:
                         selected.append(q)
                         total += marks
 
-                # Pass the selected questions and the full text block into context
                 context.update({
                     "questions": selected,
                     "total": total,
                     "question_block": "\n\n".join(f"{q['text']} ({q['marks']} marks)" for q in selected)
                 })
-
             except Exception as e:
                 context["error"] = str(e)
 
     return render(request, "core/assessor-developer/generate_tool.html", context)
+
 
 # ---------------------------------------
 # 4) DRF endpoint: returns JSON (for AJAX)
