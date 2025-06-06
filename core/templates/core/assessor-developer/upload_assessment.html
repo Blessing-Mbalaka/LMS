@@ -21,20 +21,80 @@
   <div class="dashboard-container">
     <div class="sidebar">
       <div class="graduate-icon">
-        <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width:130px;">
-      </div><br><br>
-      <ul>
-        <li><a href="{% url 'assessor_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
-        <li><a href="{% url 'upload_assessment' %}" class="nav-item"><i class="fa fa-upload"></i> Upload Assessment</a></li>
-        <li><a href="{% url 'generate_tool_page' %}" class="nav-item"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
-        <li><a href="{% url 'assessment_archive' %}" class="nav-item"><i class="fa fa-archive"></i> Assessment History</a></li>
-        <li><a href="{% url 'assessor_reports' %}" class="nav-item"><i class="fa fa-chart-bar"></i> Reports</a></li>
-        <li>🔔 Notifications</li>
-        <li>🛠️ Help & Support</li><br><br><br><br>
-        <button class="fixy">⚙️ Settings</button>
-        <button class="fix">🚪 Log Out</button>
+        <a href="{% url 'assessor_dashboard' %}">
+          <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
+        </a>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'assessor_dashboard' %} active{% endif %}"
+             href="{% url 'assessor_dashboard' %}">
+            <i class="fa fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'upload_assessment' %} active{% endif %}"
+             href="{% url 'upload_assessment' %}">
+            <i class="fa fa-upload"></i>
+            <span>Upload Assessment</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'generate_tool_page' %} active{% endif %}"
+             href="{% url 'generate_tool_page' %}">
+            <i class="fa fa-cogs"></i>
+            <span>Generate Assessment</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'assessment_archive' %} active{% endif %}"
+             href="{% url 'assessment_archive' %}">
+            <i class="fa fa-archive"></i>
+            <span>Assessment History</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'assessor_reports' %} active{% endif %}"
+             href="{% url 'assessor_reports' %}">
+            <i class="fa fa-chart-bar"></i>
+            <span>Reports</span>
+          </a>
+        </li>
+
+        <!-- Placeholder items (Notifications / Help) -->
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fa fa-bell"></i>
+            <span>Notifications</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fa fa-life-ring"></i>
+            <span>Help &amp; Support</span>
+          </a>
+        </li>
+
+        <!-- Settings / Logout Buttons -->
+        <li class="nav-item mt-4">
+          <button class="gradient-button w-100">
+            <i class="fa fa-cog"></i>
+            <span>Settings</span>
+          </button>
+        </li>
+        <li class="nav-item mt-2">
+          <button class="gradient-button w-100">
+            <i class="fa fa-sign-out-alt"></i>
+            <span>Log Out</span>
+          </button>
+        </li>
       </ul>
-      <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
+
+      <div class="sidebar-footer">
+        <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art">
+      </div>
     </div>
 
     <div class="content p-4">
@@ -60,73 +120,89 @@
           </select>
         </div>
 
-        <div class="upload-section">
-          <label for="paperNumber">Paper Number</label>
-          <input type="text" id="paperNumber" name="paper_number" placeholder="e.g. 1A, 1B" required>
-        </div>
+        <form id="uploadForm" action="{% url 'upload_assessment' %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
 
-        <div class="upload-section">
-          <label for="saqaID">SAQA ID</label>
-          <input type="text" id="saqaID" name="saqa_id" placeholder="e.g. 123456" required>
-        </div>
+  <div class="form-section">
+    <label for="qualification">Qualification Title</label>
+    <select id="qualification" name="qualification" required>
+      <option value="">-- Select Qualification --</option>
+      <option value="Maintenance Planner">Maintenance Planner</option>
+      <option value="Quality Controller">Quality Controller</option>
+    </select>
+  </div>
 
-        <div class="upload-section">
-          <label>Upload EISA Assessment</label>
-          <input type="file" id="fileInput" name="file_input" accept=".pdf,.doc,.docx" required>
-        </div>
+  <div class="form-section">
+    <label for="paperNumber">Paper Number</label>
+    <input type="text" id="paperNumber" name="paper_number" placeholder="e.g. 1A, 1B" required>
+  </div>
 
-        <div class="upload-section">
-          <label>Upload MEMO</label>
-          <input type="file" id="memoFile" name="memo_file">
-        </div>
+  <div class="form-section">
+    <label for="saqaID">SAQA ID</label>
+    <input type="text" id="saqaID" name="saqa_id" placeholder="e.g. 123456" required>
+  </div>
 
-        <div class="upload-section">
-          <label for="commentBox">Comment (Optional)</label>
-          <textarea id="commentBox" name="comment_box" rows="3" placeholder="Write any notes..."></textarea>
-        </div>
+  <div class="form-section">
+    <label for="fileInput">Upload EISA Assessment</label>
+    <input type="file" id="fileInput" name="file_input" accept=".pdf,.doc,.docx" required>
+  </div>
 
-        <div class="upload-section">
-          <input type="checkbox" id="forwardToModerator" name="forward_to_moderator">
-          <label for="forwardToModerator">Forward this assessment directly to Moderator</label>
-        </div>
+  <div class="form-section">
+    <label for="memoFile">Upload Memo</label>
+    <input type="file" id="memoFile" name="memo_file">
+  </div>
 
-        <button type="submit" class="gradient-button">Submit Upload</button>
-      </form>
+  <div class="form-section">
+    <label for="commentBox">Comment (Optional)</label>
+    <textarea id="commentBox" name="comment_box" rows="3" placeholder="Write any notes..."></textarea>
+  </div>
 
-      <section class="submitted-section">
-        <h3>Submitted Assessments</h3>
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>EISA ID</th>
-              <th>Qualification</th>
-              <th>Paper</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for a in submissions %}
-            <tr style="vertical-align: middle;">
-              <td><strong>{{ a.eisa_id }}</strong></td>
-              <td>{{ a.qualification }}</td>
-              <td>{{ a.paper }}</td>
-              <td><span class="badge {{ a.internal|lower }}">{{ a.internal }}</span></td>
-              <td>
-  {% if a.eisa_id %}
-    <a href="{% url 'view_assessment' a.eisa_id %}" class="gradient-button btn-sm" style="font-size:13px;padding:5px 12px;">✏️ View/Edit</a>
-  {% else %}
-    <span class="text-muted">Invalid ID</span>
-  {% endif %}
-</td>
+  <div class="form-section form-checkbox">
+    <input type="checkbox" id="forwardToModerator" name="forward_to_moderator">
+    <label for="forwardToModerator">Forward this assessment directly to Moderator</label>
+  </div>
 
-            </tr>
-            {% empty %}
-            <tr><td colspan="5" style="text-align:center;">No assessments submitted yet.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </section>
+  <div class="form-section">
+    <button type="submit" class="gradient-button">Submit Upload</button>
+  </div>
+</form>
+
+<section class="submitted-section">
+  <h3>Submitted Assessments</h3>
+  <table class="assessment-table">
+    <thead>
+      <tr>
+        <th>EISA ID</th>
+        <th>Qualification</th>
+        <th>Paper</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in submissions %}
+        <tr>
+          <td><strong>{{ a.eisa_id }}</strong></td>
+          <td>{{ a.qualification }}</td>
+          <td>{{ a.paper }}</td>
+          <td>{{ a.status }}</td>
+          <td>
+            <a href="{% url 'view_assessment' a.eisa_id %}"
+               class="gradient-button small">
+              ✏️ View/Edit
+            </a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5" style="text-align:center;">
+            No assessments submitted yet.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 
     </div>
   </div>

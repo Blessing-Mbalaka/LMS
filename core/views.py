@@ -102,6 +102,8 @@ genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 @csrf_exempt
 def generate_tool_page(request):
+    from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion
+
     # ─── Fetch dropdown data (case studies) ─────────────────────
     case_studies = CaseStudy.objects.all()
 
@@ -248,7 +250,7 @@ def generate_tool_page(request):
                     qualification=qual,
                     paper="AutoGen",
                     comment="Generated and saved via tool",
-                    # default status is “Pending,” so it will show up under awaiting_… 
+                    # default status is “Pending,” so it will show up under awaiting_…
                 )
 
                 # Parse each line of question_block, save as GeneratedQuestion
@@ -482,23 +484,15 @@ def upload_assessment(request):
 # ---------------------------
 def assessor_reports(request):
     data = [
-        {
-            "qualification": "Maintenance Planner",
-            "toolsGenerated": 10,
-            "toolsSubmitted": 8,
-            "questionsAdded": 5,
-        },
-        {
-            "qualification": "Quality Controller",
-            "toolsGenerated": 15,
-            "toolsSubmitted": 12,
-            "questionsAdded": 9,
-        },
+        { "qualification": "Maintenance Planner", "toolsGenerated": 10, "toolsSubmitted": 8,  "questionsAdded": 5 },
+        { "qualification": "Quality Controller",    "toolsGenerated": 15, "toolsSubmitted": 12, "questionsAdded": 9 },
     ]
-    return render(request, "core/assessor-developer/assessor_reports.html", {
-        "report_data": json.dumps(data)
-    })
 
+    # pass both the JSON (for JS) and the Python list (for the template loop)
+    return render(request, "core/assessor-developer/assessor_reports.html", {
+        "report_data": json.dumps(data),
+        "report_list": data,  
+    })
 
 # -------------------------------------------
 # 7) Assessment Archive / Filtering Page
