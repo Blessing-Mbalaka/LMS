@@ -7,13 +7,16 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <style>
-    .form-section {
-      background: white;
+ <style>
+
+  
+    .content {
+      flex: 1;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      margin-top: 20px;
+      background-color: #efeaea;
+      background-image: url("{% static 'core/images/Frame.png' %}");
+      background-repeat: no-repeat;
+      background-size: cover;
     }
     .gradient-button {
       background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #360459);
@@ -22,257 +25,390 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin-top: 10px;
+      margin: 5px;
     }
     .gradient-button:hover {
       opacity: 0.9;
     }
-    input, select, textarea {
+    .form-section, .selected-questions {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+    .form-section select, .form-section input, .form-section textarea {
       width: 100%;
       padding: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      font-size: 14px;
     }
-    pre#previewContainer {
-      white-space: pre-wrap;
-      background: #f8f9fa;
-      border: 1px solid #ddd;
-      padding: 15px;
-      border-radius: 8px;
-      max-height: 400px;
-      overflow-y: auto;
+    .selected-questions ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+    .nav-tabs .nav-link {
+      color: #495057;
+      border: none;
+      padding: 10px 20px;
+      font-weight: 500;
+      border-radius: 5px 5px 0 0;
+    }
+    .nav-tabs .nav-link:hover {
+      color: rgb(61,11,86);
+      background-color: rgba(61, 11, 86, 0.05);
+    }
+    .nav-tabs .nav-link.active {
+      color: rgb(61,11,86);
+      background-color: rgba(61, 11, 86, 0.1);
+      border-bottom: 3px solid rgb(61,11,86);
     }
   </style>
 </head>
 <body>
-<div class="dashboard-container">
-  <div class="sidebar">
-    <div class="graduate-icon">
-      <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
-    </div><br><br>
-    <ul class="sidebar-nav">
-      <li><a href="{% url 'assessor_dashboard' %}"><i class="fa fa-home"></i> Dashboard</a></li>
-      <li><a href="{% url 'upload_assessment' %}"><i class="fa fa-upload"></i> Upload Assessment</a></li>
-      <li><a href="{% url 'generate_tool_page' %}"><i class="fa fa-cogs"></i> Generate Assessment</a></li>
-      <li><a href="{% url 'assessment_archive' %}"><i class="fa fa-archive"></i> Assessment History</a></li>
-      <li><a href="{% url 'assessor_reports' %}"><i class="fa fa-chart-bar"></i> Reports</a></li>
-    </ul>
-  </div>
+  <div class="dashboard-container">
+     <div class="sidebar">
+      <div class="graduate-icon">
+        <a href="{% url 'assessor_dashboard' %}">
+          <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
+        </a>
+      </div>
 
-  <div class="content p-4">
-    <h2>Generate EISA Assessment Tool</h2>
+      <ul class="sidebar-nav">
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'assessor_dashboard' %} active{% endif %}"
+             href="{% url 'assessor_dashboard' %}">
+            <i class="fa fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'upload_assessment' %} active{% endif %}"
+             href="{% url 'upload_assessment' %}">
+            <i class="fa fa-upload"></i>
+            <span>Upload Assessment</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'generate_tool_page' %} active{% endif %}"
+             href="{% url 'generate_tool_page' %}">
+            <i class="fa fa-cogs"></i>
+            <span>Generate Assessment</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'assessment_archive' %} active{% endif %}"
+             href="{% url 'assessment_archive' %}">
+            <i class="fa fa-archive"></i>
+            <span>Assessment History</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'assessor_reports' %} active{% endif %}"
+             href="{% url 'assessor_reports' %}">
+            <i class="fa fa-chart-bar"></i>
+            <span>Reports</span>
+          </a>
+        </li>
 
-    <!-- Tabs Navigation -->
-    <ul class="nav nav-tabs mt-4" id="toolTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-generate-btn" data-bs-toggle="tab" data-bs-target="#tab-generate" type="button" role="tab" aria-controls="tab-generate" aria-selected="true">
-          Generate Paper
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-add-case-btn" data-bs-toggle="tab" data-bs-target="#tab-add-case" type="button" role="tab" aria-controls="tab-add-case" aria-selected="false">
-          Add Case Study
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-add-question-btn" data-bs-toggle="tab" data-bs-target="#tab-add-question" type="button" role="tab" aria-controls="tab-add-question" aria-selected="false">
-          Add Question
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-preview-btn" data-bs-toggle="tab" data-bs-target="#tab-preview" type="button" role="tab" aria-controls="tab-preview" aria-selected="false">
-          Preview Papers
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-feedback-btn" data-bs-toggle="tab" data-bs-target="#tab-feedback" type="button" role="tab" aria-controls="tab-feedback" aria-selected="false">
-          Feedback Tracking
-        </button>
-      </li>
-    </ul>
+        <!-- Placeholder items (Notifications / Help) -->
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fa fa-bell"></i>
+            <span>Notifications</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="fa fa-life-ring"></i>
+            <span>Help &amp; Support</span>
+          </a>
+        </li>
 
-    <!-- Messages -->
-    <div class="mt-3">
-      {% if success %}
-        <div class="alert alert-success">{{ success }}</div>
-      {% endif %}
-      {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-      {% endif %}
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-success">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+        <!-- Settings / Logout Buttons -->
+        <li class="nav-item mt-4">
+          <button class="gradient-button w-100">
+            <i class="fa fa-cog"></i>
+            <span>Settings</span>
+          </button>
+        </li>
+        <li class="nav-item mt-2">
+          <button class="gradient-button w-100">
+            <i class="fa fa-sign-out-alt"></i>
+            <span>Log Out</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art">
+      </div>
     </div>
+    
+    <div class="content p-4">
+      <h2>Generate EISA Assessment Tool</h2>
 
-    <!-- Tabs Content -->
-    <div class="tab-content mt-4" id="toolTabsContent">
+      <!-- Tabs Navigation -->
+      <ul class="nav nav-tabs mt-4" id="toolTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-generate-btn" data-bs-toggle="tab" data-bs-target="#tab-generate" type="button" role="tab" aria-controls="tab-generate" aria-selected="true">Generate Paper</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-random-btn" data-bs-toggle="tab" data-bs-target="#tab-random" type="button" role="tab" aria-controls="tab-random" aria-selected="false">Compile from Question Bank</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-casestudybank-btn" data-bs-toggle="tab" data-bs-target="#tab-casestudybank" type="button" role="tab" aria-controls="tab-casestudybank" aria-selected="false">Case Study Bank</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-questionbank-btn" data-bs-toggle="tab" data-bs-target="#tab-questionbank" type="button" role="tab" aria-controls="tab-questionbank" aria-selected="false">Question Bank</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-add-case-btn" data-bs-toggle="tab" data-bs-target="#tab-add-case" type="button" role="tab" aria-controls="tab-add-case" aria-selected="false">Add Case Study</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-add-question-btn" data-bs-toggle="tab" data-bs-target="#tab-add-question" type="button" role="tab" aria-controls="tab-add-question" aria-selected="false">Add Question</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-awaiting-btn" data-bs-toggle="tab" data-bs-target="#tab-awaiting" type="button" role="tab" aria-controls="tab-awaiting" aria-selected="false">Papers Awaiting Approval</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-approved-btn" data-bs-toggle="tab" data-bs-target="#tab-approved" type="button" role="tab" aria-controls="tab-approved" aria-selected="false">Approved Papers</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-feedback-btn" data-bs-toggle="tab" data-bs-target="#tab-feedback" type="button" role="tab" aria-controls="tab-feedback" aria-selected="false">Feedback Tracking</button>
+        </li>
+      </ul>
 
-      <!-- Generate Paper Tab -->
-      <div class="tab-pane fade show active" id="tab-generate" role="tabpanel" aria-labelledby="tab-generate-btn">
-        <form method="POST" enctype="multipart/form-data">
-          {% csrf_token %}
+      <!-- Messages -->
+      <div class="mt-3">
+        {% if success %}<div class="alert alert-success">{{ success }}</div>{% endif %}
+        {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+        {% if messages %}{% for message in messages %}<div class="alert alert-success">{{ message }}</div>{% endfor %}{% endif %}
+      </div>
+
+      <!-- Tabs Content -->
+      <div class="tab-content mt-4" id="toolTabsContent">
+
+        <!-- Generate Paper Tab -->
+        <div class="tab-pane fade show active" id="tab-generate" role="tabpanel" aria-labelledby="tab-generate-btn">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-section">
+              <h4>Step 1: Upload or Paste Case Study</h4>
+              <label>Qualification:</label><select name="qualification" required><option value="">-- Select Qualification --</option><option value="Maintenance Planner">Maintenance Planner</option><option value="Quality Controller">Quality Controller</option></select>
+              <label>Upload Case Study File (PDF/DOCX):</label>
+              <input type="file" name="file" accept=".pdf,.docx">
+              <label>OR Paste Case Study:</label>
+              <textarea name="manual_case_study" rows="6" placeholder="Paste case study text here..."></textarea>
+              <label>Parsed Case Study Preview:</label>
+              <textarea id="parsed_case_study" class="form-control" readonly style="min-height: 120px;">{% if preview_text %}{{ preview_text }}{% endif %}</textarea>
+              <label>Mark Target:</label>
+              <input type="number" name="mark_target" placeholder="e.g. 25" required>
+              <button type="submit" name="action" value="generate" class="gradient-button mt-2">Generate Paper</button>
+            </div>
+            {% if questions %}
+              <div class="form-section mt-4">
+                <h4>Generated Questions</h4>
+                <label>Questions:</label>
+                <textarea name="question_block" class="form-control" style="min-height: 200px;" readonly>{{ question_block }}</textarea>
+                <input type="hidden" name="case_study_id" id="generateCaseStudyIdInput" value="{{ selected_case_study.id }}">
+                <button type="submit" name="action" value="save" class="gradient-button mt-2">Save Paper</button>
+              </div>
+            {% endif %}
+          </form>
+        </div>
+
+        <!-- Compile from Question Bank Tab -->
+        <div class="tab-pane fade" id="tab-random" role="tabpanel" aria-labelledby="tab-random-btn">
           <div class="form-section">
-            <h4>Step 1: Upload or Paste Case Study</h4>
-
-            <label>Qualification:</label>
-            <select name="qualification" required>
-              <option value="">-- Select Qualification --</option>
-              <option value="Maintenance Planner">Maintenance Planner</option>
-              <option value="Quality Controller">Quality Controller</option>
-            </select>
-
-            <label>Upload Case Study File (PDF/DOCX):</label>
-            <input type="file" name="file" accept=".pdf,.docx">
-
-            <label>OR Paste Case Study:</label>
-            <textarea name="manual_case_study" rows="6" placeholder="Paste case study text here..."></textarea>
-
-            <label>Parsed Case Study Preview:</label>
-            <textarea id="parsed_case_study" class="form-control" readonly style="min-height: 120px;">{% if preview_text %}{{ preview_text }}{% endif %}</textarea>
-
-            <label>Mark Target:</label>
-            <input type="number" name="mark_target" placeholder="e.g. 25" required>
-
-            <button type="submit" name="action" value="generate" class="gradient-button mt-2">Generate Paper</button>
+            <h4>Compile Paper from Question Bank</h4>
+            <form method="POST">
+              {% csrf_token %}<input type="hidden" name="action" value="compile_from_bank">
+              <label>Qualification:</label><select name="qualification" required><option value="">-- Select Qualification --</option><option value="Maintenance Planner">Maintenance Planner</option><option value="Quality Controller">Quality Controller</option></select>
+              <label>Mark Target:</label>
+              <input type="number" name="mark_target" value="100" placeholder="e.g. 100" required>
+              <label>Number of Questions:</label>
+              <input type="number" name="num_questions" placeholder="e.g. 10" required>
+              <button type="submit" class="gradient-button mt-2">Compile Paper</button>
+            </form>
+            {% if compiled_questions %}
+              <hr>
+              <h5 class="mt-4">Review and Edit Compiled Questions</h5>
+              <p><strong>Total Questions: {{ compiled_questions|length }}</strong></p>
+              <form method="POST">
+                {% csrf_token %}
+                {% for q in compiled_questions %}
+                  <div class="mb-3">
+                    <label>Question {{ forloop.counter }}:</label>
+                    <textarea name="question_texts" class="form-control" rows="3">{{ q.text }}</textarea>
+                    <input type="number" name="question_marks" value="{{ q.marks }}" class="form-control mt-2" placeholder="Marks">
+                    <input type="hidden" name="question_ids" value="{{ q.id }}">
+                  </div>
+                {% endfor %}
+                <button type="submit" class="gradient-button">Save Questions</button>
+              </form>
+            {% endif %}
           </div>
-
-          {% if questions %}
-          <div class="form-section mt-4">
-            <h4>Generated Questions</h4>
-
-            <label>Questions:</label>
-            <textarea name="question_block" class="form-control" style="min-height: 200px;" readonly>{{ question_block }}</textarea>
-
-            <input type="hidden" name="case_study_id" id="caseStudyIdInput" value="{{ selected_case_study.id }}">
-
-            <button type="submit" name="action" value="save" class="gradient-button mt-2">Save Paper</button>
-          </div>
-          {% endif %}
-        </form>
-      </div>
-
-      <!-- Add Case Study Tab -->
-      <div class="tab-pane fade" id="tab-add-case" role="tabpanel" aria-labelledby="tab-add-case-btn">
-        <div class="form-section">
-          <h4>Add a Case Study</h4>
-          <form method="POST" action="{% url 'add_case_study' %}">
-            {% csrf_token %}
-            <label>Case Study Title:</label>
-            <input type="text" name="cs_title" required>
-
-            <label>Case Study Content:</label>
-            <textarea name="cs_content" class="form-control" rows="5" required></textarea>
-
-            <button type="submit" class="gradient-button mt-2">Add Case Study</button>
-          </form>
         </div>
-      </div>
 
-      <!-- Add Question Tab -->
-      <div class="tab-pane fade" id="tab-add-question" role="tabpanel" aria-labelledby="tab-add-question-btn">
-        <div class="form-section">
-          <h4>Add a Question to the Question Bank</h4>
-          <form method="POST" action="{% url 'add_question' %}">
-            {% csrf_token %}
-            <label>Qualification:</label>
-            <select name="q_qualification" required>
-              <option value="">-- Select Qualification --</option>
-              <option value="Maintenance Planner">Maintenance Planner</option>
-              <option value="Quality Controller">Quality Controller</option>
-            </select>
+        <!-- Case Study Bank Tab -->
+        <div class="tab-pane fade" id="tab-casestudybank" role="tabpanel" aria-labelledby="tab-casestudybank-btn">
+          <div class="form-section">
+            <h4>All Case Studies</h4>
+            {% if case_study_list %}
+              <ul class="list-group">
+                {% for cs in case_study_list %}
+                  <li class="list-group-item">
+                    <h5>{{ cs.title }}</h5>
+                    <p>{{ cs.content|truncatechars:200 }}</p>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>No case studies available.</p>
+            {% endif %}
+          </div>
+        </div>
 
-            <label>Select Case Study (optional):</label>
-            <select name="q_case_study_select" class="form-control" id="caseStudySelect">
-              <option value="">-- Choose existing case study --</option>
-              {% for cs in case_study_list %}
-                <option value="{{ cs.content }}" data-id="{{ cs.id }}">{{ cs.title }}</option>
+        <!-- Question Bank Tab -->
+        <div class="tab-pane fade" id="tab-questionbank" role="tabpanel" aria-labelledby="tab-questionbank-btn">
+          <div class="form-section">
+            <h4>All Question Bank Entries</h4>
+            {% if question_bank_entries %}
+              <ul class="list-group">
+                {% for entry in question_bank_entries %}
+                  <li class="list-group-item">
+                    <strong>{{ entry.qualification }}</strong> – {{ entry.text|truncatechars:100 }} ({{ entry.marks }} marks)
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>No questions in the bank yet.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Add Case Study Tab -->
+        <div class="tab-pane fade" id="tab-add-case" role="tabpanel" aria-labelledby="tab-add-case-btn">
+          <div class="form-section">
+            <h4>Add a Case Study</h4>
+            <form method="POST" action="{% url 'add_case_study' %}">
+              {% csrf_token %}
+              <label>Case Study Title:</label>
+              <input type="text" name="cs_title" required>
+              <label>Case Study Content:</label>
+              <textarea name="cs_content" class="form-control" rows="5" required></textarea>
+              <button type="submit" class="gradient-button mt-2">Add Case Study</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Add Question Tab -->
+        <div class="tab-pane fade" id="tab-add-question" role="tabpanel" aria-labelledby="tab-add-question-btn">
+          <div class="form-section">
+            <h4>Add a Question to the Question Bank</h4>
+            <form method="POST" action="{% url 'add_question' %}">
+              {% csrf_token %}
+              <label>Qualification:</label><select name="q_qualification" required><option value="">-- Select Qualification --</option><option value="Maintenance Planner">Maintenance Planner</option><option value="Quality Controller">Quality Controller</option></select>
+              <label>Select Case Study (optional):</label>
+              <select name="q_case_study_select" class="form-control" id="caseStudySelect"><option value="">-- Choose existing case study --</option>{% for cs in case_study_list %}<option value="{{ cs.id }}">{{ cs.title }}</option>{% endfor %}</select>
+              <input type="hidden" name="case_study_id" id="questionCaseStudyIdInput" value="">
+              <label>Or Paste New Case Study:</label>
+              <textarea name="q_case_study" class="form-control" placeholder="Paste case study content here..."></textarea>
+              <label>Question Text:</label>
+              <textarea name="q_text" class="form-control" required></textarea>
+              <label>Marks:</label>
+              <input type="number" name="q_marks" required>
+              <button type="submit" class="gradient-button mt-2">Add Question</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Papers Awaiting Approval Tab -->
+        <div class="tab-pane fade" id="tab-awaiting" role="tabpanel" aria-labelledby="tab-awaiting-btn">
+          <div class="form-section">
+            <h4>Papers Awaiting Approval</h4>
+            {% if awaiting_assessments %}
+              {% for assessment in awaiting_assessments %}
+                <div class="mb-4">
+                  <h5>{{ assessment.eisa_id }} — {{ assessment.qualification }}</h5>
+                  <p><strong>Saved on:</strong> {{ assessment.created_at|date:"Y-m-d H:i" }}</p>
+                  {% if assessment.generated_questions.all %}
+                    <ul>
+                      {% for q in assessment.generated_questions.all %}
+                        <li>{{ q.text }} ({{ q.marks }} marks){% if q.case_study %} – Case Study: {{ q.case_study.title }}{% endif %}</li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p>No questions found for this paper.</p>
+                  {% endif %}
+                </div>
               {% endfor %}
-            </select>
-
-            <label>Or Paste New Case Study:</label>
-            <textarea name="q_case_study" class="form-control" placeholder="Paste case study content here..."></textarea>
-
-            <label>Question Text:</label>
-            <textarea name="q_text" class="form-control" required></textarea>
-
-            <label>Marks:</label>
-            <input type="number" name="q_marks" required>
-
-            <button type="submit" class="gradient-button mt-2">Add Question</button>
-          </form>
+            {% else %}
+              <p>No papers awaiting approval.</p>
+            {% endif %}
+          </div>
         </div>
-      </div>
 
-      <!-- Preview Generated Papers Tab -->
-      <div class="tab-pane fade" id="tab-preview" role="tabpanel" aria-labelledby="tab-preview-btn">
-        <div class="form-section">
-          <h4>Preview Generated Papers</h4>
-          {% if assessments %}
-            {% for assessment in assessments %}
-              <div class="mb-4">
-                <h5>{{ assessment.eisa_id }} — {{ assessment.qualification }}</h5>
-                <p><strong>Saved on:</strong> {{ assessment.created_at|date:"Y-m-d H:i" }}</p>
-                {% if assessment.generated_questions.all %}
-                  <ul>
-                    {% for q in assessment.generated_questions.all %}
-                      <li>{{ q.text }} ({{ q.marks }} marks) {% if q.case_study %}- Case Study: {{ q.case_study.title }}{% endif %}</li>
-                    {% endfor %}
-                  </ul>
-                {% else %}
-                  <p>No questions found for this paper.</p>
-                {% endif %}
-              </div>
-            {% endfor %}
-          {% else %}
-            <p>No generated papers to preview yet.</p>
-          {% endif %}
+        <!-- Approved Papers Tab -->
+        <div class="tab-pane fade" id="tab-approved" role="tabpanel" aria-labelledby="tab-approved-btn">
+          <div class="form-section">
+            <h4>Approved Papers</h4>
+            {% if approved_assessments %}
+              {% for assessment in approved_assessments %}
+                <div class="mb-4">
+                  <h5>{{ assessment.eisa_id }} — {{ assessment.qualification }}</h5>
+                  <p><strong>Approved on:</strong> {{ assessment.approved_at|date:"Y-m-d H:i" }}</p>
+                  {% if assessment.generated_questions.all %}
+                    <ul>
+                      {% for q in assessment.generated_questions.all %}
+                        <li>{{ q.text }} ({{ q.marks }} marks){% if q.case_study %} – Case Study: {{ q.case_study.title }}{% endif %}</li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p>No questions found for this paper.</p>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            {% else %}
+              <p>No approved papers yet.</p>
+            {% endif %}
+          </div>
         </div>
-      </div>
 
-      <!-- Feedback Tracking Tab -->
-      <div class="tab-pane fade" id="tab-feedback" role="tabpanel" aria-labelledby="tab-feedback-btn">
-        <div class="form-section">
-          <h4>Feedback Tracking</h4>
-          <p>This section will track feedback from stakeholders (moderator, ETQA, etc.).</p>
-          {% if assessments %}
-            {% for assessment in assessments %}
-              <div class="mb-4">
-                <h5>{{ assessment.eisa_id }} — {{ assessment.qualification }}</h5>
-                <p><strong>Status:</strong> {{ assessment.status }}</p>
-                <p><strong>Moderator Notes:</strong> {{ assessment.moderator_notes|default:"No notes yet." }}</p>
-                <!-- You can add forms or links here for stakeholders to submit further feedback -->
-              </div>
-            {% endfor %}
-          {% else %}
-            <p>No assessments available to show feedback.</p>
-          {% endif %}
+        <!-- Feedback Tracking Tab -->
+        <div class="tab-pane fade" id="tab-feedback" role="tabpanel" aria-labelledby="tab-feedback-btn">
+          <div class="form-section">
+            <h4>Feedback Tracking</h4>
+            <p>This section will track feedback from stakeholders (moderator, ETQA, etc.).</p>
+            {% if assessments %}
+              {% for assessment in assessments %}
+                <div class="mb-4">
+                  <h5>{{ assessment.eisa_id }} — {{ assessment.qualification }}</h5>
+                  <p><strong>Status:</strong> {{ assessment.status }}</p>
+                  <p><strong>Moderator Notes:</strong> {{ assessment.moderator_notes|default:"No notes yet." }}</p>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p>No assessments available to show feedback.</p>
+            {% endif %}
+          </div>
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  function updateCaseStudy() {
-    const select = document.getElementById('caseStudySelect');
-    const textarea = document.getElementById('readonly_case_study');
-    const caseStudyInput = document.getElementById('caseStudyIdInput');
-
-    if (select && select.options.length > 0) {
-      textarea.value = select.value;
-      caseStudyInput.value = select.options[select.selectedIndex].getAttribute("data-id");
-    }
-  }
-  window.onload = function() {
-    updateCaseStudy();
-  };
-</script>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const select = document.getElementById('caseStudySelect');
+      const hidden = document.getElementById('questionCaseStudyIdInput');
+      function updateHiddenField() { hidden.value = select.value; }
+      if (select) { select.addEventListener('change', updateHiddenField); updateHiddenField(); }
+    });
+  </script>
 </body>
 </html>
-

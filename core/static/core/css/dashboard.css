@@ -226,3 +226,120 @@ body {
     display: none;
   }
 }
+
+/* ===========================
+   Assessment Table Styling
+   =========================== */
+.assessment-table {
+  width: 100%;
+  /* Use separate borders so we can add spacing between rows */
+  border-collapse: separate;
+  border-spacing: 0 10px; /* 10px vertical gap between rows */
+  margin-top: 20px;
+}
+
+.assessment-table thead th {
+  background-color: #f0f0f0;   /* light header background */
+  color: var(--dark-purple);    /* match your theme */
+  font-weight: 600;
+  padding: 12px 15px;
+  border-bottom: 2px solid #ddd;
+  text-align: left;
+}
+
+.assessment-table tbody td {
+  background-color: white;    /* each data-cell on a white card */
+  padding: 12px 15px;         /* add comfortable padding */
+  vertical-align: middle;     /* center vertically if multi-line */
+  border: 1px solid #eee;     /* light border for each cell */
+  border-radius: 4px;
+}
+
+/* If you want each row to look like a “card,” override the default table row background: */
+.assessment-table tbody tr {
+  /* No direct background color here—cells already have white backgrounds */
+}
+
+/* Optional: change the hover state on a row */
+.assessment-table tbody tr:hover td {
+  background-color: #fafafa;
+}
+
+/* Small utility to style the “View” button as a bit smaller */
+.assessment-table .gradient-button.small {
+  padding: 5px 10px;
+  font-size: 0.85rem;
+}
+/* ===========================
+   Generate Tool: Nav-Tabs (Simplified)
+   =========================== */
+
+/* Remove default Bootstrap borders */
+#toolTabs {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Base style for every tab link */
+#toolTabs .nav-link {
+  background: var(--light-purple);
+  color: white;
+  border: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  margin-right: 4px;
+  padding: 10px 15px;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+/* Inactive‐tab hover: darken slightly */
+#toolTabs .nav-link:hover {
+  background: var(--dark-purple);
+}
+
+/* Active tab: white background, purple border */
+#toolTabs .nav-link.active {
+  background: white;
+  color: var(--dark-purple);
+  border: 2px solid var(--dark-purple);
+  border-bottom-color: white; /* merge with content below */
+}
+
+/* The content area under the tabs */
+#toolTabsContent {
+  border: 2px solid var(--dark-purple);
+  border-top: none;         /* remove top border so active tab’s border shows */
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background: white;
+  padding: 20px;
+  margin-top: -2px;         /* pull up to close gap under active tab */
+}
+
+/* On small screens, allow tabs to wrap neatly */
+@media (max-width: 576px) {
+  #toolTabs {
+    justify-content: center;
+  }
+  #toolTabs .nav-link {
+    margin-right: 2px;
+    margin-bottom: 4px;
+  }
+}
+/* Collapse any gap between the active tab and its panel */
+#toolTabsContent {
+  margin-top: -2px;      /* pull up so tab border blends into content */
+  padding-top: 0;        /* remove extra top padding */
+}
+
+/* If you still see a sliver of space, try -1px instead */
+#toolTabsContent {
+  margin-top: -1px;
+}
+
+/* Also ensure no top padding on the very first element inside the panel */
+#toolTabsContent > *:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}

@@ -22,20 +22,25 @@ from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy
 @csrf_exempt
 def add_question(request):
     if request.method == 'POST':
-        qualification = request.POST.get('q_qualification')
+        qualification = request.POST.get('q_qualification', '').strip()
         cs_selected_id = request.POST.get('q_case_study_select', '').strip()
         pasted_cs = request.POST.get('q_case_study', '').strip()
         text = request.POST.get('q_text', '').strip()
         marks = request.POST.get('q_marks', '').strip()
 
-        # Determine which case study to use
+        # Determine which case study to use:
         if cs_selected_id:
-            cs_obj = CaseStudy.objects.filter(id=cs_selected_id).first()
-            case_study_to_store = cs_obj.content if cs_obj else pasted_cs
+            # If it's a digit, treat it as an existing CaseStudy ID.
+            if cs_selected_id.isdigit():
+                cs_obj = CaseStudy.objects.filter(id=int(cs_selected_id)).first()
+                case_study_to_store = cs_obj.content if cs_obj else pasted_cs
+            else:
+                # Otherwise, the dropdown value was non‐numeric, so use it as pasted content.
+                case_study_to_store = cs_selected_id
         else:
             case_study_to_store = pasted_cs
 
-        # Validation
+        # Validation: all four fields must be non‐empty
         if not qualification or not text or not marks or not case_study_to_store:
             messages.error(request, "All fields (qualification, question text, marks, and a case study) are required.")
             return redirect('generate_tool_page')
@@ -49,8 +54,6 @@ def add_question(request):
 
         messages.success(request, "Question added to the databank.")
         return redirect('generate_tool_page')
-
-
 # ----------------------------
 # 2) Add a new Case Study
 # ----------------------------
@@ -71,53 +74,188 @@ def add_case_study(request):
 #    Generate (via Gemini or fallback) and Save
 # ----------------------------------------
 # Initialize Gemini client once
+
+genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+# chieta_lms/views.py
+
+import random
+import time
+import re
+import json
+import traceback
+
+from django.conf import settings
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, JSONParser
+from django.http import JsonResponse
+
+from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion
+from .utils import extract_text
+from google import genai
+
+# Initialize Gemini once
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 @csrf_exempt
 def generate_tool_page(request):
-    from .models import CaseStudy, Assessment, GeneratedQuestion
-
-    # 1) Fetch all case studies (for the “Add Question” dropdown)
+    # ─── Fetch dropdown data (case studies) ─────────────────────
     case_studies = CaseStudy.objects.all()
 
-    # 2) Fetch all saved assessments (for Preview & Feedback tabs)
-    assessments = Assessment.objects.all().order_by("-created_at")
+    # ─── Fetch ALL assessments; later we split by status ─────────
+    all_assessments = Assessment.objects.all().order_by("-created_at")
 
-    # Build the base context
+    # ─── Build context with both “awaiting” and “approved” lists ──
     context = {
         "case_study_list": case_studies,
-        "assessments": assessments,
+        # Papers whose status is still "Pending" (newly saved)
+        "awaiting_assessments": Assessment.objects.filter(status="Pending").order_by("-created_at"),
+        # Papers whose status indicates final approval
+        "approved_assessments": Assessment.objects.filter(
+            status__in=["Approved by Moderator", "Approved by ETQA"]
+        ).order_by("-created_at"),
+        # For the Question Bank tab
+        "question_bank_entries": QuestionBankEntry.objects.all().order_by("-created_at"),
+        # We still keep the full list around if you need it elsewhere
+        "assessments": all_assessments,
     }
 
-    if request.method == 'POST':
-        action = request.POST.get("action")
+    if request.method == "POST":
+        action = request.POST.get("action", "").strip()
 
-        # ─── SAVE PAPER ────────────────────────────────────────────
-        if action == "save":
+        # ─── 1) “Compile from Question Bank” ────────────────────
+        if action == "compile_from_bank":
+            qual = request.POST.get("qualification", "").strip()
+            raw_target = request.POST.get("mark_target", "").strip()
+            raw_num = request.POST.get("num_questions", "").strip()
+
+            # Basic validation
+            if not qual or not raw_target.isdigit() or not raw_num.isdigit():
+                messages.error(request, "Select qualification, numeric mark target, and numeric # of questions.")
+                return redirect("generate_tool_page")
+
+            target = int(raw_target)
+            num_qs = int(raw_num)
+
+            # Fetch matching entries
+            entries = list(QuestionBankEntry.objects.filter(qualification=qual))
+            if not entries:
+                messages.error(request, f"No questions found for '{qual}'.")
+                return redirect("generate_tool_page")
+
+            random.shuffle(entries)
+            compiled = []
+            total_marks = 0
+
+            # Pick until we hit either the mark‐target OR the requested number of questions
+            for entry in entries:
+                if len(compiled) >= num_qs:
+                    break
+                m = entry.marks or 0
+                if total_marks + m <= target:
+                    compiled.append(entry)
+                    total_marks += m
+                if total_marks >= target:
+                    break
+
+            context["compiled_questions"] = compiled
+            return render(request, "core/assessor-developer/generate_tool.html", context)
+
+        # ─── 2) “Generate (Gemini or fallback)” ───────────────────
+        elif action == "generate":
             try:
-                qual = request.POST.get("qualification")
+                qual = request.POST.get("qualification", "").strip()
+                target = int(request.POST.get("mark_target", "0").strip() or 0)
+                demo_file = request.FILES.get("file", None)
+
+                if not qual:
+                    raise ValueError("Qualification is required.")
+
+                if demo_file:
+                    # Gemini path
+                    text = extract_text(demo_file, demo_file.content_type)
+                    samples = QUESTION_BANK.get(qual, [])[:3]
+                    examples = "\n".join(f"- {q['text']}" for q in samples)
+
+                    prompt = (
+                        f"You’re an assessment generator for **{qual}**.\n"
+                        f"Here are some example questions:\n{examples}\n\n"
+                        "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
+                        "where each item has 'text', 'marks' and 'case_study'.\n\n"
+                        f"Past‐Papers Text:\n{text}"
+                    )
+                    resp = genai_client.models.generate_content(
+                        model="gemini-2.0-flash",
+                        contents=[prompt]
+                    )
+                    raw = resp.text.strip()
+                    if not raw:
+                        raise ValueError("Gemini returned an empty response.")
+
+                    cleaned = re.sub(r"^```json", "", raw)
+                    cleaned = re.sub(r"```$", "", cleaned)
+                    cleaned = cleaned.replace("“", '"').replace("”", '"')
+                    data = json.loads(cleaned)
+                    if "questions" not in data:
+                        raise ValueError("Missing 'questions' key in Gemini output.")
+
+                    all_qs = data["questions"]
+                else:
+                    # Fallback to in‐memory QUESTION_BANK
+                    all_qs = QUESTION_BANK.get(qual, [])
+
+                random.shuffle(all_qs)
+                selected = []
+                total_marks = 0
+                for q in all_qs:
+                    try:
+                        m = int(float(q.get("marks", 0)))
+                    except:
+                        m = 0
+                    if total_marks + m <= target:
+                        selected.append(q)
+                        total_marks += m
+                    if total_marks >= target:
+                        break
+
+                context.update({
+                    "questions": selected,
+                    "total": total_marks,
+                    "question_block": "\n\n".join(f"{q['text']} ({q['marks']} marks)" for q in selected)
+                })
+            except Exception as e:
+                context["error"] = str(e)
+
+            return render(request, "core/assessor-developer/generate_tool.html", context)
+
+        # ─── 3) “Save Generated Paper” ───────────────────────────
+        elif action == "save":
+            try:
+                qual = request.POST.get("qualification", "").strip()
                 question_block = request.POST.get("question_block", "").strip()
 
-                # Only parse a numeric case_study_id
                 raw_cs_id = request.POST.get("case_study_id", "").strip()
                 case_study_obj = None
                 if raw_cs_id.isdigit():
                     case_study_obj = CaseStudy.objects.filter(id=int(raw_cs_id)).first()
 
-                # Create a new Assessment record
+                # Create a new Assessment with status="Pending" (default)
                 assessment = Assessment.objects.create(
                     eisa_id=f"EISA-{str(int(time.time()))[-4:]}",
                     qualification=qual,
                     paper="AutoGen",
                     comment="Generated and saved via tool",
+                    # default status is “Pending,” so it will show up under awaiting_… 
                 )
 
-                # For each non-empty line, extract text + marks
+                # Parse each line of question_block, save as GeneratedQuestion
                 for line in question_block.split("\n"):
                     text_line = line.strip()
                     if not text_line:
                         continue
-
                     match = re.search(r"\((\d+)\s*marks?\)", text_line)
                     if match:
                         marks = int(match.group(1))
@@ -133,97 +271,75 @@ def generate_tool_page(request):
                         case_study=case_study_obj
                     )
 
-                context["success"] = "Assessment and questions saved successfully."
+                context["success"] = "Paper saved and is now awaiting approval."
             except Exception as e:
                 context["error"] = str(e)
 
-        # ─── GENERATE PAPER ────────────────────────────────────────
-        elif action == "generate":
-            try:
-                qual = request.POST.get("qualification")
-                target = int(request.POST.get("mark_target", 0))
-                demo_file = request.FILES.get("file", None)
+            # Re‐fetch “awaiting” and “approved” lists in case they’ve changed
+            context["awaiting_assessments"] = Assessment.objects.filter(status="Pending").order_by("-created_at")
+            context["approved_assessments"] = Assessment.objects.filter(
+                status__in=["Approved by Moderator", "Approved by ETQA"]
+            ).order_by("-created_at")
+            return render(request, "core/assessor-developer/generate_tool.html", context)
 
-                if not qual:
-                    raise ValueError("Qualification is required.")
-
-                if demo_file:
-                    text = extract_text(demo_file, demo_file.content_type)
-                    samples = QUESTION_BANK.get(qual, [])[:3]
-                    examples = "\n".join(f"- {q['text']}" for q in samples)
-
-                    prompt = (
-                        f"You’re an assessment generator for **{qual}**.\n"
-                        f"Here are some example questions:\n{examples}\n\n"
-                        "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
-                        "where each item has 'text', 'marks' and 'case_study'.\n\n"
-                        f"Past‐Papers Text:\n{text}"
-                    )
-
-                    resp = genai_client.models.generate_content(
-                        model="gemini-2.0-flash",
-                        contents=[prompt]
-                    )
-
-                    raw = resp.text.strip()
-                    if not raw:
-                        raise ValueError("Gemini API returned an empty response.")
-
-                    cleaned = re.sub(r"^```json", "", raw)
-                    cleaned = re.sub(r"```$", "", cleaned)
-                    cleaned = cleaned.replace("“", '"').replace("”", '"')
-
-                    data = json.loads(cleaned)
-                    if "questions" not in data:
-                        raise ValueError("Missing 'questions' key in Gemini output.")
-
-                    all_qs = data["questions"]
-                else:
-                    all_qs = QUESTION_BANK.get(qual, [])
-
-                random.shuffle(all_qs)
-                selected, total = [], 0
-                for q in all_qs:
-                    try:
-                        marks = int(float(q.get("marks", 0)))
-                    except:
-                        marks = 0
-                    if total + marks <= target:
-                        selected.append(q)
-                        total += marks
-
-                context.update({
-                    "questions": selected,
-                    "total": total,
-                    "question_block": "\n\n".join(f"{q['text']} ({q['marks']} marks)" for q in selected)
-                })
-            except Exception as e:
-                context["error"] = str(e)
-
+    # ─── GET (or no action) ──────────────────────────────────────
     return render(request, "core/assessor-developer/generate_tool.html", context)
 
 
 # ---------------------------------------
 # 4) DRF endpoint: returns JSON (for AJAX)
 # ---------------------------------------
+from django.db import transaction
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, JSONParser
+from django.http import JsonResponse
+import random
+import re
+import json
+import traceback
+
+from .utils import extract_text
+from .models import QuestionBankEntry, CaseStudy
+from google import genai
+
+# Initialize Gemini client once
+genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
 @api_view(["POST"])
 @parser_classes([MultiPartParser, JSONParser])
 def generate_tool(request):
     """
-    Accepts POST (qualification, mark_target, file) and returns:
-    {
-      "questions": [ { "text": "...", "marks": 5, "case_study": "..." }, … ],
-      "total": <sum of marks>
-    }
-    This is the JSON‐returning endpoint (e.g. for AJAX / fetch calls).
+    Accepts POST with:
+      - qualification (string)
+      - mark_target (int or numeric string)
+      - optional file (PDF/DOCX)
+
+    Returns JSON:
+      {
+        "questions": [
+           { "text": "...", "marks": 5, "case_study": "..." }, …
+        ],
+        "total": <sum of marks>
+      }
     """
     try:
-        qual = request.data.get("qualification")
-        target = int(request.data.get("mark_target", 0))
+        qual = request.data.get("qualification", "").strip()
+        raw_target = request.data.get("mark_target", "").strip()
         demo_file = request.FILES.get("file", None)
 
+        # Validate mark_target
+        if not raw_target.isdigit():
+            return JsonResponse(
+                {"error": "mark_target must be a number."},
+                status=400
+            )
+        target = int(raw_target)
+
+        # If a file was uploaded, use Gemini path
         if demo_file:
             text = extract_text(demo_file, demo_file.content_type)
+
+            # Optional: provide a few example questions from your in‐memory bank
             samples = QUESTION_BANK.get(qual, [])[:3]
             examples = "\n".join(f"- {q['text']}" for q in samples)
 
@@ -231,7 +347,7 @@ def generate_tool(request):
                 f"You’re an assessment generator for **{qual}**.\n"
                 f"Here are some example questions:\n{examples}\n\n"
                 "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
-                "where each item has 'text', 'marks' and 'case_study'.\n\n"
+                "where each item has 'text', 'marks', and 'case_study'.\n\n"
                 f"Past‐Papers Text:\n{text}"
             )
 
@@ -239,11 +355,11 @@ def generate_tool(request):
                 model="gemini-2.0-flash",
                 contents=[prompt]
             )
-
             raw = resp.text.strip()
             if not raw:
                 return JsonResponse({"error": "Gemini returned an empty response."}, status=500)
 
+            # Clean up JSON fences, smart quotes, etc.
             cleaned = re.sub(r"^```json", "", raw)
             cleaned = re.sub(r"```$", "", cleaned)
             cleaned = cleaned.replace("“", '"').replace("”", '"')
@@ -254,7 +370,7 @@ def generate_tool(request):
                 return JsonResponse({
                     "error": "Invalid JSON received from Gemini.",
                     "details": str(err),
-                    "raw": cleaned[:300]
+                    "raw_snippet": cleaned[:200]
                 }, status=500)
 
             if "questions" not in data:
@@ -264,31 +380,62 @@ def generate_tool(request):
                 }, status=500)
 
             all_qs = data["questions"]
-        else:
-            all_qs = QUESTION_BANK.get(qual, [])
 
+        # Otherwise, pull from QuestionBankEntry (database)
+        else:
+            # 1) Fetch all QuestionBankEntry matching this qualification
+            entries = list(QuestionBankEntry.objects.filter(qualification=qual))
+            if not entries:
+                return JsonResponse(
+                    {"error": f"No questions found in the bank for qualification '{qual}'."},
+                    status=404
+                )
+
+            # 2) Shuffle and pick until mark_target is reached (or just under)
+            random.shuffle(entries)
+            selected = []
+            total = 0
+
+            for entry in entries:
+                entry_marks = entry.marks or 0
+                if total + entry_marks <= target:
+                    selected.append({
+                        "text": entry.text,
+                        "marks": entry_marks,
+                        "case_study": entry.case_study or ""
+                    })
+                    total += entry_marks
+                if total >= target:
+                    break
+
+            all_qs = selected
+
+        # If we got here, all_qs is a list of dicts with keys "text", "marks", and "case_study"
+        # Now ensure we don't exceed mark target again (in case Gemini returned too many)
         random.shuffle(all_qs)
-        selected, total = [], 0
+        final_selection = []
+        running_sum = 0
 
         for q in all_qs:
             try:
-                marks = int(float(q.get("marks", 0)))
-            except:
-                marks = 0
-
-            if total + marks <= target:
-                selected.append(q)
-                total += marks
+                m = int(q.get("marks", 0))
+            except (ValueError, TypeError):
+                m = 0
+            if running_sum + m <= target:
+                final_selection.append(q)
+                running_sum += m
+            if running_sum >= target:
+                break
 
         return JsonResponse({
-            "questions": selected,
-            "total": total
+            "questions": final_selection,
+            "total": running_sum
         })
 
     except Exception as e:
         return JsonResponse({
             "error": str(e),
-            "traceback": traceback.format_exc()
+            "traceback": traceback.format_exc().splitlines()[:5]  # send first few lines
         }, status=500)
 
 
