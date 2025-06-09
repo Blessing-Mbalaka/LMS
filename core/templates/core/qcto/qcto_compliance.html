@@ -7,22 +7,140 @@
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    .content { padding: 20px; }
-    table { width:100%; border-collapse: collapse; background:#fff; margin-top:20px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);} 
-    th, td { padding:12px; text-align:center; border-bottom:1px solid #eee; }
-    thead { background-color:#580658; color:#fff; }
-    textarea { width:90%; padding:6px; resize:vertical; border-radius:6px; border:1px solid #ccc; }
-    .action-buttons button { margin:5px; padding:6px 12px; border:none; border-radius:6px; color:#fff; font-weight:bold; cursor:pointer; }
-    .approve-btn{ background:green; } .reject-btn{ background:red;} .info-btn{ background:orange; }
+    .dashboard-container {
+      display: flex;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #fff;
+      border-right: 1px solid #ccc;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+    thead {
+      background-color: #580658;
+      color: #fff;
+    }
+    textarea {
+      width: 90%;
+      padding: 6px;
+      resize: vertical;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .action-buttons a {
+      margin: 5px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .approve-btn { background-color: green; }
+    .reject-btn { background-color: red; }
+    .info-btn { background-color: orange; }
+    .graduate-icon img {
+      width: 130px;
+      margin-bottom: 20px;
+    }
+    .sidebar-nav {
+      list-style: none;
+      padding-left: 0;
+    }
+    .sidebar-nav li {
+      margin-bottom: 15px;
+    }
+    .sidebar-nav a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-link.active {
+      color: #580658;
+    }
+    .sidebar-footer img {
+      width: 100%;
+      margin-top: 40px;
+    }
   </style>
 </head>
 <body>
   <div class="dashboard-container">
-    <div class="sidebar">… your sidebar HTML …</div>
+    <div class="sidebar">
+      <div class="graduate-icon">
+        <a href="{% url 'qcto_dashboard' %}">
+          <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
+        </a>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="nav-item">
+          <a href="{% url 'qcto_dashboard' %}" class="nav-link{% if request.resolver_match.url_name == 'qcto_dashboard' %} active{% endif %}">
+            <i class="fa fa-tachometer-alt"></i><span>Dashboard</span>
+          </a>
+        </li>
+        
+
+<li class="nav-item">
+  <a href="{% url 'qcto_assessment_review' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_assessment_review' %} active{% endif %}">
+    <i class="fa fa-check"></i> Final Assessment Review
+  </a>
+</li>
+
+
+
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'qcto_compliance' %}" class="nav-link{% if request.resolver_match.url_name == 'qcto_compliance' %} active{% endif %}">
+            <i class="fa fa-clipboard-check"></i><span>Compliance & Reports</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'qcto_archive' %}" class="nav-link{% if request.resolver_match.url_name == 'qcto_archive' %} active{% endif %}">
+            <i class="fa fa-archive"></i><span>Assessment Archive</span>
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art">
+      </div>
+    </div>
+
     <div class="content">
       <h2 style="text-align:center;">QCTO Compliance Checks</h2>
       <table>
-        <thead><tr><th>EISA ID</th><th>Qualification</th><th>Paper No.</th><th>Issues Found</th><th>Reviewer Comments</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr>
+            <th>EISA ID</th>
+            <th>Qualification</th>
+            <th>Paper No.</th>
+            <th>Issues Found</th>
+            <th>Reviewer Comments</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
         <tbody>
           {% for a in assessments %}
           <tr>
@@ -37,7 +155,9 @@
               <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}" class="info-btn">Request Info</a>
             </td>
           </tr>
-          {% empty %}<tr><td colspan="6">No assessments available.</td></tr>{% endfor %}
+          {% empty %}
+          <tr><td colspan="6">No assessments available.</td></tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

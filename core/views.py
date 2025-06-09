@@ -778,12 +778,21 @@ def qcto_archive(request):
     return render(request, "core/qcto/qcto_archive.html", {"archives": archives})
 
 # 7) QCTO View Single Assessment Details
-@require_http_methods(["GET"])
 def qcto_view_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
-    # Prepare context
-    context = {
+    generated_questions = GeneratedQuestion.objects.filter(assessment=assessment)
+    return render(request, 'core/qcto/qcto_view_assessment.html', {
         'assessment': assessment,
-        'generated_questions': assessment.generated_questions.all(),
-    }
-    return render(request, "core/qcto/qcto_view_assessment.html", context)
+        'generated_questions': generated_questions
+    })
+
+#8) QCTO Assessment view logic
+@require_http_methods(["GET"])
+def qcto_latest_assessment_detail(request):
+    latest = Assessment.objects.filter(status="Approved by ETQA").order_by("-created_at").first()
+    questions = GeneratedQuestion.objects.filter(assessment=latest)
+
+    return render(request, "core/qcto/qcto_view_assessment.html", {
+        "assessment": latest,
+        "generated_questions": questions,
+    })

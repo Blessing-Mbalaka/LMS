@@ -23,6 +23,7 @@
     .reports-container h2 {
       color: #552a74;
       margin-bottom: 25px;
+      text-align: center;
     }
 
     table.report-table {
@@ -53,7 +54,7 @@
 </head>
 <body>
   <div class="dashboard-container">
-    <!-- SIDEBAR (Same as Dashboard) -->
+    <!-- SIDEBAR (Identical to Dashboard) -->
     <div class="sidebar">
       <div class="graduate-icon">
         <a href="{% url 'qcto_dashboard' %}">
@@ -61,10 +62,8 @@
         </a>
       </div><br><br>
       <ul>
-        <li>
-  <a href="{% url 'qcto_assessment_review' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_assessment_review' %} active{% endif %}">
-    <i class="fa fa-check"></i> Final Assessment Review</a>
-</li>
+        <li><a href="{% url 'qcto_dashboard' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_dashboard' %} active{% endif %}"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="{% url 'qcto_assessment_review' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_assessment_review' %} active{% endif %}"><i class="fa fa-check"></i> Final Assessment Review</a></li>
         <li><a href="{% url 'qcto_compliance' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_compliance' %} active{% endif %}"><i class="fa fa-clipboard-check"></i> Compliance Check</a></li>
         <li><a href="{% url 'qcto_reports' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_reports' %} active{% endif %}"><i class="fa fa-chart-line"></i> Reports</a></li>
         <li><a href="{% url 'qcto_archive' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_archive' %} active{% endif %}"><i class="fa fa-archive"></i> Assessment Archive</a></li>

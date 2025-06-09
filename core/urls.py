@@ -17,6 +17,9 @@ from core.views import (
     checklist_stats,
     toggle_checklist_item, qcto_dashboard, qcto_moderate_assessment, qcto_compliance,qcto_assessment_review,
     qcto_archive,
+    qcto_reports,
+    qcto_view_assessment,
+    qcto_latest_assessment_detail
 
 )
 
@@ -42,6 +45,11 @@ urlpatterns = [
      path('qcto/compliance/', qcto_compliance, name='qcto_compliance'),
     path('qcto/review/', qcto_assessment_review, name='qcto_assessment_review'),
     path('qcto/archive/', qcto_archive, name='qcto_archive'),
+    path('qcto/reports/', qcto_reports, name='qcto_reports'),
+    path('qcto/<str:eisa_id>/view/', qcto_view_assessment, name='qcto_view_assessment'),
+    path("qcto/view-latest/", qcto_latest_assessment_detail, name="qcto_latest_assessment_detail"),
+
+
     
 ]
 
