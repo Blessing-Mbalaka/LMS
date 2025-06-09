@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Review Final Assessments | QCTO | CHIETA</n  <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    .content { padding: 30px; background-color: #efeaea; background-image: url("{% static 'core/images/Frame.png' %}"); background-repeat: no-repeat; background-size: cover; }
+    table { width: 100%; border-collapse: collapse; background: #fff; margin-top: 20px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    th, td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
+    thead { background-color: #552a74; color: white; }
+    textarea { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ccc; resize: vertical; }
+    button.action-btn { margin: 4px; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .approve { background: #28a745; color: white; }
+    .reject { background: #dc3545; color: white; }
+    .view-btn { background: #552a74; color: white; }
+    #pdfModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; }
+    #pdfModal iframe { width: 100%; height: 90%; border: none; }
+    #pdfModal .topbar { padding: 10px; text-align: right; background: #552a74; }
+    #pdfModal .topbar button { padding: 6px 12px; background: white; color: #552a74; border: none; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="sidebar">… your sidebar HTML …</div>
+    <div class="content">
+      <h2 style="text-align: center;">QCTO: Final Assessment Review</h2>
+      <table>
+        <thead><tr><th>Assessment ID</th><th>Qualification</th><th>View PDF</th><th>Comment</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for r in reviews %}
+          <tr>
+            <td>{{ r.eisa_id }}</td>
+            <td>{{ r.qualification }}</td>
+            <td><a href="{% url 'qcto_view_assessment' r.eisa_id %}" class="action-btn view-btn">📄 View</a></td>
+            <td><textarea placeholder="Leave comment..."></textarea></td>
+            <td>
+              <a href="{% url 'qcto_moderate_assessment' r.eisa_id %}" class="action-btn approve">Approve</a>
+              <a href="{% url 'qcto_moderate_assessment' r.eisa_id %}" class="action-btn reject">Reject</a>
+            </td>
+          </tr>
+          {% empty %}<tr><td colspan="5">No assessments to review.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div id="pdfModal">
+    <div class="topbar"><button onclick="closePDF()">Close Preview</button></div>
+    <iframe id="pdfFrame"></iframe>
+  </div>
+  <script>
+    function closePDF() {
+      document.getElementById('pdfModal').style.display='none';
+      document.getElementById('pdfFrame').src='';
+    }
+  </script>
+</body>
+</html>

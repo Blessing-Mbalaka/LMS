@@ -1,11 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
-from google import genai
-from docx import Document
-import fitz
-
-# Gemini API key
-genai_client = genai.Client(api_key="AIzaSyB2IyI2KVqDLexX2AdqPMP6aeja23aZCKw")
 
 class Assessment(models.Model):
     eisa_id              = models.CharField(max_length=20, unique=True)
@@ -19,6 +12,7 @@ class Assessment(models.Model):
     forward_to_moderator = models.BooleanField(default=False)
     moderator_notes      = models.TextField(blank=True)
     created_at           = models.DateTimeField(auto_now_add=True)
+    qcto_notes           = models.TextField(blank=True)
 
     STATUS_CHOICES = [
         ("Pending", "Pending"),
@@ -31,13 +25,17 @@ class Assessment(models.Model):
     ]
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="Pending")
 
-    # Optional: add these if you'd like per-role feedback
-    # etqa_notes = models.TextField(blank=True)
-    # moderator_feedback_date = models.DateTimeField(null=True, blank=True)
-    # etqa_feedback_date = models.DateTimeField(null=True, blank=True)
-
     def __str__(self):
         return self.eisa_id
+
+
+class CaseStudy(models.Model):
+    title   = models.CharField(max_length=200)
+    content = models.TextField()
+    
+    
+    def __str__(self):
+        return self.title
 
 
 class GeneratedQuestion(models.Model):
@@ -46,9 +44,14 @@ class GeneratedQuestion(models.Model):
         related_name='generated_questions',
         on_delete=models.CASCADE
     )
-    text = models.TextField()
-    marks = models.PositiveIntegerField()
-    case_study = models.ForeignKey('CaseStudy', on_delete=models.SET_NULL, null=True, blank=True)
+    text       = models.TextField()
+    marks      = models.PositiveIntegerField()
+    case_study = models.ForeignKey(
+        CaseStudy,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -57,18 +60,39 @@ class GeneratedQuestion(models.Model):
 
 class QuestionBankEntry(models.Model):
     qualification = models.CharField(max_length=255)
-    text = models.TextField()
-    marks = models.IntegerField()
-    case_study = models.TextField(blank=True, null=True)
+    text          = models.TextField()
+    marks         = models.IntegerField()
+    case_study    = models.TextField(blank=True, null=True)
+    created_at    = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.qualification}: {self.text[:50]}…"
+
+
+class ChecklistItem(models.Model):
+    label     = models.CharField(max_length=200)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.label
+
+
+class Feedback(models.Model):
+    assessment = models.ForeignKey(
+        Assessment,
+        on_delete=models.CASCADE,
+        related_name='feedbacks'
+    )
+    to_user    = models.CharField(max_length=100)
+    message    = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Revised", "Revised"),
+        ("Completed", "Completed"),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
+
     def __str__(self):
-        return f"{self.qualification}: {self.text[:50]}..."
-
-
-class CaseStudy(models.Model):
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-
-    def __str__(self):
-        return self.title
+        return f"{self.assessment.eisa_id} → {self.to_user}"

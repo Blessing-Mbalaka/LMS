@@ -4,8 +4,9 @@ import json
 import random
 import time
 import re
+import csv
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse,  HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
@@ -14,7 +15,9 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 from .question_bank import QUESTION_BANK
 from .utils import extract_text
-from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy
+from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy 
+from django.views.decorators.http import require_http_methods
+
 
 # -------------------------------------------
 # 1) Add a new question to the Question Bank
@@ -499,10 +502,13 @@ def assessor_reports(request):
 # -------------------------------------------
 def assessment_archive(request):
     qs = Assessment.objects.all()
-    qual = request.GET.get("qualification", "")
-    paper = request.GET.get("paper", "").strip()
-    status = request.GET.get("status", "")
 
+    # 1) grab the raw filter values
+    qual   = request.GET.get("qualification", "").strip()
+    paper  = request.GET.get("paper", "").strip()
+    status = request.GET.get("status", "").strip()
+
+    # 2) apply them if present
     if qual:
         qs = qs.filter(qualification=qual)
     if paper:
@@ -510,14 +516,42 @@ def assessment_archive(request):
     if status:
         qs = qs.filter(status=status)
 
+    # 3) for the dropdowns, fetch the distinct set of qualifications & statuses
+    all_quals    = (
+        Assessment.objects
+        .order_by("qualification")
+        .values_list("qualification", flat=True)
+        .distinct()
+    )
+    all_statuses = [c[0] for c in Assessment.STATUS_CHOICES]
+
+    # 4) CSV export
+    if request.GET.get("export") == "csv":
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="assessment_archive.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["EISA ID", "Qualification", "Paper", "Status", "Date"])
+
+        for a in qs:
+            writer.writerow([
+                a.eisa_id,
+                a.qualification,
+                a.paper,
+                a.status,
+                a.created_at.date().isoformat()
+            ])
+
+        return response
+
+    # 5) render HTML
     return render(request, "core/assessor-developer/assessment_archive.html", {
-        "assessments": qs,
+        "assessments":          qs,
         "filter_qualification": qual,
-        "filter_paper": paper,
-        "filter_status": status,
+        "filter_paper":         paper,
+        "filter_status":        status,
+        "all_qualifications":   all_quals,
+        "all_statuses":         all_statuses,
     })
-
-
 # -----------------------------
 # 8) Assessor Dashboard (list)
 # -----------------------------
@@ -578,3 +612,178 @@ def view_assessment(request, eisa_id):
         'assessment': assessment,
         'questions': questions
     })
+#---------------------------------------------------------------------------------------
+ 
+
+def moderator_developer_dashboard(request):
+    from .models import Assessment, Feedback
+    pending   = Assessment.objects.filter(status="Submitted to Moderator")\
+                                  .order_by("-created_at")
+    recent_fb = Feedback.objects.select_related("assessment")\
+                                .order_by("-created_at")[:10]
+
+    return render(request, "core/assessor-developer/moderator_developer.html", {
+        "pending_assessments": pending,
+        "recent_feedback": recent_fb,
+    })
+
+
+@require_http_methods(["GET", "POST"])
+def moderate_assessment(request, eisa_id):
+    a = get_object_or_404(Assessment, eisa_id=eisa_id)
+
+    if request.method == "POST":
+        new_status = request.POST.get("status")
+        notes      = request.POST.get("moderator_notes", "").strip()
+
+        # Validate choice
+        valid = dict(Assessment.STATUS_CHOICES)
+        if new_status not in valid:
+            messages.error(request, "Invalid status.")
+        else:
+            a.status          = new_status
+            a.moderator_notes = notes
+            a.save()
+            messages.success(request, f"{a.eisa_id} updated to “{new_status}.”")
+        return redirect("moderator_developer")
+
+    return render(request, "core/assessor-developer/moderate_assessment.html", {
+        "assessment": a,
+        "status_choices": Assessment.STATUS_CHOICES,
+    })
+
+@require_http_methods(["POST"])
+def add_feedback(request, eisa_id):
+    a      = get_object_or_404(Assessment, eisa_id=eisa_id)
+    to     = request.POST.get("to_user", "").strip()
+    msg    = request.POST.get("message", "").strip()
+    status = request.POST.get("status", "Pending")
+
+    if not to or not msg:
+        messages.error(request, "Both recipient and message are required.")
+    else:
+        Feedback.objects.create(
+            assessment=a,
+            to_user=to,
+            message=msg,
+            status=status
+        )
+        messages.success(request, "Feedback added.")
+    return redirect("moderator_developer")
+# checklist
+from django.http import JsonResponse, Http404
+from .models import ChecklistItem  # wherever you keep your checklist model
+
+def toggle_checklist_item(request, item_id):
+    try:
+        item = ChecklistItem.objects.get(pk=item_id)
+        item.completed = not item.completed
+        item.save()
+        return JsonResponse({"status": "ok", "completed": item.completed})
+    except ChecklistItem.DoesNotExist:
+        raise Http404()
+
+def checklist_stats(request):
+    total   = ChecklistItem.objects.count()
+    done    = ChecklistItem.objects.filter(completed=True).count()
+    pending = total - done
+    return JsonResponse({
+        "total": total,
+        "completed": done,
+        "pending": pending
+    })
+
+# QCTO Dashboard: list assessments submitted to ETQA
+@require_http_methods(["GET"])
+def qcto_dashboard(request):
+    pending = Assessment.objects.filter(status="Submitted to ETQA").order_by("-created_at")
+    return render(request, "core/qcto/qcto_dashboard.html", {
+        "pending_assessments": pending,
+    })
+
+# QCTO Moderate Assessment: view + update status and notes
+@require_http_methods(["GET", "POST"])
+def qcto_moderate_assessment(request, eisa_id):
+    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+    if request.method == "POST":
+        notes = request.POST.get("qcto_notes", "").strip()
+        new_status = request.POST.get("status")
+        valid_statuses = [choice[0] for choice in Assessment.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, "Invalid status selection.")
+        else:
+            assessment.qcto_notes = notes
+            assessment.status = new_status
+            assessment.save()
+            messages.success(request, f"{assessment.eisa_id} updated to {new_status}.")
+        return redirect("qcto_dashboard")
+    # On GET: render with current assessment and choices
+    return render(request, "core/qcto/qcto_moderate_assessment.html", {
+        "assessment": assessment,
+        "status_choices": [
+            ("Approved by ETQA", "Approve"),
+            ("Rejected", "Reject"),
+        ],
+    })
+    # 1) QCTO Dashboard: list assessments submitted to ETQA
+@require_http_methods(["GET"])
+def qcto_dashboard(request):
+    pending = Assessment.objects.filter(status="Submitted to ETQA").order_by("-created_at")
+    return render(request, "core/qcto/qcto_dashboard.html", {"pending_assessments": pending})
+
+# 2) QCTO Moderate Assessment: view + update status and notes
+@require_http_methods(["GET", "POST"])
+def qcto_moderate_assessment(request, eisa_id):
+    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+    if request.method == "POST":
+        notes = request.POST.get("qcto_notes", "").strip()
+        new_status = request.POST.get("status")
+        valid_statuses = [choice[0] for choice in Assessment.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, "Invalid status selection.")
+        else:
+            assessment.qcto_notes = notes
+            assessment.status = new_status
+            assessment.save()
+            messages.success(request, f"{assessment.eisa_id} updated to {new_status}.")
+        return redirect("qcto_dashboard")
+    return render(request, "core/qcto/qcto_moderate_assessment.html", {
+        "assessment": assessment,
+        "status_choices": [("Approved by ETQA", "Approve"), ("Rejected", "Reject")],
+    })
+
+# 3) QCTO Reports: summary of QCTO-approved assessments
+@require_http_methods(["GET"])
+def qcto_reports(request):
+    from django.db.models import Count
+    stats = Assessment.objects.filter(status="Approved by ETQA").values('qualification').annotate(validated_count=Count('id')).order_by('qualification')
+    return render(request, "core/qcto/qcto_reports.html", {"stats": stats})
+
+# 4) QCTO Compliance & Reports: overview all assessments
+@require_http_methods(["GET"])
+def qcto_compliance(request):
+    assessments = Assessment.objects.all().order_by('-created_at')
+    return render(request, "core/qcto/qcto_compliance.html", {"assessments": assessments})
+
+# 5) QCTO Final Assessment Review: list for QCTO decision
+@require_http_methods(["GET"])
+def qcto_assessment_review(request):
+    reviews = Assessment.objects.filter(status="Submitted to ETQA").order_by('-created_at')
+    return render(request, "core/qcto/qcto_assessment_review.html", {"reviews": reviews})
+
+# 6) QCTO Archive: list archived QCTO decisions
+@require_http_methods(["GET"])
+def qcto_archive(request):
+    archives = Assessment.objects.filter(status__in=["Approved by ETQA", "Rejected"]).order_by('-created_at')
+    return render(request, "core/qcto/qcto_archive.html", {"archives": archives})
+
+# 7) QCTO View Single Assessment Details
+@require_http_methods(["GET"])
+def qcto_view_assessment(request, eisa_id):
+    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+    # Prepare context
+    context = {
+        'assessment': assessment,
+        'generated_questions': assessment.generated_questions.all(),
+    }
+    return render(request, "core/qcto/qcto_view_assessment.html", context)
