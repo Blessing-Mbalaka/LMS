@@ -59,14 +59,43 @@ class GeneratedQuestion(models.Model):
 
 
 class QuestionBankEntry(models.Model):
-    qualification = models.CharField(max_length=255)
-    text          = models.TextField()
-    marks         = models.IntegerField()
-    case_study    = models.TextField(blank=True, null=True)
-    created_at    = models.DateTimeField(auto_now_add=True)
+    QUESTION_TYPE_CHOICES = [
+        ("standard",   "Standard"),
+        ("case_study", "Case Study"),
+        ("mcq",        "Multiple Choice"),
+    ]
+
+    qualification   = models.CharField(max_length=255)
+    question_type   = models.CharField(
+                        max_length=20,
+                        choices=QUESTION_TYPE_CHOICES,
+                        default="standard"
+                     )
+    text            = models.TextField()
+    marks           = models.PositiveIntegerField()
+    # only used when question_type == "case_study"
+    case_study      = models.ForeignKey(
+                        "CaseStudy",
+                        on_delete=models.SET_NULL,
+                        null=True, blank=True
+                     )
+    created_at      = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.qualification}: {self.text[:50]}…"
+        return f"[{self.get_question_type_display()}] {self.text[:30]}…"
+
+class MCQOption(models.Model):
+    question = models.ForeignKey(
+                  QuestionBankEntry,
+                  on_delete=models.CASCADE,
+                  limit_choices_to={"question_type": "mcq"},
+                  related_name="options"
+               )
+    text     = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{'✔' if self.is_correct else '✗'} {self.text}"
 
 
 class ChecklistItem(models.Model):

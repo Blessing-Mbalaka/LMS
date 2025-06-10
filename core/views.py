@@ -1,5 +1,9 @@
-# chieta_lms/views.py
 
+import traceback
+from django.contrib import messages
+from rest_framework.parsers import MultiPartParser, JSONParser
+from django.http import JsonResponse
+from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion
 import json
 import random
 import time
@@ -17,7 +21,46 @@ from .question_bank import QUESTION_BANK
 from .utils import extract_text
 from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy 
 from django.views.decorators.http import require_http_methods
+from collections import defaultdict
 
+genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+
+#0) Databank View 2025/06/10 made to handle logic for the databank for the question generation.
+def databank_view(request):
+    if request.method == "POST":
+        # common fields
+        qt   = request.POST["question_type"]
+        q    = QuestionBankEntry.objects.create(
+                  qualification = request.POST["qualification"],
+                  question_type = qt,
+                  text          = request.POST["text"],
+                  marks         = request.POST["marks"],
+                  case_study    = (
+                    CaseStudy.objects.get(pk=request.POST["case_study"])
+                    if qt=="case_study" else None
+                  )
+              )
+        # handle MCQ options if needed
+        if qt == "mcq":
+            for i in range(1, 5):  # assuming 4 options
+                txt = request.POST.get(f"opt_text_{i}")
+                corr = request.POST.get(f"opt_correct_{i}") == "on"
+                if txt:
+                    q.options.create(text=txt, is_correct=corr)
+        return redirect("databank")
+
+    # GET → build grouping and dropdowns
+    entries = QuestionBankEntry.objects.select_related("case_study").prefetch_related("options").all()
+    databank = defaultdict(list)
+    for e in entries:
+        databank[e.qualification].append(e)
+
+    return render(request, "core/databank.html", {
+        "databank":        dict(databank),
+        "qualifications":  sorted({e.qualification for e in entries}),
+        "case_studies":    CaseStudy.objects.all(),
+    })
 
 # -------------------------------------------
 # 1) Add a new question to the Question Bank
@@ -71,37 +114,6 @@ def add_case_study(request):
             messages.success(request, "Case study added successfully.")
     return redirect("generate_tool_page")
 
-
-# ----------------------------------------
-# 3) “Regular” view: render HTML + handle
-#    Generate (via Gemini or fallback) and Save
-# ----------------------------------------
-# Initialize Gemini client once
-
-genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
-# chieta_lms/views.py
-
-import random
-import time
-import re
-import json
-import traceback
-
-from django.conf import settings
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, JSONParser
-from django.http import JsonResponse
-
-from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion
-from .utils import extract_text
-from google import genai
-
-# Initialize Gemini once
-genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 @csrf_exempt
 def generate_tool_page(request):
@@ -295,20 +307,7 @@ def generate_tool_page(request):
 # 4) DRF endpoint: returns JSON (for AJAX)
 # ---------------------------------------
 from django.db import transaction
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, JSONParser
-from django.http import JsonResponse
-import random
-import re
-import json
-import traceback
 
-from .utils import extract_text
-from .models import QuestionBankEntry, CaseStudy
-from google import genai
-
-# Initialize Gemini client once
-genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, JSONParser])
