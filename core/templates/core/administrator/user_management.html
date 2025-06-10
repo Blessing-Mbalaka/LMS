@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management | CHIETA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+  <style>
+    .content {
+      background-color: #efeaea;
+      background-image: url("{% static 'core/images/Frame.png' %}");
+      background-repeat: no-repeat;
+      background-size: cover;
+      opacity: 0.9;
+    }
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1050 !important;
+    }
+    .modal-content {
+      z-index: 1060 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="sidebar">
+      <div class="graduate-icon">
+        <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
+      </div><br><br>
+      <ul>
+        <li><a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="{% url 'assessment_centres' %}" class="nav-item"><i class="fa fa-upload"></i>Assessment Centres</a></li>
+        <li><a href="{% url 'user_management' %}" class="nav-item"><i class="fa fa-cogs"></i>User Management</a></li>
+        <li>🔔 Notifications</li>
+        <li>🛠️ Help & Support</li><br><br><br><br>
+        <button class="fixy">⚙️ Settings</button>
+        <button class="fix">🚪 Log Out</button><br>
+      </ul>
+      <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
+    </div>
+
+    <div class="content p-4">
+      <div class="welcome-container">
+        <div class="image-container">
+          <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Profile Picture" width="390px" height="190px">
+        </div>
+        <div class="welcome-box">
+          <h2 class="mb-4">User Management</h2>
+          <div class="date">Archived Assessments</div>
+          <button class="gradient-button">Innovating for Impact</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">+ Add New User</button>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Assign Role</th>
+                <th>Assign Qualification</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+              <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.user.email }}</td>
+                <td>{{ user.get_role_display }}</td>
+                <td>
+                  <form method="post" action="{% url 'update_user_role' user.id %}">
+                    {% csrf_token %}
+                    <select class="form-select form-select-sm" name="role" onchange="this.form.submit()">
+                      {% for value, label in user.ROLE_CHOICES %}
+                      <option value="{{ value }}" {% if user.role == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </form>
+                </td>
+                <td>
+                  <form method="post" action="{% url 'update_user_qualification' user.id %}">
+                    {% csrf_token %}
+                    <select class="form-select form-select-sm" name="qualification" onchange="this.form.submit()">
+                      {% for qual in qualifications %}
+                      <option value="{{ qual.id }}" {% if user.qualification.id == qual.id %}selected{% endif %}>{{ qual.code }}</option>
+                      {% endfor %}
+                    </select>
+                  </form>
+                </td>
+                <td>
+                  <form method="post" action="{% url 'toggle_user_status' user.id %}">
+                    {% csrf_token %}
+                    {% if user.is_active %}
+                      <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
+                    {% else %}
+                      <button type="submit" class="btn btn-sm btn-success">Reactivate</button>
+                    {% endif %}
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div> <!-- end of content -->
+  </div> <!-- end of dashboard-container -->
+
+  <!-- Modal placed outside of sidebar/content -->
+  <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="{% url 'user_management' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="newUserName" class="form-label">Name</label>
+              <input type="text" class="form-control" id="newUserName" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="newUserEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="newUserEmail" name="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="newUserRole" class="form-label">Role</label>
+              <select class="form-select" id="newUserRole" name="role" required>
+                <option value="assessor">Assessor</option>
+                <option value="moderator">Moderator</option>
+                <option value="qcto">QCTO</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="newUserQualification" class="form-label">Qualification</label>
+              <select class="form-select" id="newUserQualification" name="qualification" required>
+                {% for qual in qualifications %}
+                <option value="{{ qual.id }}">{{ qual.code }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success">Save User</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

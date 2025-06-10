@@ -19,11 +19,147 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 from .question_bank import QUESTION_BANK
 from .utils import extract_text
-from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy 
+from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy, Feedback
 from django.views.decorators.http import require_http_methods
 from collections import defaultdict
+from django.contrib import messages
+#from django.contrib.auth.decorators import login_required
+from .models import UserProfile, Qualification
+from .forms import UserProfileForm
 
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+#temporary assessment centres view
+
+#@login_required#
+def AssessmentCentre(request):
+    # Get all assessment centres with their qualifications
+    centres = AssessmentCentre.objects.all().select_related('qualification_assigned')
+    qualifications = Qualification.objects.all()
+    
+    if request.method == 'POST':
+        # Handle form submission for adding new centre
+        form = AssessmentCentreForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Assessment centre added successfully!')
+            return redirect('assessment_centres')
+    else:
+        form = AssessmentCentreForm()
+    
+    context = {
+        'centres': centres,
+        'qualifications': qualifications,
+        'form': form,
+    }
+    return render(request, 'core/centre.html', context)
+
+#@login_required#
+def edit_assessment_centre(request, centre_id):
+    centre = AssessmentCentre.objects.get(id=centre_id)
+    
+    if request.method == 'POST':
+        form = AssessmentCentreForm(request.POST, instance=centre)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Assessment centre updated successfully!')
+            return redirect('assessment_centres')
+    else:
+        form = AssessmentCentreForm(instance=centre)
+    
+    context = {
+        'centre': centre,
+        'form': form,
+    }
+    return render(request, 'core/edit_centre.html', context)
+
+# @login_required#
+def delete_assessment_centre(request, centre_id):
+    centre = AssessmentCentre.objects.get(id=centre_id)
+    centre.delete()
+    messages.success(request, 'Assessment centre removed successfully!')
+    return redirect('assessment_centres')
+
+
+#temporary dashboard admin_dashboard 
+def admin_dashboard(request):
+    # will add billies logic here
+    context = {
+        'total_users': 512,
+        'tools': [
+            {'qualification': 'ABC123', 'status': 'Pending', 'uploaded_by': 'Admin'},
+            {'qualification': 'XYZ456', 'status': 'Approved', 'uploaded_by': 'Admin'},
+            {'qualification': 'DEF789', 'status': 'Rejected', 'uploaded_by': 'Admin'},
+        ]
+    }
+    return render(request, 'core/admin_dashboard.html', context)
+
+#temporary placeholder login logic--to be replaced with Billies logic
+
+#@login_required#
+def user_management(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        role = request.POST.get("role")
+        qualification_id = request.POST.get("qualification")
+
+        qualification = Qualification.objects.filter(id=qualification_id).first()
+
+        if name and email and role and qualification:
+            if not User.objects.filter(username=email).exists():
+                user = User.objects.create_user(username=email, email=email)
+                UserProfile.objects.create(
+                    user=user,
+                    name=name,
+                    role=role,
+                    qualification=qualification,
+                    is_active=True,
+                )
+                messages.success(request, "User added successfully.")
+            else:
+                messages.error(request, "A user with this email already exists.")
+        else:
+            messages.error(request, "Please fill in all required fields.")
+
+        return redirect('user_management')  # Refresh page
+
+    users = UserProfile.objects.select_related('user', 'qualification')
+    qualifications = Qualification.objects.all()
+
+    return render(request, 'core/administrator/user_management.html', {
+        'users': users,
+        'qualifications': qualifications
+    })
+#@login_required#
+def update_user_role(request, user_id):
+    if request.method == 'POST':
+        user = UserProfile.objects.get(id=user_id)
+        new_role = request.POST.get('role')
+        user.role = new_role
+        user.save()
+        messages.success(request, f'Role updated for {user.name}')
+    return redirect('user_management')
+
+#@login_required
+def update_user_qualification(request, user_id):
+    if request.method == 'POST':
+        user = UserProfile.objects.get(id=user_id)
+        qualification_id = request.POST.get('qualification')
+        qualification = Qualification.objects.get(id=qualification_id)
+        user.qualification = qualification
+        user.save()
+        messages.success(request, f'Qualification updated for {user.name}')
+    return redirect('user_management')
+
+#@login_required
+def toggle_user_status(request, user_id):
+    user = UserProfile.objects.get(id=user_id)
+    user.is_active = not user.is_active
+    user.save()
+    status = "activated" if user.is_active else "deactivated"
+    messages.success(request, f'User {user.name} {status} successfully')
+    return redirect('user_management')
 
 
 #0) Databank View 2025/06/10 made to handle logic for the databank for the question generation.
@@ -56,7 +192,7 @@ def databank_view(request):
     for e in entries:
         databank[e.qualification].append(e)
 
-    return render(request, "core/databank.html", {
+    return render(request, "core/administrator/databank.html", {
         "databank":        dict(databank),
         "qualifications":  sorted({e.qualification for e in entries}),
         "case_studies":    CaseStudy.objects.all(),

@@ -19,7 +19,15 @@ from core.views import (
     qcto_archive,
     qcto_reports,
     qcto_view_assessment,
-    qcto_latest_assessment_detail
+    qcto_latest_assessment_detail,
+    databank_view,
+    admin_dashboard,
+    AssessmentCentre,
+    user_management,
+    toggle_user_status,
+    update_user_qualification,
+    update_user_role
+
 
 )
 
@@ -42,13 +50,20 @@ urlpatterns = [
     path( "moderator/checklist/stats/", checklist_stats,name="checklist_stats"),
     path('qcto/dashboard/', qcto_dashboard, name='qcto_dashboard'),
     path('qcto/<str:eisa_id>/moderate/', qcto_moderate_assessment, name='qcto_moderate_assessment'),
-     path('qcto/compliance/', qcto_compliance, name='qcto_compliance'),
+    path('qcto/compliance/', qcto_compliance, name='qcto_compliance'),
     path('qcto/review/', qcto_assessment_review, name='qcto_assessment_review'),
     path('qcto/archive/', qcto_archive, name='qcto_archive'),
     path('qcto/reports/', qcto_reports, name='qcto_reports'),
     path('qcto/<str:eisa_id>/view/', qcto_view_assessment, name='qcto_view_assessment'),
     path("qcto/view-latest/", qcto_latest_assessment_detail, name="qcto_latest_assessment_detail"),
-
+    path("administrator/databank/", databank_view, name='databank'),
+    path("administrator/dashboard/", admin_dashboard, name='admin_dashboard'),
+    path("administrator/assessment-centres/", AssessmentCentre, name='assessment_centres'),
+    path("administrator/user-management/", user_management, name='user_management'),
+    path('update-user-role/<int:user_id>/', update_user_role, name='update_user_role'),
+    path('update-user-qualification/<int:user_id>/',update_user_qualification, name='update_user_qualification'),
+    path('toggle-user-status/<int:user_id>/', toggle_user_status, name='toggle_user_status'),
+   
 
     
 ]

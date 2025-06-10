@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Assessment(models.Model):
     eisa_id              = models.CharField(max_length=20, unique=True)
@@ -125,3 +126,58 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"{self.assessment.eisa_id} → {self.to_user}"
+
+#User Admin
+# models.py
+
+class Qualification(models.Model):
+    code = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+class UserProfile(models.Model):
+    ROLE_CHOICES = [
+        ('ASSESSOR', 'Assessor'),
+        ('MODERATOR', 'Moderator'),
+        ('QCTO', 'QCTO'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    qualification = models.ForeignKey(Qualification, on_delete=models.SET_NULL, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+    
+
+    #temporary assessmentcentre
+    class AssessmentCentre(models.Model):
+        name = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    responsible_person = models.CharField(max_length=100)
+    qualification_assigned = models.ForeignKey(
+        Qualification, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='centres'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+    #temporary user rofile model
+    class UserProfile(models.Model):
+        user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=50)
+    qualification = models.ForeignKey('Qualification', on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.BooleanField(default=True)
