@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Register | CHIETA</title>
+  <link rel="stylesheet" href="{% static 'core/css/login.css' %}">
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="form-container sign-up-container">
+      <form method="post">
+        {% csrf_token %}
+        <h1>Create Account</h1>
+        {{ form.non_field_errors }}
+        <div>
+          {{ form.email.label_tag }}
+          {{ form.email }}
+          {{ form.email.errors }}
+        </div>
+        <div>
+          {{ form.password1.label_tag }}
+          {{ form.password1 }}
+          {{ form.password1.errors }}
+        </div>
+        <div>
+          {{ form.password2.label_tag }}
+          {{ form.password2 }}
+          {{ form.password2.errors }}
+        </div>
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+
+  </div>
+  <script src="{% static 'core/js/login.js' %}"></script>
+</body>
+</html>

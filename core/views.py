@@ -10,6 +10,7 @@ import random
 import time
 import re
 from .models import MCQOption
+from .forms import EmailRegistrationForm
 import uuid
 import csv
 from django.conf import settings
@@ -26,7 +27,6 @@ from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy,
 from django.views.decorators.http import require_http_methods
 from collections import defaultdict
 from django.contrib import messages
-
 #Imports for Login logic 
 from django.core.mail  import send_mail
 from django.utils.timezone  import now
@@ -1091,3 +1091,15 @@ def qcto_latest_assessment_detail(request):
 def custom_logout(request):
      logout(request)
      return redirect('custom_login')
+#Creating Users
+
+def register(request):
+    if request.method == "POST":
+        form = EmailRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()      # hashes & saves password
+            login(request, user)    # log them in immediately
+            return redirect("assessor_dashboard")
+    else:
+        form = EmailRegistrationForm()
+    return render(request, "core/login/register.html", {"form": form})

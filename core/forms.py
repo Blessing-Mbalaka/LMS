@@ -3,6 +3,9 @@ from django import forms
 from django.contrib.auth import get_user_model
 from .models import Qualification
 from .models import AssessmentCentre
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+
 User = get_user_model()
 
 
@@ -46,3 +49,32 @@ class QualificationForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'level': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}),
         }
+
+        User = get_user_model()
+
+
+#User creation form 
+# core/forms.py
+class EmailRegistrationForm(UserCreationForm):
+    email = forms.EmailField(label="Email address", required=True)
+
+    class Meta:
+        model = User
+        fields = ("email",)  
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].lower()
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("A user with that email already exists.")
+        return email
+
+    def save(self, commit=True):
+        # override save so that username is set to email if your user model still requires username
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"].lower()
+        # if your AUTH_USER_MODEL still has a username field, you can do:
+        if hasattr(user, "username"):
+            user.username = user.email
+        if commit:
+            user.save()
+        return user

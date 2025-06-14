@@ -30,7 +30,7 @@ from core.views import (
     custom_login, custom_logout,
 edit_assessment_centre,
 delete_assessment_centre,
-qualification_management_view
+qualification_management_view, register
 
 
 
@@ -76,6 +76,7 @@ urlpatterns = [
 #Login and logout path**********************************************************
      path('logout/', custom_logout, name='logout'),
     path('administrator/login/', custom_login, name='custom_login'),
+     path("register/", register, name="register"),
 #********************************************************************
 
     

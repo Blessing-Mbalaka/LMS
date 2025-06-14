@@ -2,118 +2,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="{% static 'core/css/login.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CHIETA | Sign In / Register</title>
+
+  <!-- Your main login CSS -->
+  <link rel="stylesheet" href="{% static 'core/css/login.css' %}">
+  <!-- Font Awesome for the social icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <style>
+    .form-container {
+      position: absolute;
+      top: 0; height: 100%;
+      transition: all 0.6s ease-in-out;
+      background-image: url("{% static 'core/images/Frame 1 (2).png' %}");
+      background-size: cover;
+      background-position: center;
+    }
+    .overlay {
+      background: linear-gradient(to right, #FF4B2B, #FF416C);
+      background-repeat: no-repeat;
+      background-image: url("{% static 'core/images/Frame 2.png' %}");
+      background-size: cover;
+      background-position: 0 0;
+      color: #fff;
+      position: relative;
+      left: -100%; width: 200%; height: 100%;
+      transform: translateX(0);
+      transition: transform 0.6s ease-in-out;
+    }
+  </style>
 </head>
-
-<style>
-
-	.form-container {
-	position: absolute;
-    background-image: url("{% static 'core/images/Frame 1 (2).png' %}");
-	top: 0;
-	height: 100%;
-	transition: all 0.6s ease-in-out;
-}
-
-	.overlay {
-	background: #FF416C;
-	background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
-	background: linear-gradient(to right, #FF4B2B, #FF416C);
-	background-repeat: no-repeat;
-    background-image: url("{% static 'images/Frame 2.png' %}");
-	background-size: cover;
-	background-position: 0 0;
-	color: #FFFFFF;
-	position: relative;
-	left: -100%;
-	height: 100%;
-	width: 200%;
-  	transform: translateX(0);
-	transition: transform 0.6s ease-in-out;
-}
-</style>
 <body>
-    
-<div class="container" id="container">
-	<div class="form-container sign-up-container">
-		<form action="#">
-			<h1>Create Account</h1>
-			<div class="social-container">
-				<a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-				<a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-			</div>
-			<span>or use your email for registration</span>
-			<input type="text" placeholder="Name" />
-			<input type="email" placeholder="Email" />
-			<input type="password" placeholder="Password" />
-			<button>Sign Up</button>
-		</form>
-	</div>
+  <div class="container" id="container">
 
-	<!-- sign in form -->
-	<div class="form-container sign-in-container">
-		
-		<form method="post" action="{% url 'custom_login' %}">
-			{% csrf_token %}
-			<h1>Sign in</h1>
-			<div class="social-container">
-				<a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-				<a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-			</div>
-			<span>or use your account</span>
-			{% if login_form.errors %}
-			 <ul class="errorlist">
-                    {% for error in login_form.non_field_errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+    <!-- Sign Up Panel (temporarily inactive) -->
+    <div class="form-container sign-up-container">
+      <form method="post" action="#">
+        {% csrf_token %}
+        <h1>Create Account</h1>
+        <div class="social-container">
+          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+          <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <span>or use your email for registration</span>
+        <input type="text" name="name" placeholder="Name" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password1" placeholder="Password" required />
+        <input type="password" name="password2" placeholder="Confirm Password" required />
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
 
-			<input type="email" name="email" placeholder="Email" required />
-			<!-- <input name="username" placeholder="Email"> -->
-			<input type="password" name="password" placeholder="Password" required />
-			<a href="#">Forgot your password?</a>
-			<button>Sign In</button>
-		</form>
-	</div>
-	<div class="overlay-container">
-		<div class="overlay">
-			<div class="overlay-panel overlay-left">
-				<h1>Welcome Back!</h1>
-				<p>To keep connected with us please login with your personal info</p>
-				<button class="ghost" id="signIn">Sign In</button>
-			</div>
-			<div class="overlay-panel overlay-right">
-				<h1>Hello, Friend!</h1>
-				<p>Enter your personal details and start journey with us</p>
-				<button class="ghost" id="signUp">Sign Up</button>
-			</div>
-		</div>
-	</div>
-</div>
+    <!-- Sign In Panel -->
+    <div class="form-container sign-in-container">
+      <form method="post" action="{% url 'custom_login' %}">
+        {% csrf_token %}
+        <h1>Sign In</h1>
+        <div class="social-container">
+          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+          <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <span>or use your account</span>
 
-<footer>
-	<p>
-		
-	</p>
-</footer>
-<!-- <script>
-    const signUpButton = document.getElementById('signUp');
-const signInButton = document.getElementById('signIn');
-const container = document.getElementById('container');
+        {% if login_form.non_field_errors %}
+          <ul class="errorlist">
+            {% for err in login_form.non_field_errors %}
+              <li>{{ err }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
 
-signUpButton.addEventListener('click', () => {
-	container.classList.add("right-panel-active");
-});
+        <input type="email" name="email" placeholder="Email" required/>
+        <input type="password" name="password" placeholder="Password" required/>
+        <a href="#">Forgot your password?</a>
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
 
-signInButton.addEventListener('click', () => {
-	container.classList.remove("right-panel-active");
-});
-</script> -->
+    <!-- Overlay Panels -->
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Welcome Back!</h1>
+          <p>To keep connected with us please login with your personal info</p>
+          <button class="ghost" id="signIn">Sign In</button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Hello, Friend!</h1>
+          <p>Enter your personal details and start your journey with us</p>
+          <button class="ghost" id="signUp">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('container');
+    document.getElementById('signUp').addEventListener('click', () => {
+      container.classList.add("right-panel-active");
+    });
+    document.getElementById('signIn').addEventListener('click', () => {
+      container.classList.remove("right-panel-active");
+    });
+  </script>
 </body>
 </html>
