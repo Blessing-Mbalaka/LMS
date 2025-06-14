@@ -5,7 +5,7 @@ QUESTION_BANK = {
         {"text": "List and explain how all types of maintenance work are identified from notifications / work orders.", "marks": 3},
         {"text": "Explain the importance of having notification systems to record maintenance requests.", "marks": 2},
         {"text": "Explain the importance of evaluating notifications.", "marks": 5},
-        # …add more if you like
+        
     ],
     "Quality Controller": [
         {"text": "Define quality and explain why it is important in manufacturing.", "marks": 5},

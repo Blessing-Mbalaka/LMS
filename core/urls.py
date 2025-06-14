@@ -22,11 +22,17 @@ from core.views import (
     qcto_latest_assessment_detail,
     databank_view,
     admin_dashboard,
-    AssessmentCentre,
+    assessment_centres_view,
     user_management,
     toggle_user_status,
     update_user_qualification,
-    update_user_role
+    update_user_role,
+    custom_login,
+edit_assessment_centre,
+delete_assessment_centre,
+qualification_management_view
+
+
 
 
 )
@@ -58,12 +64,18 @@ urlpatterns = [
     path("qcto/view-latest/", qcto_latest_assessment_detail, name="qcto_latest_assessment_detail"),
     path("administrator/databank/", databank_view, name='databank'),
     path("administrator/dashboard/", admin_dashboard, name='admin_dashboard'),
-    path("administrator/assessment-centres/", AssessmentCentre, name='assessment_centres'),
+    path("administrator/assessment-centres/", assessment_centres_view, name='assessment_centres'),
+    path('administrator/assessment-centres/edit/<int:centre_id>/', edit_assessment_centre, name='edit_assessment_centre'),
+    path('administrator/assessment-centres/delete/<int:centre_id>/', delete_assessment_centre, name='delete_assessment_centre'),
     path("administrator/user-management/", user_management, name='user_management'),
     path('update-user-role/<int:user_id>/', update_user_role, name='update_user_role'),
     path('update-user-qualification/<int:user_id>/',update_user_qualification, name='update_user_qualification'),
     path('toggle-user-status/<int:user_id>/', toggle_user_status, name='toggle_user_status'),
-   
+    path('administrator/qualifications/', qualification_management_view, name='manage_qualifications'),
+
+#Login path**********************************************************
+    path('administrator/login/', custom_login, name='custom_login'),
+#********************************************************************
 
     
 ]

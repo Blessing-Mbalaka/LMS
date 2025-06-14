@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    .content {
+    .content { 
       flex: 1;
       padding: 20px;
       background-color: #efeaea;
@@ -25,48 +25,34 @@
       cursor: pointer;
       margin: 5px;
     }
-    .gradient-button:hover {
-      opacity: 0.9;
-    }
+    .gradient-button:hover { opacity: 0.9; }
     .form-section, .selected-questions {
       background: white;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       margin-top: 20px;
     }
     .form-section select, .form-section input, .form-section textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    .selected-questions ul {
-      list-style-type: disc;
-      padding-left: 20px;
+      width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px;
     }
     .nav-tabs .nav-link {
-      color: #495057;
-      border: none;
-      padding: 10px 20px;
-      font-weight: 500;
-      border-radius: 5px 5px 0 0;
+      color: #495057; border: none; padding: 10px 20px; font-weight: 500; border-radius: 5px 5px 0 0;
     }
     .nav-tabs .nav-link:hover {
-      color: rgb(61,11,86);
-      background-color: rgba(61, 11, 86, 0.05);
+      color: rgb(61,11,86); background-color: rgba(61,11,86,0.05);
     }
     .nav-tabs .nav-link.active {
-      color: rgb(61,11,86);
-      background-color: rgba(61, 11, 86, 0.1);
-      border-bottom: 3px solid rgb(61,11,86);
+      color: rgb(61,11,86); background-color: rgba(61,11,86,0.1); border-bottom: 3px solid rgb(61,11,86);
     }
   </style>
 </head>
 <body>
   <div class="dashboard-container">
+    
+    <!-- ======================= -->
+    <!-- ====== SIDEBAR ======= -->
+    <!-- ======================= -->
     <div class="sidebar">
       <div class="graduate-icon">
         <a href="{% url 'assessor_dashboard' %}">
@@ -110,6 +96,8 @@
             <span>Reports</span>
           </a>
         </li>
+
+        <!-- Placeholder items (Notifications / Help) -->
         <li class="nav-item">
           <a class="nav-link" href="#">
             <i class="fa fa-bell"></i>
@@ -122,6 +110,8 @@
             <span>Help &amp; Support</span>
           </a>
         </li>
+
+        <!-- Settings / Logout Buttons -->
         <li class="nav-item mt-4">
           <button class="gradient-button w-100">
             <i class="fa fa-cog"></i>
@@ -141,28 +131,35 @@
       </div>
     </div>
 
+    <!-- ======================= -->
+    <!-- ====== CONTENT ======= -->
+    <!-- ======================= -->
     <div class="content p-4">
       <h2>Generate EISA Assessment Tool</h2>
 
-      <!-- Tabs Navigation -->
       <ul class="nav nav-tabs mt-4" id="toolTabs" role="tablist">
-        <!-- <li class="nav-item"><button class="nav-link" ... >Generate Paper</button></li> -->
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="tab-random-btn" data-bs-toggle="tab" data-bs-target="#tab-random" type="button" role="tab" aria-controls="tab-random" aria-selected="true">Compile from Question Bank</button>
+          <button class="nav-link active" id="tab-random-btn" data-bs-toggle="tab" data-bs-target="#tab-random" type="button" role="tab">Compile from Question Bank</button>
         </li>
-        <!-- <li class="nav-item"><button class="nav-link" ... >Other Tabs</button></li> -->
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-awaiting-btn" data-bs-toggle="tab" data-bs-target="#tab-awaiting" type="button" role="tab">Awaiting Approval</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-approved-btn" data-bs-toggle="tab" data-bs-target="#tab-approved" type="button" role="tab">Approved Papers</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-compiled-btn" data-bs-toggle="tab" data-bs-target="#tab-compiled" type="button" role="tab">Compiled Papers</button>
+        </li>
       </ul>
 
       <div class="mt-3">
         {% if success %}<div class="alert alert-success">{{ success }}</div>{% endif %}
         {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-        {% if messages %}{% for message in messages %}<div class="alert alert-success">{{ message }}</div>{% endfor %}{% endif %}
       </div>
 
-      <!-- Tabs Content -->
       <div class="tab-content mt-4" id="toolTabsContent">
-        <!-- Compile from Question Bank Tab -->
-        <div class="tab-pane fade show active" id="tab-random" role="tabpanel" aria-labelledby="tab-random-btn">
+        <!-- Compile -->
+        <div class="tab-pane fade show active" id="tab-random" role="tabpanel">
           <div class="form-section">
             <h4>Compile Paper from Question Bank</h4>
             <form method="POST">
@@ -171,32 +168,73 @@
               <label>Qualification:</label>
               <select name="qualification" required>
                 <option value="">-- Select Qualification --</option>
-                <option value="Maintenance Planner">Maintenance Planner</option>
-                <option value="Quality Controller">Quality Controller</option>
+                {% for q in qualifications %}
+                <option value="{{ q.code }}" {% if selected_qualification == q.code %}selected{% endif %}>{{ q.name }}</option>
+                {% endfor %}
               </select>
               <label>Mark Target:</label>
-              <input type="number" name="mark_target" value="100" placeholder="e.g. 100" required>
+              <input type="number" name="mark_target" value="100" required>
               <label>Number of Questions:</label>
-              <input type="number" name="num_questions" placeholder="e.g. 10" required>
-              <button type="submit" class="gradient-button mt-2">Compile Paper</button>
+              <input type="number" name="num_questions" required>
+              <button type="submit" class="gradient-button">Compile Paper</button>
             </form>
+
             {% if compiled_questions %}
-              <hr>
-              <h5 class="mt-4">Review and Edit Compiled Questions</h5>
-              <p><strong>Total Questions: {{ compiled_questions|length }}</strong></p>
-              <form method="POST">
-                {% csrf_token %}
-                {% for q in compiled_questions %}
-                  <div class="mb-3">
-                    <label>Question {{ forloop.counter }}:</label>
-                    <textarea name="question_texts" class="form-control" rows="3">{{ q.text }}</textarea>
-                    <input type="number" name="question_marks" value="{{ q.marks }}" class="form-control mt-2" placeholder="Marks">
-                    <input type="hidden" name="question_ids" value="{{ q.id }}">
-                  </div>
+            <hr>
+            <h5>Review and Submit</h5>
+            <p><strong>Total Questions: {{ compiled_questions|length }}</strong></p>
+            <form method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="save">
+              <input type="hidden" name="qualification" value="{{ selected_qualification }}">
+              <label>Case Study (Optional):</label>
+              <select name="case_study_id" class="form-control mb-3">
+                <option value="">-- None --</option>
+                {% for cs in case_study_list %}
+                <option value="{{ cs.id }}">{{ cs.title }}</option>
                 {% endfor %}
-                <button type="submit" class="gradient-button">Save Questions</button>
-              </form>
+              </select>
+              <textarea name="question_block" class="form-control" rows="8">{% for q in compiled_questions %}{{ q.text }} ({{ q.marks }} marks)
+{% endfor %}</textarea>
+              <button type="submit" class="gradient-button mt-2">Submit to Moderator</button>
+            </form>
             {% endif %}
+          </div>
+        </div>
+
+        <!-- Awaiting -->
+        <div class="tab-pane fade" id="tab-awaiting" role="tabpanel">
+          <div class="form-section">
+            <h4>Awaiting Approval</h4>
+            <ul>{% for a in awaiting_assessments %}
+              <li>{{ a.qualification.name }} - {{ a.eisa_id }} ({{ a.created_at|date:"Y-m-d" }})</li>
+            {% empty %}
+              <li>No assessments awaiting approval.</li>
+            {% endfor %}</ul>
+          </div>
+        </div>
+
+        <!-- Approved -->
+        <div class="tab-pane fade" id="tab-approved" role="tabpanel">
+          <div class="form-section">
+            <h4>Approved Papers</h4>
+            <ul>{% for a in approved_assessments %}
+              <li>{{ a.qualification.name }} - {{ a.eisa_id }} ({{ a.status }})</li>
+            {% empty %}
+              <li>No approved assessments.</li>
+            {% endfor %}</ul>
+          </div>
+        </div>
+
+        <!-- Compiled -->
+        <div class="tab-pane fade" id="tab-compiled" role="tabpanel">
+          <div class="form-section">
+            <h4>Compiled Papers</h4>
+            <ul>{% for a in assessments %}
+              <li>{{ a.qualification.name }} - {{ a.eisa_id }} ({{ a.created_at|date:"Y-m-d" }}) [<a href="{% url 'view_assessment' a.eisa_id %}">View</a>]</li>
+            {% empty %}
+              <li>No compiled assessments available.</li>
+            {% endfor %}</ul>
           </div>
         </div>
       </div>

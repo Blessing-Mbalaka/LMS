@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from django.contrib.messages import constants as messages
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -44,6 +45,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'chieta_LMS.urls'
@@ -97,7 +99,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#Very important!!!!!!!!!!!!!!!!!!!!!!!!!!!! [core] is the app name before CustomUser here but we can change it later. 
+AUTH_USER_MODEL = 'core.CustomUser'
 
+AUTHENTICATION_BACKENDS = [
+    'core.authback.EmailBackend',  #note appname at start so when we change this must change too.
+    'django.contrib.auth.backends.ModelBackend', 
+]
+
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'secondary',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',
+}
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 

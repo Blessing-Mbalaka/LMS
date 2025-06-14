@@ -9,9 +9,23 @@
   <!-- Global CSS -->
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+   select#qualification {
+    appearance: auto !important;            /* let browser draw native arrow */
+    -webkit-appearance: auto !important;    /* for Safari/Chrome */
+    background-color: #fff !important;      /* white background */
+    color: #000 !important;                 /* black text */
+    -webkit-text-fill-color: #000 !important; /* Chrome-specific text color */
+    font-size: 1rem !important;             /* ensure normal font size */
+    border: 1px solid #ccc !important;      /* match your other inputs */
+    border-radius: 4px !important;
+    padding: .5em !important;
+    z-index: 1000;                          /* sit above any backdrop */
+    position: relative;
+
+  </style>
 </head>
-<body>
-  
+<body>  
   {% if messages %}
   {% for message in messages %}
     <div class="alert alert-success">{{ message }}</div>
@@ -109,27 +123,24 @@
         </div>
       </div>
 
-      <form id="uploadForm" action="{% url 'upload_assessment' %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="upload-section">
-          <label for="qualification">Qualification Title</label>
-          <select id="qualification" name="qualification" required>
-            <option value="">-- Select Qualification --</option>
-            <option value="Maintenance Planner">Maintenance Planner</option>
-            <option value="Quality Controller">Quality Controller</option>
-          </select>
-        </div>
-
-        <form id="uploadForm" action="{% url 'upload_assessment' %}" method="post" enctype="multipart/form-data">
+      
+<form id="uploadForm" action="{% url 'upload_assessment' %}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
 
   <div class="form-section">
-    <label for="qualification">Qualification Title</label>
-    <select id="qualification" name="qualification" required>
-      <option value="">-- Select Qualification --</option>
-      <option value="Maintenance Planner">Maintenance Planner</option>
-      <option value="Quality Controller">Quality Controller</option>
-    </select>
+  <label for="qualification">Qualification</label>
+<select id="qualification" name="qualification" required>
+  <option value="">-- Select Qualification --</option>
+  {% for qual in qualifications %}
+    <option value="{{ qual.id }}"
+      {% if request.POST.qualification == qual.id|stringformat:"s" %}
+        selected
+      {% endif %}>
+      {{ qual.name }}
+    </option>
+  {% endfor %}
+</select>
+
   </div>
 
   <div class="form-section">
@@ -144,7 +155,7 @@
 
   <div class="form-section">
     <label for="fileInput">Upload EISA Assessment</label>
-    <input type="file" id="fileInput" name="file_input" accept=".pdf,.doc,.docx" required>
+    <input type="file" id="fileInput" name="file_input" accept=".pdf,.doc,.docx required>
   </div>
 
   <div class="form-section">

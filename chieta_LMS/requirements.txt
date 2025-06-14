@@ -1,7 +1,21 @@
-django>=5.2.1
-djangorestframework>=3.16.0
-django-widget-tweaks>=1.5.0
-psycopg2-binary>=2.9.10
-google-generativeai>=0.5.4
-python-docx>=1.1.0
-PyMuPDF>=1.23.22
+# core framework
+Django==5.2.1
+djangorestframework>=3.14.0
+
+# template helpers
+django-widget-tweaks>=1.4.12
+
+# PostgreSQL driver
+psycopg2-binary>=2.9.6
+
+# NB! Read this in full: Google Gemini AI client----make an api key and store it on your computer not in the code, the code pulls it from the OS.
+#don't over look this step its very neccessary to do this well if all else fails i can send you the api key @Blessing Mbalaka
+google-genai>=0.3.0
+
+# PDF / DOCX text extraction (if you’re using extract_text)
+PyPDF2>=3.1.0
+python-docx>=0.8.11
+
+# production / static‐files
+whitenoise>=6.5.0
+gunicorn>=20.1.0

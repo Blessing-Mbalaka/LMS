@@ -1,13 +1,16 @@
-
 import traceback
 from django.contrib import messages
 from rest_framework.parsers import MultiPartParser, JSONParser
+from .forms import QualificationForm
+from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion
 import json
 import random
 import time
 import re
+from .models import MCQOption
+import uuid
 import csv
 from django.conf import settings
 from django.http import JsonResponse,  HttpResponse, Http404
@@ -23,41 +26,220 @@ from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy,
 from django.views.decorators.http import require_http_methods
 from collections import defaultdict
 from django.contrib import messages
-#from django.contrib.auth.decorators import login_required
-from .models import UserProfile, Qualification
-from .forms import UserProfileForm
 
+#Imports for Login logic 
+from django.core.mail  import send_mail
+from django.utils.timezone  import now
+from django.contrib.admin.views.decorators import staff_member_required
+import random, string
+from django.contrib.auth.decorators import login_required
+from .models import Qualification, CustomUser
+from .forms import CustomUserForm
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import AssessmentCentre
+from .forms import AssessmentCentreForm, QualificationForm
+from .models import (
+    QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion,
+    Qualification, CustomUser, AssessmentCentre, Feedback
+)
+from .forms import QualificationForm, AssessmentCentreForm, CustomUserForm
+from .question_bank import QUESTION_BANK
+from .utils import extract_text
+from google import genai
+from django.conf import settings
+
+# Initialize AI client
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-#temporary assessment centres view
 
-#@login_required#
-def AssessmentCentre(request):
-    # Get all assessment centres with their qualifications
-    centres = AssessmentCentre.objects.all().select_related('qualification_assigned')
-    qualifications = Qualification.objects.all()
-    
+#Custom User
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+    list_display = ['email', 'first_name', 'last_name', 'role', 'is_active']
+    ordering = ['-created_at']
+    search_fields = ['email', 'first_name', 'last_name']
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('role', 'qualification', 'activated_at', 'deactivated_at')}),
+    )
+
+admin.site.register(Qualification)
+
+
+def custom_login(request):
     if request.method == 'POST':
-        # Handle form submission for adding new centre
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            login(request, user)
+
+            role = user.role
+            if role == 'admin':
+                return redirect('admin_dashboard')
+            elif role == 'moderator':
+                return redirect('moderator_developer')  # NOTE: corrected to match your URL name
+            elif role == 'internal_mod':
+                return redirect('internal_moderator_dashboard')
+            elif role == 'assessor_dev':
+                return redirect('assessor_dashboard')  # fallback to existing view
+            elif role == 'assessor_marker':
+                return redirect('assessor_dashboard')  # fallback
+            elif role == 'etqa':
+                return redirect('qcto_dashboard')  # assuming qcto serves as etqa too
+            elif role == 'qcto':
+                return redirect('qcto_dashboard')
+            elif role == 'learner':
+                # No learner_dashboard defined yet, fallback or comment
+                return redirect('home')  # or comment this line out
+                # pass  # optionally just do nothing or show 403
+
+        return render(request, 'core/login/login.html', {'error': 'Invalid credentials'})
+
+    return render(request, 'core/login/login.html')
+#_______________________________________________________________________________________________________
+#******************************************************************************************************
+#LOGIN LOGIC AND USER ACCESS CONTROL STARTS HERE********************************************************
+#*******************************************************************************************************
+#*******************************************************************************************************
+@login_required
+@staff_member_required
+def user_management(request):
+    if request.method == 'POST':
+        name  = request.POST['name']
+        email = request.POST['email']
+        role  = request.POST['role']
+        qual_id = request.POST['qualification']
+        qualification = Qualification.objects.filter(pk=qual_id).first()
+
+        if not (name and email and role and qualification):
+            messages.error(request, "Please fill in all required fields.")
+            return redirect('user_management')
+
+        if CustomUser.objects.filter(email=email).exists():
+            messages.error(request, "A user with this email already exists.")
+            return redirect('user_management')
+
+        # split name
+        parts = name.split()
+        first = parts[0]
+        last  = " ".join(parts[1:]) if len(parts)>1 else ""
+
+        # random password
+        pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+
+        # actual user creation
+        user = CustomUser.objects.create_user(
+            username=email,
+            email=email,
+            first_name=first,
+            last_name=last,
+            role=role,
+            qualification=qualification,
+            is_active=True,
+            activated_at=now()
+        )
+        user.set_password(pwd)
+        user.save()
+
+        # email it
+        send_mail(
+            'Your CHIETA LMS Password',
+            f'Hello {first}, your new password is: {pwd}',
+            'noreply@chieta.co.za',
+            [email],
+            fail_silently=False,
+        )
+        messages.success(request, f"User {email} created and password emailed.")
+        return redirect('user_management')
+
+    users = CustomUser.objects.select_related('qualification').exclude(is_superuser=True)
+    quals = Qualification.objects.all()
+    return render(request, 'core/administrator/user_management.html', {
+        'users': users,
+        'qualifications': quals,
+        'role_choices': CustomUser.ROLE_CHOICES,
+    })
+#*******************************************************************************************************
+#*******************************************************************************************************
+#Role Management is done here
+#______________________________________________________________________________________________________
+    
+@login_required
+@staff_member_required
+def update_user_role(request, user_id):
+    user = get_object_or_404(CustomUser, pk=user_id)
+    if request.method=='POST':
+        user.role = request.POST['role']
+        user.save()
+        messages.success(request, f"Role updated for {user.get_full_name()}.")
+    return redirect('user_management')
+#_______________________________________________________________________________________________________
+#_______________________________________________________________________________________________________
+# User qualification
+@login_required
+@staff_member_required
+def update_user_qualification(request, user_id):
+    user = get_object_or_404(CustomUser, pk=user_id)
+    if request.method=='POST':
+        qual = get_object_or_404(Qualification, pk=request.POST['qualification'])
+        user.qualification = qual
+        user.save()
+        messages.success(request, f"Qualification updated for {user.get_full_name()}.")
+    return redirect('user_management')
+
+#User Status
+@login_required
+@staff_member_required
+def toggle_user_status(request, user_id):
+    user = get_object_or_404(CustomUser, pk=user_id)
+    user.is_active = not user.is_active
+    if user.is_active:
+        user.activated_at   = now()
+        user.deactivated_at = None
+    else:
+        user.deactivated_at = now()
+    user.save()
+    state = "activated" if user.is_active else "deactivated"
+    messages.success(request, f"{user.get_full_name()} {state}.")
+    return redirect('user_management')
+#********************************************************************************************************
+#********************************************************************************************************
+
+
+
+
+
+
+
+
+# ASSESSMENT CENTRE VIEWS FOR ADDING ETC________________________________________________________________
+def assessment_centres_view(request):
+    centres = AssessmentCentre.objects.all()
+    form = AssessmentCentreForm()
+
+    # Handle form submission
+    if request.method == 'POST':
         form = AssessmentCentreForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Assessment centre added successfully!')
+            messages.success(request, "Assessment centre added successfully.")
             return redirect('assessment_centres')
-    else:
-        form = AssessmentCentreForm()
-    
-    context = {
-        'centres': centres,
-        'qualifications': qualifications,
-        'form': form,
-    }
-    return render(request, 'core/centre.html', context)
+        else:
+            messages.error(request, "Please correct the errors below.")
 
-#@login_required#
+    return render(request, 'core/administrator/centre.html', {
+        'centres': centres,
+        'form': form,
+    })
+
+
 def edit_assessment_centre(request, centre_id):
-    centre = AssessmentCentre.objects.get(id=centre_id)
-    
+    centre = get_object_or_404(AssessmentCentre, id=centre_id)
+
     if request.method == 'POST':
         form = AssessmentCentreForm(request.POST, instance=centre)
         if form.is_valid():
@@ -66,377 +248,354 @@ def edit_assessment_centre(request, centre_id):
             return redirect('assessment_centres')
     else:
         form = AssessmentCentreForm(instance=centre)
-    
-    context = {
-        'centre': centre,
-        'form': form,
-    }
-    return render(request, 'core/edit_centre.html', context)
 
-# @login_required#
+    return render(request, 'core/edit_centre.html', {
+        'form': form,
+        'centre': centre,
+    })
+
+
 def delete_assessment_centre(request, centre_id):
-    centre = AssessmentCentre.objects.get(id=centre_id)
+    centre = get_object_or_404(AssessmentCentre, id=centre_id)
     centre.delete()
     messages.success(request, 'Assessment centre removed successfully!')
     return redirect('assessment_centres')
 
 
-#temporary dashboard admin_dashboard 
+@login_required
+@staff_member_required
 def admin_dashboard(request):
-    # will add billies logic here
-    context = {
-        'total_users': 512,
-        'tools': [
-            {'qualification': 'ABC123', 'status': 'Pending', 'uploaded_by': 'Admin'},
-            {'qualification': 'XYZ456', 'status': 'Approved', 'uploaded_by': 'Admin'},
-            {'qualification': 'DEF789', 'status': 'Rejected', 'uploaded_by': 'Admin'},
-        ]
-    }
-    return render(request, 'core/admin_dashboard.html', context)
-
-#temporary placeholder login logic--to be replaced with Billies logic
-
-#@login_required#
-def user_management(request):
+    
     if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        role = request.POST.get("role")
-        qualification_id = request.POST.get("qualification")
+        q_id      = request.POST.get("qualification")
+        paper     = request.POST.get("paper_number", "").strip()
+        saqa      = request.POST.get("saqa_id", "").strip()
+        file_obj  = request.FILES.get("file_input")
+        memo_obj  = request.FILES.get("memo_file")
 
-        qualification = Qualification.objects.filter(id=qualification_id).first()
+        qual = get_object_or_404(Qualification, pk=q_id)
+        Assessment.objects.create(
+            eisa_id=f"EISA-{uuid.uuid4().hex[:8].upper()}",
+            qualification=qual,
+            paper=paper,
+            saqa_id=saqa,
+            file=file_obj,
+            memo=memo_obj,
+            created_by=request.user,     
+        )
+        messages.success(request, "Assessment uploaded successfully.")
+        return redirect("admin_dashboard")
 
-        if name and email and role and qualification:
-            if not User.objects.filter(username=email).exists():
-                user = User.objects.create_user(username=email, email=email)
-                UserProfile.objects.create(
-                    user=user,
-                    name=name,
-                    role=role,
-                    qualification=qualification,
-                    is_active=True,
-                )
-                messages.success(request, "User added successfully.")
-            else:
-                messages.error(request, "A user with this email already exists.")
-        else:
-            messages.error(request, "Please fill in all required fields.")
+    # GET: show the dashboard
+    tools       = Assessment.objects.select_related("qualification","created_by")\
+                                     .order_by("-created_at")
+    total_users = CustomUser.objects.filter(is_superuser=False).count()
+    quals       = Qualification.objects.all()
 
-        return redirect('user_management')  # Refresh page
-
-    users = UserProfile.objects.select_related('user', 'qualification')
-    qualifications = Qualification.objects.all()
-
-    return render(request, 'core/administrator/user_management.html', {
-        'users': users,
-        'qualifications': qualifications
+    return render(request, "core/administrator/admin_dashboard.html", {
+        "tools":           tools,
+        "total_users":     total_users,
+        "qualifications":  quals,
     })
-#@login_required#
-def update_user_role(request, user_id):
+
+#_____________________________________________________________________________________________________
+
+
+#_____________________________________________________________________________________________________
+def qualification_management_view(request):
+    qualifications = Qualification.objects.all()
+    form = QualificationForm()
+
     if request.method == 'POST':
-        user = UserProfile.objects.get(id=user_id)
-        new_role = request.POST.get('role')
-        user.role = new_role
-        user.save()
-        messages.success(request, f'Role updated for {user.name}')
-    return redirect('user_management')
+        form = QualificationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Qualification added successfully.")
+            return redirect('manage_qualifications')
+        else:
+            print("Form errors:", form.errors)  # ✅ This helps you see why it failed
+            messages.error(request, "Please correct the errors below.")
 
-#@login_required
-def update_user_qualification(request, user_id):
-    if request.method == 'POST':
-        user = UserProfile.objects.get(id=user_id)
-        qualification_id = request.POST.get('qualification')
-        qualification = Qualification.objects.get(id=qualification_id)
-        user.qualification = qualification
-        user.save()
-        messages.success(request, f'Qualification updated for {user.name}')
-    return redirect('user_management')
-
-#@login_required
-def toggle_user_status(request, user_id):
-    user = UserProfile.objects.get(id=user_id)
-    user.is_active = not user.is_active
-    user.save()
-    status = "activated" if user.is_active else "deactivated"
-    messages.success(request, f'User {user.name} {status} successfully')
-    return redirect('user_management')
-
+    return render(request, 'core/administrator/qualifications.html', {
+        'qualifications': qualifications,
+        'form': form,
+    })
 
 #0) Databank View 2025/06/10 made to handle logic for the databank for the question generation.
+
 def databank_view(request):
     if request.method == "POST":
-        # common fields
-        qt   = request.POST["question_type"]
-        q    = QuestionBankEntry.objects.create(
-                  qualification = request.POST["qualification"],
-                  question_type = qt,
-                  text          = request.POST["text"],
-                  marks         = request.POST["marks"],
-                  case_study    = (
-                    CaseStudy.objects.get(pk=request.POST["case_study"])
-                    if qt=="case_study" else None
-                  )
-              )
-        # handle MCQ options if needed
+        qt = request.POST["question_type"]
+        qualification_code = request.POST["qualification"]
+        qualification = Qualification.objects.get(code=qualification_code)
+
+        q = QuestionBankEntry.objects.create(
+            qualification=qualification,
+            question_type=qt,
+            text=request.POST["text"],
+            marks=request.POST["marks"],
+            case_study=(
+                CaseStudy.objects.get(pk=request.POST["case_study"])
+                if qt == "case_study" else None
+            )
+        )
+
         if qt == "mcq":
-            for i in range(1, 5):  # assuming 4 options
+            for i in range(1, 5):
                 txt = request.POST.get(f"opt_text_{i}")
                 corr = request.POST.get(f"opt_correct_{i}") == "on"
                 if txt:
                     q.options.create(text=txt, is_correct=corr)
+
         return redirect("databank")
 
-    # GET → build grouping and dropdowns
-    entries = QuestionBankEntry.objects.select_related("case_study").prefetch_related("options").all()
+    # GET request
+    entries = QuestionBankEntry.objects.select_related("case_study", "qualification").prefetch_related("options").all()
     databank = defaultdict(list)
     for e in entries:
         databank[e.qualification].append(e)
 
+    qualification_codes = Qualification.objects.values_list("code", flat=True)
+
     return render(request, "core/administrator/databank.html", {
-        "databank":        dict(databank),
-        "qualifications":  sorted({e.qualification for e in entries}),
-        "case_studies":    CaseStudy.objects.all(),
+        "databank": dict(databank),
+        "qualifications": sorted(Qualification.objects.all(), key=lambda q: q.name),
+        "qualification_codes": qualification_codes,
+        "case_studies": CaseStudy.objects.all(),
+        "question_bank_entries": entries,
     })
 
 # -------------------------------------------
 # 1) Add a new question to the Question Bank
 # -------------------------------------------
+
+
 @csrf_exempt
 def add_question(request):
     if request.method == 'POST':
-        qualification = request.POST.get('q_qualification', '').strip()
-        cs_selected_id = request.POST.get('q_case_study_select', '').strip()
-        pasted_cs = request.POST.get('q_case_study', '').strip()
-        text = request.POST.get('q_text', '').strip()
-        marks = request.POST.get('q_marks', '').strip()
+        q_type = request.POST.get('question_type')
+        qualification_code = request.POST.get('qualification')
+        marks = request.POST.get('marks')
+        text = request.POST.get('text')
 
-        # Determine which case study to use:
-        if cs_selected_id:
-            # If it's a digit, treat it as an existing CaseStudy ID.
-            if cs_selected_id.isdigit():
-                cs_obj = CaseStudy.objects.filter(id=int(cs_selected_id)).first()
-                case_study_to_store = cs_obj.content if cs_obj else pasted_cs
-            else:
-                # Otherwise, the dropdown value was non‐numeric, so use it as pasted content.
-                case_study_to_store = cs_selected_id
-        else:
-            case_study_to_store = pasted_cs
-
-        # Validation: all four fields must be non‐empty
-        if not qualification or not text or not marks or not case_study_to_store:
-            messages.error(request, "All fields (qualification, question text, marks, and a case study) are required.")
+        # Fetch qualification object
+        try:
+            qualification = Qualification.objects.get(code=qualification_code)
+        except Qualification.DoesNotExist:
+            messages.error(request, "Selected qualification does not exist.")
             return redirect('generate_tool_page')
 
-        QuestionBankEntry.objects.create(
+        # Prepare case study if needed
+        case_study_id = request.POST.get('case_study')
+        case_study = None
+        if q_type == 'case_study' and case_study_id:
+            try:
+                case_study = CaseStudy.objects.get(id=case_study_id)
+            except CaseStudy.DoesNotExist:
+                messages.error(request, "Selected case study not found.")
+                return redirect('generate_tool_page')
+
+        # Basic validation
+        if not text or not marks:
+            messages.error(request, "Please fill in all required fields.")
+            return redirect('generate_tool_page')
+
+        # Create the question
+        question = QuestionBankEntry.objects.create(
             qualification=qualification,
+            question_type=q_type,
             text=text,
             marks=int(marks),
-            case_study=case_study_to_store
+            case_study=case_study
         )
+
+        # Handle MCQ options
+        if q_type == 'mcq':
+            has_correct = False
+            for i in range(1, 5):
+                opt_text = request.POST.get(f'opt_text_{i}')
+                is_correct = request.POST.get(f'opt_correct_{i}') == 'on'
+                if opt_text:
+                    MCQOption.objects.create(
+                        question=question,
+                        text=opt_text,
+                        is_correct=is_correct
+                    )
+                    if is_correct:
+                        has_correct = True
+            if not has_correct:
+                question.delete()
+                messages.error(request, "At least one MCQ option must be marked as correct.")
+                return redirect('generate_tool_page')
 
         messages.success(request, "Question added to the databank.")
         return redirect('generate_tool_page')
-# ----------------------------
-# 2) Add a new Case Study
-# ----------------------------
 
 @csrf_exempt
 def add_case_study(request):
-    if request.method == "POST":
-        title = request.POST.get("cs_title")
-        content = request.POST.get("cs_content")
+    if request.method == 'POST':
+        title = request.POST.get('cs_title')
+        content = request.POST.get('cs_content')
         if title and content:
             CaseStudy.objects.create(title=title, content=content)
             messages.success(request, "Case study added successfully.")
-    return redirect("generate_tool_page")
+    return redirect('generate_tool_page')
 
 
+
+#Critical
 @csrf_exempt
 def generate_tool_page(request):
-    from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion
-
-    # ─── Fetch dropdown data (case studies) ─────────────────────
     case_studies = CaseStudy.objects.all()
-
-    # ─── Fetch ALL assessments; later we split by status ─────────
     all_assessments = Assessment.objects.all().order_by("-created_at")
 
-    # ─── Build context with both “awaiting” and “approved” lists ──
+    # Group questions by qualification
+    databank = defaultdict(list)
+    for q in QuestionBankEntry.objects.select_related("qualification"):
+        databank[q.qualification.name].append(q)
+
+    qualifications = Qualification.objects.all()
+    selected_qualification = None
+
     context = {
         "case_study_list": case_studies,
-        # Papers whose status is still "Pending" (newly saved)
         "awaiting_assessments": Assessment.objects.filter(status="Pending").order_by("-created_at"),
-        # Papers whose status indicates final approval
-        "approved_assessments": Assessment.objects.filter(
-            status__in=["Approved by Moderator", "Approved by ETQA"]
-        ).order_by("-created_at"),
-        # For the Question Bank tab
-        "question_bank_entries": QuestionBankEntry.objects.all().order_by("-created_at"),
-        # We still keep the full list around if you need it elsewhere
+        "approved_assessments": Assessment.objects.filter(status__in=["Approved by Moderator","Approved by ETQA"]).order_by("-created_at"),
         "assessments": all_assessments,
+        "databank": databank,
+        "qualifications": qualifications,
+        "case_studies": case_studies,
+        "selected_qualification": selected_qualification,
     }
 
     if request.method == "POST":
         action = request.POST.get("action", "").strip()
 
-        # ─── 1) “Compile from Question Bank” ────────────────────
         if action == "compile_from_bank":
             qual = request.POST.get("qualification", "").strip()
+            selected_qualification = qual
             raw_target = request.POST.get("mark_target", "").strip()
             raw_num = request.POST.get("num_questions", "").strip()
 
-            # Basic validation
             if not qual or not raw_target.isdigit() or not raw_num.isdigit():
-                messages.error(request, "Select qualification, numeric mark target, and numeric # of questions.")
-                return redirect("generate_tool_page")
+                context.update({
+                    "error": "Select qualification, numeric mark target, and numeric # of questions.",
+                    "selected_qualification": qual
+                })
+                return render(request, "core/assessor-developer/generate_tool.html", context)
 
-            target = int(raw_target)
-            num_qs = int(raw_num)
-
-            # Fetch matching entries
-            entries = list(QuestionBankEntry.objects.filter(qualification=qual))
+            target, num_qs = int(raw_target), int(raw_num)
+            entries = list(QuestionBankEntry.objects.filter(qualification__code=qual))
             if not entries:
-                messages.error(request, f"No questions found for '{qual}'.")
-                return redirect("generate_tool_page")
+                context.update({
+                    "error": f"No questions found for '{qual}'.",
+                    "selected_qualification": qual
+                })
+                return render(request, "core/assessor-developer/generate_tool.html", context)
 
             random.shuffle(entries)
-            compiled = []
-            total_marks = 0
-
-            # Pick until we hit either the mark‐target OR the requested number of questions
-            for entry in entries:
+            compiled, total = [], 0
+            for e in entries:
                 if len(compiled) >= num_qs:
                     break
-                m = entry.marks or 0
-                if total_marks + m <= target:
-                    compiled.append(entry)
-                    total_marks += m
-                if total_marks >= target:
+                if total + (e.marks or 0) <= target:
+                    compiled.append(e)
+                    total += e.marks or 0
+                if total >= target:
                     break
 
-            context["compiled_questions"] = compiled
+            context.update({
+                "compiled_questions": compiled,
+                "selected_qualification": qual
+            })
             return render(request, "core/assessor-developer/generate_tool.html", context)
 
-        # ─── 2) “Generate (Gemini or fallback)” ───────────────────
-        elif action == "generate":
-            try:
-                qual = request.POST.get("qualification", "").strip()
-                target = int(request.POST.get("mark_target", "0").strip() or 0)
-                demo_file = request.FILES.get("file", None)
-
-                if not qual:
-                    raise ValueError("Qualification is required.")
-
-                if demo_file:
-                    # Gemini path
-                    text = extract_text(demo_file, demo_file.content_type)
-                    samples = QUESTION_BANK.get(qual, [])[:3]
-                    examples = "\n".join(f"- {q['text']}" for q in samples)
-
-                    prompt = (
-                        f"You’re an assessment generator for **{qual}**.\n"
-                        f"Here are some example questions:\n{examples}\n\n"
-                        "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
-                        "where each item has 'text', 'marks' and 'case_study'.\n\n"
-                        f"Past‐Papers Text:\n{text}"
-                    )
-                    resp = genai_client.models.generate_content(
-                        model="gemini-2.0-flash",
-                        contents=[prompt]
-                    )
-                    raw = resp.text.strip()
-                    if not raw:
-                        raise ValueError("Gemini returned an empty response.")
-
-                    cleaned = re.sub(r"^```json", "", raw)
-                    cleaned = re.sub(r"```$", "", cleaned)
-                    cleaned = cleaned.replace("“", '"').replace("”", '"')
-                    data = json.loads(cleaned)
-                    if "questions" not in data:
-                        raise ValueError("Missing 'questions' key in Gemini output.")
-
-                    all_qs = data["questions"]
-                else:
-                    # Fallback to in‐memory QUESTION_BANK
-                    all_qs = QUESTION_BANK.get(qual, [])
-
-                random.shuffle(all_qs)
-                selected = []
-                total_marks = 0
-                for q in all_qs:
-                    try:
-                        m = int(float(q.get("marks", 0)))
-                    except:
-                        m = 0
-                    if total_marks + m <= target:
-                        selected.append(q)
-                        total_marks += m
-                    if total_marks >= target:
-                        break
-
-                context.update({
-                    "questions": selected,
-                    "total": total_marks,
-                    "question_block": "\n\n".join(f"{q['text']} ({q['marks']} marks)" for q in selected)
-                })
-            except Exception as e:
-                context["error"] = str(e)
-
-            return render(request, "core/assessor-developer/generate_tool.html", context)
-
-        # ─── 3) “Save Generated Paper” ───────────────────────────
         elif action == "save":
-            try:
-                qual = request.POST.get("qualification", "").strip()
-                question_block = request.POST.get("question_block", "").strip()
+            qual = request.POST.get("qualification", "").strip()
+            question_block = request.POST.get("question_block", "").strip()
+            raw_cs_id = request.POST.get("case_study_id", "").strip()
+            cs_obj = CaseStudy.objects.filter(id=int(raw_cs_id)).first() if raw_cs_id.isdigit() else None
 
-                raw_cs_id = request.POST.get("case_study_id", "").strip()
-                case_study_obj = None
-                if raw_cs_id.isdigit():
-                    case_study_obj = CaseStudy.objects.filter(id=int(raw_cs_id)).first()
+            qualification = Qualification.objects.filter(code=qual).first()
+            if not qualification:
+                context.update({
+                    "error": f"Selected qualification '{qual}' does not exist.",
+                    "selected_qualification": qual
+                })
+                return render(request, "core/assessor-developer/generate_tool.html", context)
 
-                # Create a new Assessment with status="Pending" (default)
-                assessment = Assessment.objects.create(
-                    eisa_id=f"EISA-{str(int(time.time()))[-4:]}",
-                    qualification=qual,
-                    paper="AutoGen",
-                    comment="Generated and saved via tool",
-                    # default status is “Pending,” so it will show up under awaiting_…
+            # Use UUID for eisa_id
+            assessment = Assessment.objects.create(
+                eisa_id=f"EISA-{uuid.uuid4().hex[:8].upper()}",
+                qualification=qualification,
+                paper="AutoGen",
+                comment="Generated and saved via tool",
+            )
+
+            for line in question_block.split("\n"):
+                text_line = line.strip()
+                if not text_line:
+                    continue
+                match = re.search(r"\((\d+)\s*marks?\)", text_line)
+                if match:
+                    m = int(match.group(1))
+                    q_text = text_line[:match.start()].strip()
+                else:
+                    m = 0
+                    q_text = text_line
+                GeneratedQuestion.objects.create(
+                    assessment=assessment,
+                    text=q_text,
+                    marks=m,
+                    case_study=cs_obj
                 )
 
-                # Parse each line of question_block, save as GeneratedQuestion
-                for line in question_block.split("\n"):
-                    text_line = line.strip()
-                    if not text_line:
-                        continue
-                    match = re.search(r"\((\d+)\s*marks?\)", text_line)
-                    if match:
-                        marks = int(match.group(1))
-                        q_text = text_line[:match.start()].strip()
-                    else:
-                        marks = 0
-                        q_text = text_line
-
-                    GeneratedQuestion.objects.create(
-                        assessment=assessment,
-                        text=q_text,
-                        marks=marks,
-                        case_study=case_study_obj
-                    )
-
-                context["success"] = "Paper saved and is now awaiting approval."
-            except Exception as e:
-                context["error"] = str(e)
-
-            # Re‐fetch “awaiting” and “approved” lists in case they’ve changed
-            context["awaiting_assessments"] = Assessment.objects.filter(status="Pending").order_by("-created_at")
-            context["approved_assessments"] = Assessment.objects.filter(
-                status__in=["Approved by Moderator", "Approved by ETQA"]
-            ).order_by("-created_at")
+            context.update({
+                "success": "Paper submitted to moderator and is now awaiting approval.",
+                "selected_qualification": qual,
+                "awaiting_assessments": Assessment.objects.filter(status="Pending").order_by("-created_at"),
+            })
             return render(request, "core/assessor-developer/generate_tool.html", context)
 
-    # ─── GET (or no action) ──────────────────────────────────────
     return render(request, "core/assessor-developer/generate_tool.html", context)
+
+
+#**********************************************************************************************************
+@require_http_methods(["GET", "POST"])
+def upload_assessment(request):
+    qualifications = Qualification.objects.all()
+    submissions    = Assessment.objects.all().order_by("-created_at")
+
+    if request.method == "POST":
+        eisa_id = f"EISA-{uuid.uuid4().hex[:8].upper()}"
+        qual_id  = request.POST.get("qualification")
+        qualification_obj = get_object_or_404(Qualification, pk=qual_id)
+        paper    = request.POST["paper_number"].strip()
+        saqa     = request.POST["saqa_id"].strip()
+        file     = request.FILES.get("file_input")
+        memo     = request.FILES.get("memo_file")
+        comment  = request.POST.get("comment_box","").strip()
+        forward  = request.POST.get("forward_to_moderator") == "on"
+
+        Assessment.objects.create(
+            eisa_id=eisa_id,
+            qualification=qualification_obj,
+            paper=paper,
+            saqa_id=saqa,
+            file=file,
+            memo=memo,
+            comment=comment,
+            forward_to_moderator=forward,
+            created_by=request.user, 
+        )
+
+        messages.success(request, "Assessment uploaded successfully.")
+        return redirect("upload_assessment")
+
+    return render(request, "core/assessor-developer/upload_assessment.html", {
+        "submissions":    submissions,
+        "qualifications": qualifications,
+    })
 
 
 # ---------------------------------------
@@ -582,39 +741,7 @@ def generate_tool(request):
 # -----------------------------------------
 # 5) Upload an existing assessment (PDF/Memo)
 # -----------------------------------------
-def upload_assessment(request):
-    if request.method == "POST":
-        eisa_id = f"EISA-{str(int(time.time()))[-4:]}"
-        qual = request.POST["qualification"]
-        paper = request.POST["paper_number"]
-        saqa = request.POST["saqa_id"]
-        file = request.FILES.get("file_input")
-        memo = request.FILES.get("memo_file")
-        comment = request.POST.get("comment_box", "")
-        forward = request.POST.get("forward_to_moderator") == "on"
 
-        Assessment.objects.create(
-            eisa_id=eisa_id,
-            qualification=qual,
-            paper=paper,
-            saqa_id=saqa,
-            file=file,
-            memo=memo,
-            comment=comment,
-            forward_to_moderator=forward,
-        )
-
-        messages.success(request, "Assessment uploaded successfully.")
-
-        submissions = Assessment.objects.all().order_by("-created_at")
-        return render(request, "core/assessor-developer/upload_assessment.html", {
-            "submissions": submissions
-        })
-
-    submissions = Assessment.objects.all().order_by("-created_at")
-    return render(request, "core/assessor-developer/upload_assessment.html", {
-        "submissions": submissions
-    })
 
 
 # ---------------------------
@@ -731,6 +858,7 @@ def submit_generated_paper(request):
 
 # -------------------------------------------------
 # 10) View a single Assessment + its Generated Questions
+#This one is for the Assessor Developer Don't assume its a duplicate view_assessment!
 # -------------------------------------------------
 def view_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
@@ -931,3 +1059,4 @@ def qcto_latest_assessment_detail(request):
         "assessment": latest,
         "generated_questions": questions,
     })
+

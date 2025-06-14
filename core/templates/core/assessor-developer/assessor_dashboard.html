@@ -143,6 +143,7 @@
               <th>Paper No.</th>
               <th>Moderator</th>
               <th>Status</th>
+              <th>QCTO Comments</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -156,6 +157,7 @@
               <td class="status-{{ assessment.status|slugify }}">
                 {{ assessment.status }}
               </td>
+              <td>{{ assessment.qcto_notes|default:"—" }}</td>
               <td>
                 {% if assessment.eisa_id %}
                   <a href="{% url 'view_assessment' assessment.eisa_id %}"
