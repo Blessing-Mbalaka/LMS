@@ -27,7 +27,7 @@ from core.views import (
     toggle_user_status,
     update_user_qualification,
     update_user_role,
-    custom_login,
+    custom_login, custom_logout,
 edit_assessment_centre,
 delete_assessment_centre,
 qualification_management_view
@@ -73,7 +73,8 @@ urlpatterns = [
     path('toggle-user-status/<int:user_id>/', toggle_user_status, name='toggle_user_status'),
     path('administrator/qualifications/', qualification_management_view, name='manage_qualifications'),
 
-#Login path**********************************************************
+#Login and logout path**********************************************************
+     path('logout/', custom_logout, name='logout'),
     path('administrator/login/', custom_login, name='custom_login'),
 #********************************************************************
 

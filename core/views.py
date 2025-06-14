@@ -878,42 +878,64 @@ def view_assessment(request, eisa_id):
 #---------------------------------------------------------------------------------------
  
 
+# core/views.py
+
+
+@login_required
+@staff_member_required
 def moderator_developer_dashboard(request):
-    from .models import Assessment, Feedback
-    pending   = Assessment.objects.filter(status="Submitted to Moderator")\
-                                  .order_by("-created_at")
-    recent_fb = Feedback.objects.select_related("assessment")\
+    pending = Assessment.objects.filter(
+        status__in=["Pending", "Submitted to Moderator"]
+    ).order_by("-created_at")
+
+    forwarded = Assessment.objects.filter(
+        status="Submitted to ETQA"
+    ).order_by("-created_at")
+
+    recent_fb = Feedback.objects.select_related("assessment") \
                                 .order_by("-created_at")[:10]
 
-    return render(request, "core/assessor-developer/moderator_developer.html", {
-        "pending_assessments": pending,
-        "recent_feedback": recent_fb,
+    return render(request, "core/moderator/moderator_developer.html", {
+        "pending_assessments":   pending,
+        "forwarded_assessments": forwarded,
+        "recent_feedback":       recent_fb,
     })
 
 
 @require_http_methods(["GET", "POST"])
+@staff_member_required
 def moderate_assessment(request, eisa_id):
     a = get_object_or_404(Assessment, eisa_id=eisa_id)
 
     if request.method == "POST":
-        new_status = request.POST.get("status")
-        notes      = request.POST.get("moderator_notes", "").strip()
+        action = request.POST.get("action", "").strip()
+        notes  = request.POST.get("moderator_notes", "").strip()
 
-        # Validate choice
+        if action == "forward":
+            # Forward to ETQA
+            a.status = "Submitted to ETQA"
+            a.moderator_notes = notes
+            a.save()
+            messages.success(request, f"{a.eisa_id} successfully forwarded to QCTO.")
+            return redirect("moderator_developer")
+
+        # Otherwise treat as status change
+        new_status = action or request.POST.get("status")
         valid = dict(Assessment.STATUS_CHOICES)
         if new_status not in valid:
             messages.error(request, "Invalid status.")
         else:
-            a.status          = new_status
+            a.status = new_status
             a.moderator_notes = notes
             a.save()
             messages.success(request, f"{a.eisa_id} updated to “{new_status}.”")
         return redirect("moderator_developer")
 
-    return render(request, "core/assessor-developer/moderate_assessment.html", {
-        "assessment": a,
+    return render(request, "core/moderator/moderate_assessment.html", {
+        "assessment":     a,
         "status_choices": Assessment.STATUS_CHOICES,
     })
+
 
 @require_http_methods(["POST"])
 def add_feedback(request, eisa_id):
@@ -945,7 +967,7 @@ def toggle_checklist_item(request, item_id):
         return JsonResponse({"status": "ok", "completed": item.completed})
     except ChecklistItem.DoesNotExist:
         raise Http404()
-
+#not neccessary---not main
 def checklist_stats(request):
     total   = ChecklistItem.objects.count()
     done    = ChecklistItem.objects.filter(completed=True).count()
@@ -1060,3 +1082,12 @@ def qcto_latest_assessment_detail(request):
         "generated_questions": questions,
     })
 
+#______________________________________________________________________________________________________
+#______________________________________________________________________________________________________
+# Log-Out View_________________________________________________________________________________________
+#______________________________________________________________________________________________________
+
+ # LOGOUT VIEW
+def custom_logout(request):
+     logout(request)
+     return redirect('custom_login')

@@ -1,0 +1,964 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chieta Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --dark-purple: #3d0b56;
+            --light-purple: #734e94;
+            --darker-purple: #360459;
+            --gold: #a67c00;
+            --golden-brown: #8c6e0b;
+            --light-gold: #b68f40;
+            --deep-brown: #7a5303;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, #f1f1f1, #ffffff, #a0a0a0, #f0efef, #f0efef, #5b3c83);
+            padding: 20px 15px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #8f6620;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .sidebar-collapsed {
+            width: 70px;
+            overflow: hidden;
+        }
+
+        .sidebar-collapsed .nav-item span,
+        .sidebar-collapsed .logo-text,
+        .sidebar-collapsed .btn-text {
+            display: none;
+        }
+
+        .sidebar-collapsed .graduate-icon img {
+            width: 50px;
+        }
+
+        .sidebar-collapsed .nav-item {
+            justify-content: center;
+        }
+
+        .sidebar-collapsed .fixy,
+        .sidebar-collapsed .fix {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .graduate-icon {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .graduate-icon img {
+            width: 130px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            color: var(--dark-purple);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 16px;
+            min-width: 20px;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(143, 102, 32, 0.2);
+            color: var(--dark-purple);
+        }
+
+        .nav-item.active {
+            background-color: var(--dark-purple);
+            color: white;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            right: 15px;
+        }
+
+        .sidebar-footer img {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        /* Button Styling */
+        .btn-gold {
+            background: linear-gradient(to right, var(--gold), var(--golden-brown), var(--light-gold), var(--deep-brown), var(--gold));
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(to right, var(--deep-brown), var(--gold), var(--light-gold), var(--golden-brown));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-purple {
+            background: linear-gradient(to right, var(--dark-purple), var(--light-purple), #552a74, var(--darker-purple));
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-purple:hover {
+            background: linear-gradient(to right, var(--darker-purple), var(--dark-purple), #552a74, var(--light-purple));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline-purple {
+            border: 1px solid var(--dark-purple);
+            color: var(--dark-purple);
+            background: transparent;
+        }
+
+        .btn-outline-purple:hover {
+            background: var(--dark-purple);
+            color: white;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f8f9fa;
+            overflow-y: auto;
+        }
+
+        /* Topbar */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+
+        .search-container {
+            position: relative;
+            width: 60%;
+        }
+
+        .search-container input {
+            padding: 10px 15px 10px 40px;
+            width: 100%;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-menu img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        /* Welcome Box */
+        .welcome-box {
+            background: linear-gradient(to right, #ffffff, #e3e3e3, #f0f0f0, #8a6daf);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-box h2 {
+            color: var(--dark-purple);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .welcome-box .date {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-image {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 80%;
+            opacity: 0.8;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Metrics Cards */
+        .metrics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--dark-purple);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark-purple);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* Tabs */
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs .nav-link {
+            color: #495057;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 500;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border-color: transparent;
+            color: var(--dark-purple);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--dark-purple);
+            background-color: rgba(61, 11, 86, 0.1);
+            border-bottom: 3px solid var(--dark-purple);
+        }
+
+        /* Table Styling */
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            color: #212529;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            color: var(--dark-purple);
+            font-weight: 600;
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .table tr:hover {
+            background-color: rgba(61, 11, 86, 0.03);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-reviewed {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        /* Checklist */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checklist-item input {
+            margin-right: 10px;
+        }
+
+        .checklist-item.completed {
+            color: #28a745;
+            text-decoration: line-through;
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .progress-line {
+            width: 100%;
+            height: 6px;
+            background-color: #e9ecef;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(to right, var(--dark-purple), var(--light-purple));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .step-circle.completed {
+            background-color: var(--dark-purple);
+            color: white;
+        }
+
+        .step-circle.active {
+            background-color: var(--light-purple);
+            color: white;
+            box-shadow: 0 0 0 5px rgba(115, 78, 148, 0.3);
+        }
+
+        /* Feedback Items */
+        .feedback-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .feedback-item h6 {
+            color: var(--dark-purple);
+            margin-bottom: 10px;
+        }
+
+        .feedback-meta {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar .nav-item span,
+            .sidebar .logo-text,
+            .sidebar .btn-text {
+                display: none;
+            }
+
+            .sidebar .graduate-icon img {
+                width: 50px;
+            }
+
+            .sidebar .nav-item {
+                justify-content: center;
+            }
+
+            .sidebar .fixy,
+            .sidebar .fix {
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .welcome-image {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .metrics-container {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .metrics-container {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs .nav-link {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Utility Classes */
+        .mb-0 {
+            margin-bottom: 0 !important;
+        }
+
+        .mt-3 {
+            margin-top: 1rem !important;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        .w-100 {
+            width: 100% !important;
+        }
+
+        .shadow-sm {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--light-purple);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-purple);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="graduate-icon">
+                <img src="/images/logo_simplebbbbbbbbbbbbbb.png" alt="CHIETA Logo" class="logo-img">
+                
+            </div>
+            <ul class="sidebar-nav">
+                <li class="nav-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Assessments</span>
+                </li>
+                <li class="nav-item">
+                    <i class="fas fa-check-double"></i>
+                    <span>Moderation Queue</span>
+                </li>
+                
+            </ul>
+            <div class="sidebar-footer">
+                <img src="/images/rb_2149331949.png" alt="Footer Image" class="footer-img">
+                <button class="btn btn-gold fixy mb-2 w-100">
+                    <i class="fas fa-cog"></i>
+                    <span class="btn-text">Settings</span>
+                </button>
+                <button class="btn btn-purple fix w-100">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="btn-text">Log Out</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Top Bar -->
+            <div class="topbar">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="search" placeholder="Search assessments, moderators...">
+                </div>
+                
+            </div>
+
+            <!-- Welcome Box -->
+            <div class="welcome-box fade-in">
+                <h2 class="mb-0">Moderator QALA</h2>
+                <!-- Moderation Guidelines -->
+            <div class="moderation-guidelines">
+                <h5><i class="fas fa-info-circle"></i> Moderation Guidelines</h5>
+                 <ol>
+                    <li>Review all assessment instruments for compliance with QCTO requirements</li>
+                    <li>Ensure assessment practices meet the required standard</li>
+                    <li>Verify that marking was conducted fairly and consistently</li>
+                    <li>Sample 15-20% of assessments (or full batch for small groups)</li>
+                    <li>Adjust marks where necessary and provide clear feedback</li>
+                </ol>
+            </div>
+                
+                <img src="/images/rb_2148892786.png" alt="Welcome Illustration" class="welcome-image">
+            </div>
+
+             <div class="main-content">
+            
+
+        
+            <!-- Filter Section -->
+            <div class="filter-section card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-filter"></i> Filter Assessments</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Assessment Centre</label>
+                            <select class="form-select">
+                                <option selected>All Centers</option>
+                                <option>Technical Skills Academy</option>
+                                <option>Engineering Training Institute</option>
+                                <option>Vocational Assessment College</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Qualification</label>
+                            <select class="form-select">
+                                <option selected>All Qualifications</option>
+                                <option>Occupational Certificate: Maintenance Planner</option>
+                                <option>Occupational Certificate: Electrician</option>
+                                <option>Occupational Certificate: Fitter and Turner</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select">
+                                <option selected>All Statuses</option>
+                                <option>Pending Moderation</option>
+                                <option>In Progress</option>
+                                <option>Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date Range</label>
+                            <input type="date" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <button class="btn btn-purple">
+                                <i class="fas fa-search"></i> Apply Filters
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-sync-alt"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <!-- Assessments Table -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-table"></i> Assessments for Moderation</h5>
+                    <div>
+                        <span class="me-2">Showing 1-10 of 24</span>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>EISA No.</th>
+                                    <th>Assessment Centre</th>
+                                    <th>Qualification</th>
+                                    <th>Learners</th>
+                                    <th>Assessment Date</th>
+                                    <th>Status</th>
+                                    <th>Sampled</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>EISA-2024-015</td>
+                                    <td>Technical Skills Academy</td>
+                                    <td>Maintenance Planner</td>
+                                    <td>12</td>
+                                    <td>2024-05-15</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td><span class="sample-badge">2/12</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-purple">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>EISA-2024-016</td>
+                                    <td>Engineering Training Institute</td>
+                                    <td>Maintenance Planner</td>
+                                    <td>8</td>
+                                    <td>2024-05-16</td>
+                                    <td><span class="status-badge status-in-progress">In Progress</span></td>
+                                    <td><span class="sample-badge">Full batch</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-purple">
+                                            <i class="fas fa-edit"></i> Moderate
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>EISA-2024-017</td>
+                                    <td>Vocational Assessment College</td>
+                                    <td>Electrician</td>
+                                    <td>15</td>
+                                    <td>2024-05-17</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                    <td><span class="sample-badge">3/15</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-purple">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>EISA-2024-018</td>
+                                    <td>Technical Skills Academy</td>
+                                    <td>Fitter and Turner</td>
+                                    <td>10</td>
+                                    <td>2024-05-18</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td><span class="sample-badge">0/10</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-purple">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>EISA-2024-019</td>
+                                    <td>Engineering Training Institute</td>
+                                    <td>Maintenance Planner</td>
+                                    <td>6</td>
+                                    <td>2024-05-19</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                    <td><span class="sample-badge">Full batch</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-gold">
+                                            <i class="fas fa-paper-plane"></i> Submit
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moderation Details Modal (hidden by default) -->
+            <div class="modal fade" id="moderationModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-purple text-white">
+                            <h5 class="modal-title">Moderation Details - EISA-2024-016</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h6>Assessment Information</h6>
+                                    <p><strong>Centre:</strong> Engineering Training Institute</p>
+                                    <p><strong>Qualification:</strong> Occupational Certificate: Maintenance Planner</p>
+                                    <p><strong>SAQA ID:</strong> 101874</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Moderation Details</h6>
+                                    <p><strong>Batch Size:</strong> 8 learners</p>
+                                    <p><strong>Sampled:</strong> Full batch (100%)</p>
+                                    <p><strong>Moderator:</strong> [Your Name]</p>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Learner Results</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Learner ID</th>
+                                                    <th>Name</th>
+                                                    <th>Original Mark</th>
+                                                    <th>Adjusted Mark</th>
+                                                    <th>Recommendation</th>
+                                                    <th>Comments</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>LRN-001</td>
+                                                    <td>John Smith</td>
+                                                    <td>78%</td>
+                                                    <td><input type="number" class="form-control form-control-sm" value="78" min="0" max="100"></td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm">
+                                                            <option>Recommend</option>
+                                                            <option>Not Recommend</option>
+                                                            <option>Resubmit</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" class="form-control form-control-sm" placeholder="Comments"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>LRN-002</td>
+                                                    <td>Sarah Johnson</td>
+                                                    <td>65%</td>
+                                                    <td><input type="number" class="form-control form-control-sm" value="65" min="0" max="100"></td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm">
+                                                            <option>Recommend</option>
+                                                            <option selected>Not Recommend</option>
+                                                            <option>Resubmit</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="Incomplete evidence"></td>
+                                                </tr>
+                                                <!-- More rows would be here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6>Overall Moderation Feedback</h6>
+                                <textarea class="form-control" rows="3" placeholder="Enter your overall feedback on this assessment..."></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="qualityCheck">
+                                        <label class="form-check-label" for="qualityCheck">
+                                            Quality assurance completed
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-success me-2">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    <button class="btn btn-danger me-2">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times"></i> Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample functionality for the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Activate the moderation modal when a moderate button is clicked
+            const moderateButtons = document.querySelectorAll('.btn-purple');
+            moderateButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.innerHTML.includes('Moderate')) {
+                        const modal = new bootstrap.Modal(document.getElementById('moderationModal'));
+                        modal.show();
+                    }
+                });
+            });
+            
+            // Sample generation functionality
+            document.querySelector('.btn-gold').addEventListener('click', function() {
+                alert('New sample batch generated for quality assurance');
+            });
+        });
+    </script>
+</body>
+</html>

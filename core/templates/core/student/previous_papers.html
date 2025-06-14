@@ -1,0 +1,316 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previous Question Papers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Keep existing styles, add new ones below */
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 10px;
+            border: 2px solid #580658;
+            border-radius: 20px;
+            background: white;
+            min-width: 200px;
+        }
+
+        .paper-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .paper-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border-left: 5px solid #580658;
+        }
+
+        .paper-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .paper-meta {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .paper-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .download-btn {
+            background: linear-gradient(to right, #4CAF50, #45a049);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.2em;
+            display: none;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #580658;
+            font-weight: bold;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .filter-section {
+                flex-direction: column;
+            }
+            
+            .filter-input {
+                width: 100%;
+            }
+        }
+        .topbar {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    #searchInput {
+        width: 390px;
+        padding: 12px 20px;
+        border: 2px solid #580658;
+        border-radius: 30px;
+        font-size: 16px;
+        outline: none;
+        transition: all 0.3s ease;
+        background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="%23580658" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>') no-repeat 95% center;
+        background-size: 20px;
+    }
+
+    #searchInput:focus {
+        border-color: #8f6620;
+        box-shadow: 0 0 8px rgba(143, 102, 32, 0.3);
+    }
+
+    @media (max-width: 480px) {
+        #searchInput {
+            width: 90%;
+            padding: 10px 15px;
+        }
+    }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar (same as previous) -->
+        <div class="sidebar">
+            <!-- ... existing sidebar content ... -->
+        </div>
+
+        <!-- Content -->
+      <br>  <div class="content">
+            <!-- Top Bar -->
+            <div class="topbar">
+                <input type="search" id="searchInput" placeholder="Search question papers...">
+            </div><br><br>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label class="filter-label">Year</label>
+                    <select class="filter-input" id="yearFilter">
+                        <option value="">All Years</option>
+                        <option>2024</option>
+                        <option>2023</option>
+                        <option>2022</option>
+                        <option>2021</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Subject</label>
+                    <select class="filter-input" id="subjectFilter">
+                        <option value="">All Subjects</option>
+                        <option>Mathematics</option>
+                        <option>Physics</option>
+                        <option>Chemistry</option>
+                        <option>Biology</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Type</label>
+                    <select class="filter-input" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option>Final Exam</option>
+                        <option>Midterm</option>
+                        <option>Quiz</option>
+                        <option>Practice Test</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Question Papers Grid -->
+            <div class="paper-grid" id="paperContainer">
+                <!-- Sample Papers -->
+                <div class="paper-card" data-year="2024" data-subject="Mathematics" data-type="Final Exam">
+                    <h3>Mathematics Final Exam</h3>
+                    <div class="paper-meta">
+                        <span>2024</span>
+                        <span>25 Pages</span>
+                    </div>
+                    <div class="paper-actions">
+                        <button class="download-btn">
+                            <i class="fas fa-download"></i>
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="paper-card" data-year="2023" data-subject="Physics" data-type="Midterm">
+                    <h3>Physics Midterm</h3>
+                    <div class="paper-meta">
+                        <span>2023</span>
+                        <span>18 Pages</span>
+                    </div>
+                    <div class="paper-actions">
+                        <button class="download-btn">
+                            <i class="fas fa-download"></i>
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add more paper cards following the same structure -->
+            </div>
+
+            <div class="no-results" id="noResults">
+                No matching question papers found.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for demonstration
+        const papers = [
+            { year: '2024', subject: 'Mathematics', type: 'Final Exam', pages: '25' },
+            { year: '2023', subject: 'Physics', type: 'Midterm', pages: '18' },
+            { year: '2022', subject: 'Chemistry', type: 'Quiz', pages: '12' },
+            { year: '2021', subject: 'Biology', type: 'Practice Test', pages: '20' },
+            // Add more paper objects as needed
+        ];
+
+        // Get DOM elements
+        const searchInput = document.getElementById('searchInput');
+        const yearFilter = document.getElementById('yearFilter');
+        const subjectFilter = document.getElementById('subjectFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const paperContainer = document.getElementById('paperContainer');
+        const noResults = document.getElementById('noResults');
+
+        // Initial display of all papers
+        renderPapers(papers);
+
+        // Add event listeners for filtering
+        [searchInput, yearFilter, subjectFilter, typeFilter].forEach(element => {
+            element.addEventListener('input', filterPapers);
+            element.addEventListener('change', filterPapers);
+        });
+
+        function filterPapers() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedYear = yearFilter.value;
+            const selectedSubject = subjectFilter.value;
+            const selectedType = typeFilter.value;
+
+            const filtered = papers.filter(paper => {
+                const matchesSearch = paper.subject.toLowerCase().includes(searchTerm) ||
+                                    paper.type.toLowerCase().includes(searchTerm);
+                const matchesYear = !selectedYear || paper.year === selectedYear;
+                const matchesSubject = !selectedSubject || paper.subject === selectedSubject;
+                const matchesType = !selectedType || paper.type === selectedType;
+
+                return matchesSearch && matchesYear && matchesSubject && matchesType;
+            });
+
+            renderPapers(filtered);
+        }
+
+        function renderPapers(filteredPapers) {
+            paperContainer.innerHTML = '';
+            
+            if (filteredPapers.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            
+            filteredPapers.forEach(paper => {
+                const paperCard = document.createElement('div');
+                paperCard.className = 'paper-card';
+                paperCard.setAttribute('data-year', paper.year);
+                paperCard.setAttribute('data-subject', paper.subject);
+                paperCard.setAttribute('data-type', paper.type);
+                
+                paperCard.innerHTML = `
+                    <h3>${paper.subject} ${paper.type}</h3>
+                    <div class="paper-meta">
+                        <span>${paper.year}</span>
+                        <span>${paper.pages} Pages</span>
+                    </div>
+                    <div class="paper-actions">
+                        <button class="download-btn">
+                            <i class="fas fa-download"></i>
+                            Download PDF
+                        </button>
+                    </div>
+                `;
+
+                paperContainer.appendChild(paperCard);
+            });
+        }
+
+        // Add download functionality
+        paperContainer.addEventListener('click', function(e) {
+            if (e.target.closest('.download-btn')) {
+                const card = e.target.closest('.paper-card');
+                const subject = card.querySelector('h3').textContent;
+                alert(`Starting download: ${subject}`);
+                // Here you would typically implement actual download logic
+            }
+        });
+    </script>
+</body>
+</html>

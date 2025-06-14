@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Existing head content remains the same -->
+    <style>
+        /* Add new styles for assessment history */
+        .assessment-history {
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .history-table th {
+            background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #3b0561);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .history-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .score-cell {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+
+        .completed {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .pending {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .performance-chart {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(to right, white, rgb(240, 239, 239));
+            border-radius: 8px;
+        }
+
+        /* Remove unnecessary styles from original */
+        .flex-container, .upload-area, .notifications-list {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        
+            <!-- Assessment History Section -->
+            <div class="assessment-history">
+                <h2 style="color: #580658; margin-bottom: 15px;">Assessment History</h2>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Subject</th>
+                            <th>Type</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>Mathematics</td>
+                            <td>Final Exam</td>
+                            <td class="score-cell">92%</td>
+                            <td><span class="status-indicator completed">Completed</span></td>
+                            <td><button class="gradient-button">View Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-10</td>
+                            <td>Physics</td>
+                            <td>Midterm</td>
+                            <td class="score-cell">85%</td>
+                            <td><span class="status-indicator completed">Completed</span></td>
+                            <td><button class="gradient-button">View Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-01</td>
+                            <td>Chemistry</td>
+                            <td>Quiz</td>
+                            <td class="score-cell">78%</td>
+                            <td><span class="status-indicator pending">Pending Review</span></td>
+                            <td><button class="gradient-button">View Details</button></td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+
+                <!-- Performance Summary -->
+                <div class="performance-chart">
+                    <h3 style="color: #580658; margin-bottom: 15px;">Performance Overview</h3>
+                    <div style="display: flex; gap: 20px; justify-content: space-around;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; color: #4CAF50;">85%</div>
+                            <div style="font-size: 14px; color: #666;">Average Score</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; color: #2196F3;">12</div>
+                            <div style="font-size: 14px; color: #666;">Completed Exams</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; color: #FF9800;">3</div>
+                            <div style="font-size: 14px; color: #666;">Pending Results</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update JavaScript for assessment history interactions
+        document.querySelectorAll('.gradient-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const examDate = this.closest('tr').children[0].textContent;
+                const examSubject = this.closest('tr').children[1].textContent;
+                alert(`Viewing details for: ${examSubject} (${examDate})`);
+            });
+        });
+
+        // Add sorting functionality
+        document.querySelectorAll('.history-table th').forEach(header => {
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', sortTable);
+        });
+
+        function sortTable(e) {
+            const header = e.target;
+            const table = document.querySelector('.history-table');
+            // Implement sorting logic here
+            alert(`Sorting by: ${header.textContent}`);
+        }
+    </script>
+</body>
+</html>
