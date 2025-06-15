@@ -86,17 +86,13 @@
                   {% endif %}
                 </td>
                 <td>{{ user.email }}</td>
-                <!-- Role display with (none) default -->
                 <td class="role-display">
                   {{ user.get_role_display|default:"(none)" }}
                 </td>
-                <!-- AJAX-enabled role dropdown -->
                 <td>
                   <select class="form-select form-select-sm assign-role" data-url="{% url 'update_user_role' user.id %}">
                     {% for value, label in role_choices %}
-                      <option value="{{ value }}" {% if user.role == value %}selected{% endif %}>
-                        {{ label }}
-                      </option>
+                      <option value="{{ value }}" {% if user.role == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                   </select>
                 </td>
@@ -105,10 +101,11 @@
                     {% csrf_token %}
                     <select name="qualification" class="form-select form-select-sm" onchange="this.form.submit()">
                       {% for qual in qualifications %}
-                        <option value="{{ qual.id }}" {% if user.qualification.id == qual.id %}selected{% endif %}>
-                          {{ qual.name }}
-                        </option>
+                        <option value="{{ qual.id }}" {% if user.qualification and user.qualification.id == qual.id %}selected{% endif %}>{{ qual.name }}</option>
                       {% endfor %}
+                      {% if not user.qualification %}
+                        <option value="" selected>(none)</option>
+                      {% endif %}
                     </select>
                   </form>
                 </td>
@@ -180,7 +177,7 @@
     </div>
   </div>
 
-  <!-- AJAX script to update role in-place -->
+  <!-- JavaScript -->
   <script>
     document.querySelectorAll('.assign-role').forEach(function(select){
       select.addEventListener('change', function(){
@@ -199,10 +196,8 @@
           return resp.text();
         })
         .then(() => {
-          // find the row and update its .role-display cell
           const row = select.closest('tr');
           const cell = row.querySelector('.role-display');
-          // find the option text of the newly selected value
           const text = select.options[select.selectedIndex].text;
           cell.textContent = text;
         })

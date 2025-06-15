@@ -48,6 +48,8 @@ from .question_bank import QUESTION_BANK
 from .utils import extract_text
 from google import genai
 from django.conf import settings
+from django.contrib.auth import get_user_model
+
 
 # Initialize AI client
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
@@ -67,44 +69,86 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(Qualification)
 
 
-def custom_login(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
 
-        user = authenticate(request, email=email, password=password)
 
-        if user is not None:
+# core/views.py
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from .forms import EmailRegistrationForm
+from .models import CustomUser
+from django.utils.timezone import now
+def redirect_user_by_role(user):
+    role = user.role
+    if role == 'admin':
+        return redirect('admin_dashboard')
+    elif role == 'moderator':
+        return redirect('moderator_developer')
+    elif role == 'internal_mod':
+        return redirect('internal_moderator_dashboard')
+    elif role in ['assessor_dev', 'assessor_marker']:
+        return redirect('assessor_dashboard')
+    elif role in ['etqa', 'qcto']:
+        return redirect('qcto_dashboard')
+    elif role == 'learner':
+        return redirect('home')
+    else:
+        return redirect('home')
+
+def register(request):
+    if request.method == "POST":
+        form = EmailRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = True
+            user.is_staff  = (user.role != 'learner')
+            user.save()
             login(request, user)
+            return redirect_user_by_role(user)
+    else:
+        form = EmailRegistrationForm()
 
-            role = user.role
-            if role == 'admin':
-                return redirect('admin_dashboard')
-            elif role == 'moderator':
-                return redirect('moderator_developer')  # NOTE: corrected to match your URL name
-            elif role == 'internal_mod':
-                return redirect('internal_moderator_dashboard')
-            elif role == 'assessor_dev':
-                return redirect('assessor_dashboard')  # fallback to existing view
-            elif role == 'assessor_marker':
-                return redirect('assessor_dashboard')  # fallback
-            elif role == 'etqa':
-                return redirect('qcto_dashboard')  # assuming qcto serves as etqa too
-            elif role == 'qcto':
-                return redirect('qcto_dashboard')
-            elif role == 'learner':
-                # No learner_dashboard defined yet, fallback or comment
-                return redirect('home')  # or comment this line out
-                # pass  # optionally just do nothing or show 403
+    return render(request, "core/login/login.html", {"form": form})
 
-        return render(request, 'core/login/login.html', {'error': 'Invalid credentials'})
+def custom_login(request):
+    # we reuse the registration form so the template can render both sides
+    reg_form = EmailRegistrationForm()
 
-    return render(request, 'core/login/login.html')
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip().lower()
+        password = request.POST.get("password", "")
+
+        try:
+            u = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            u = None
+
+        user = authenticate(request, username=email, password=password)
+        if user:
+            login(request, user)
+            return redirect_user_by_role(user)
+        else:
+            return render(request, "core/login/login.html", {
+                "form":  reg_form,
+                "error": "Invalid credentials",
+            })
+
+    return render(request, "core/login/login.html", {"form": reg_form})
 #_______________________________________________________________________________________________________
 #******************************************************************************************************
 #LOGIN LOGIC AND USER ACCESS CONTROL STARTS HERE********************************************************
 #*******************************************************************************************************
 #*******************************************************************************************************
+
+from django.contrib.auth import get_user_model
+
+from django.contrib.auth.decorators import login_required
+
+from .models import Qualification
+
+CustomUser = get_user_model()  
+
 @login_required
 @staff_member_required
 def user_management(request):
@@ -123,15 +167,15 @@ def user_management(request):
             messages.error(request, "A user with this email already exists.")
             return redirect('user_management')
 
-        # split name
+        # Split name
         parts = name.split()
         first = parts[0]
-        last  = " ".join(parts[1:]) if len(parts)>1 else ""
+        last  = " ".join(parts[1:]) if len(parts) > 1 else ""
 
-        # random password
+        # Generate random password
         pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
 
-        # actual user creation
+        # Create user with is_staff True for all except learners
         user = CustomUser.objects.create_user(
             username=email,
             email=email,
@@ -140,12 +184,13 @@ def user_management(request):
             role=role,
             qualification=qualification,
             is_active=True,
+            is_staff=(role != 'learner'),
             activated_at=now()
         )
         user.set_password(pwd)
         user.save()
 
-        # email it
+        # Send email
         send_mail(
             'Your CHIETA LMS Password',
             f'Hello {first}, your new password is: {pwd}',
@@ -163,6 +208,7 @@ def user_management(request):
         'qualifications': quals,
         'role_choices': CustomUser.ROLE_CHOICES,
     })
+
 #*******************************************************************************************************
 #*******************************************************************************************************
 #Role Management is done here
@@ -225,6 +271,7 @@ def assessment_centres_view(request):
     if request.method == 'POST':
         form = AssessmentCentreForm(request.POST)
         if form.is_valid():
+            print("User created with role:", user.role)
             form.save()
             messages.success(request, "Assessment centre added successfully.")
             return redirect('assessment_centres')
@@ -1097,9 +1144,18 @@ def register(request):
     if request.method == "POST":
         form = EmailRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()      # hashes & saves password
-            login(request, user)    # log them in immediately
-            return redirect("assessor_dashboard")
+            # build user
+            user = form.save(commit=False)
+            user.is_active = True
+
+            # Grant staff to everyone but learners
+            user.is_staff = (user.role != 'learner')
+
+            user.save()
+            login(request, user)
+            return redirect_user_by_role(user)
+
     else:
         form = EmailRegistrationForm()
-    return render(request, "core/login/register.html", {"form": form})
+
+    return render(request, "core/login/login.html", {"form": form})

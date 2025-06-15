@@ -50,31 +50,47 @@ class QualificationForm(forms.ModelForm):
             'level': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}),
         }
 
-        User = get_user_model()
+        
 
 
-#User creation form 
-# core/forms.py
+#User creation 
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from .models import CustomUser, Qualification
+
 class EmailRegistrationForm(UserCreationForm):
     email = forms.EmailField(label="Email address", required=True)
+    first_name = forms.CharField(label="First name", required=True)
+    last_name = forms.CharField(label="Last name", required=True)
+    role = forms.ChoiceField(label="Role", choices=CustomUser.ROLE_CHOICES, required=True)
+    qualification = forms.ModelChoiceField(
+        label="Qualification",
+        queryset=Qualification.objects.all(),
+        required=False
+    )
 
     class Meta:
-        model = User
-        fields = ("email",)  
+        model = CustomUser
+        fields = ("email", "first_name", "last_name", "role", "qualification")
 
     def clean_email(self):
         email = self.cleaned_data["email"].lower()
-        if User.objects.filter(email=email).exists():
+        if CustomUser.objects.filter(email=email).exists():
             raise forms.ValidationError("A user with that email already exists.")
         return email
 
     def save(self, commit=True):
-        # override save so that username is set to email if your user model still requires username
         user = super().save(commit=False)
         user.email = self.cleaned_data["email"].lower()
-        # if your AUTH_USER_MODEL still has a username field, you can do:
-        if hasattr(user, "username"):
-            user.username = user.email
+        user.username = user.email
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        user.role = self.cleaned_data["role"]
+        user.qualification = self.cleaned_data["qualification"]
+        user.is_active = True
+        # Grant staff to everyone except learners
+        user.is_staff = (user.role != 'learner')
+        user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
         return user

@@ -107,6 +107,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend', 
 ]
 
+# settings.py
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'secondary',
