@@ -31,7 +31,8 @@ from core.views import (
 edit_assessment_centre,
 delete_assessment_centre,
 qualification_management_view, register,
-default_page
+default_page,
+assessment_progress_tracker
 
 
 
@@ -79,8 +80,9 @@ urlpatterns = [
     path('administrator/login/', custom_login, name='custom_login'),
      path("register/", register, name="register"),
 #********************************************************************
+#Assessment progress Tracker this is for tracking who has the paper...
+    path('assessment-tracker/', assessment_progress_tracker, name='assessment_progress_tracker'),
 
-    
 ]
 
     

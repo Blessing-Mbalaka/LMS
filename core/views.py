@@ -1169,3 +1169,42 @@ def default_page(request):
     return render(request, 'core/login/awaiting_activation.html')
 #****************************************************************************
 #****************************************************************************
+#####Approved assessments view for the paper to be easily pulled and used for other uses.
+def approved_assessments_view(request):
+    assessments = Assessment.objects.filter(status="Approved by ETQA").prefetch_related('generated_questions')
+    return render(request, 'core/approved_assessments.html', {'assessments': assessments})
+#########################################################################################################################
+#ASSessment Progress tracker view
+@login_required
+def assessment_progress_tracker(request):
+    archived_statuses = [
+        "Approved by ETQA",
+        "Rejected",
+        "Submitted to ETQA",
+        "Approved by Moderator",
+        "Submitted to Moderator",
+    ]
+
+    assessments = Assessment.objects.filter(status__in=archived_statuses).order_by('-created_at')
+
+    # Dynamically add the `currently_with` field to each assessment
+    for a in assessments:
+        a.currently_with = get_current_holder(a.status)
+
+    return render(request, 'core/paper_tracking/assessment_progress_tracker.html', {
+        'assessments': assessments,
+    })
+
+#View to get current holder of the paper 
+def get_current_holder(status):
+    mapping = {
+        "Pending": "Assessor/Developer",
+        "Submitted to Moderator": "Moderator",
+        "Returned for Changes": "Assessor/Developer",
+        "Approved by Moderator": "ETQA",
+        "Submitted to ETQA": "ETQA",
+        "Approved by ETQA": "Archived",
+        "Rejected": "Archived",
+    }
+    return mapping.get(status, "Unknown")
+#to summarise the tracker now tells us where the paper is and displays the approved papers so they can be pulled.
