@@ -1,0 +1,43 @@
+Easy Sign-Up & Login: Users sign up or log in with email/password. After signing up, they’re automatically taken to the right place based on their role.
+
+Roles & Access: Everybody has a role (admin, moderator, assessor, QCTO, learner). Non-learners get staff access so they can reach their special dashboards; learners see the public home page.
+
+Admin Tools:
+
+Add or edit qualifications and assessment centres.
+
+Create and manage users (email them a password).
+
+Upload new assessments and see basic site stats.
+
+Assessor Developer Tools:
+
+Auto-generate test papers from your question bank (or AI) with a chosen total score.
+
+Upload existing exam PDFs and memos.
+
+Browse/filter past papers and download CSV reports.
+
+See simple charts of usage.
+
+Moderator Tools:
+
+See assessments that need checking.
+
+Change their status, add notes, and forward to QCTO.
+
+Quick checklist widget and feedback comments.
+
+QCTO Tools:
+
+View assessments sent for final approval.
+
+Approve or reject them with notes.
+
+Browse all decisions, see summary reports, and drill into any assessment.
+
+Learner View:
+
+Once logged in, learners can view the assessments appropriate for them in a single dashboard.
+
+Every page is protected so only the right roles can access it, and everything ties back to a clear “role → dashboard” redirect.
