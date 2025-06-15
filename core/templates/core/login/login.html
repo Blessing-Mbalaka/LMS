@@ -215,6 +215,14 @@
 </style>
 </head>
 <body>
+  {% if messages %}
+  <div class="alert alert-info text-center">
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
+  </div>
+{% endif %}
+
   <div class="container" id="container">
 
     <!-- Sign Up -->

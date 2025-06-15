@@ -8,6 +8,7 @@ from django.conf import settings
 # Qualification creation
 class Qualification(models.Model):
     QUALIFICATION_CHOICES = [
+        ('default', 'Not Yet Assigned'),
         ('Maintenance Planner', 'Maintenance Planner'),
         ('Quality Controller', 'Quality Controller'),
         ('Chemical Plant', 'Chemical Plant'),
@@ -50,6 +51,7 @@ class Qualification(models.Model):
 # User creation
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
+        ('default', 'Awaiting Activation'),                  
         ('admin', 'Administrator'),
         ('assessor_dev', 'Assessor (Developer)'),
         ('moderator', 'Moderator (Developer)'),

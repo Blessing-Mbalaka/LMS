@@ -62,16 +62,10 @@ class EmailRegistrationForm(UserCreationForm):
     email = forms.EmailField(label="Email address", required=True)
     first_name = forms.CharField(label="First name", required=True)
     last_name = forms.CharField(label="Last name", required=True)
-    role = forms.ChoiceField(label="Role", choices=CustomUser.ROLE_CHOICES, required=True)
-    qualification = forms.ModelChoiceField(
-        label="Qualification",
-        queryset=Qualification.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = CustomUser
-        fields = ("email", "first_name", "last_name", "role", "qualification")
+        fields = ("email", "first_name", "last_name",)
 
     def clean_email(self):
         email = self.cleaned_data["email"].lower()
@@ -85,12 +79,9 @@ class EmailRegistrationForm(UserCreationForm):
         user.username = user.email
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
-        user.role = self.cleaned_data["role"]
-        user.qualification = self.cleaned_data["qualification"]
-        user.is_active = True
-        # Grant staff to everyone except learners
-        user.is_staff = (user.role != 'learner')
         user.set_password(self.cleaned_data["password1"])
+
+        # Don't assign role/qualification here — assign in the view
         if commit:
             user.save()
         return user

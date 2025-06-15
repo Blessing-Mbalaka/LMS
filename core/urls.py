@@ -30,15 +30,16 @@ from core.views import (
     custom_login, custom_logout,
 edit_assessment_centre,
 delete_assessment_centre,
-qualification_management_view, register
-
+qualification_management_view, register,
+default_page
 
 
 
 )
 
 urlpatterns = [
-    path('', assessor_dashboard, name='home'),
+    path('', admin_dashboard, name='home'),
+    path('awaiting-activation/', default_page, name='default'),
     path('assessor/dashboard/', assessor_dashboard, name='assessor_dashboard'),
     path('assessor/assessment/<str:eisa_id>/', view_assessment, name='view_assessment'),
     path('upload_assessment/', upload_assessment, name='upload_assessment'),

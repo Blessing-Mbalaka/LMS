@@ -51,6 +51,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 
+
 # Initialize AI client
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
@@ -81,6 +82,8 @@ from .models import CustomUser
 from django.utils.timezone import now
 def redirect_user_by_role(user):
     role = user.role
+    if role == 'default':
+        return redirect ('default')
     if role == 'admin':
         return redirect('admin_dashboard')
     elif role == 'moderator':
@@ -271,7 +274,6 @@ def assessment_centres_view(request):
     if request.method == 'POST':
         form = AssessmentCentreForm(request.POST)
         if form.is_valid():
-            print("User created with role:", user.role)
             form.save()
             messages.success(request, "Assessment centre added successfully.")
             return redirect('assessment_centres')
@@ -1144,18 +1146,26 @@ def register(request):
     if request.method == "POST":
         form = EmailRegistrationForm(request.POST)
         if form.is_valid():
-            # build user
+            # Build user but do not log in yet
             user = form.save(commit=False)
+            user.role = 'default'               # Assign default role
+            user.qualification = Qualification.objects.get(code='default')
             user.is_active = True
-
-            # Grant staff to everyone but learners
-            user.is_staff = (user.role != 'learner')
-
+            user.is_staff = False               # Default users are not staff
             user.save()
-            login(request, user)
-            return redirect_user_by_role(user)
+
+            # Show success message and redirect to login
+            messages.success(request, "Registered. Pending approval.")
+            return redirect('custom_login')  # or 'login' if your URL is named that
 
     else:
         form = EmailRegistrationForm()
 
     return render(request, "core/login/login.html", {"form": form})
+
+#****************************************************************************
+#Default Page is added here...
+def default_page(request):
+    return render(request, 'core/login/awaiting_activation.html')
+#****************************************************************************
+#****************************************************************************
