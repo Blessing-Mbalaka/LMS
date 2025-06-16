@@ -1208,3 +1208,16 @@ def get_current_holder(status):
     }
     return mapping.get(status, "Unknown")
 #to summarise the tracker now tells us where the paper is and displays the approved papers so they can be pulled.
+
+#Learner Assessment viewing view
+#@login_required
+def approved_assessments_for_learners (request):
+    user_qualification = request.user.qualification
+    assessments = Assessment.objects.filter(
+        status="Approved by ETQA", #fetching from the 
+        qualification=user_qualification
+    ).prefetch_related('generated_questions', 'case_study')
+
+    return render(request, 'learner/approved_assessments_by_qualification.html', {
+        'assessments': assessments,
+    })
