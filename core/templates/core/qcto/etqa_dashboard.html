@@ -1,0 +1,372 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETQA Implementation | CHIETA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --dark-purple: #3c1c53;
+            --gold: #bb8641;
+            --light-gray: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(to bottom, #f1f1f1, white, #e0e0e0, #f5f5f5, #3c1c53);
+            padding: 20px;
+            color: var(--dark-purple);
+            border-right: 1px solid var(--gold);
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-header img {
+            max-width: 80%;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-header h4 {
+            color: var(--dark-purple);
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 10px 15px;
+            color: var(--dark-purple);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu li a:hover {
+            background-color: rgba(60, 28, 83, 0.1);
+        }
+
+        .sidebar-menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li.active a {
+            background-color: var(--dark-purple);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .btn-purple {
+            background-color: var(--dark-purple);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+        }
+
+        .btn-purple:hover {
+            background-color: #2d1540;
+            color: white;
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+        }
+
+        .btn-gold:hover {
+            background-color: #a67738;
+            color: white;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            font-weight: 600;
+            color: var(--dark-purple);
+            border-radius: 8px 8px 0 0 !important;
+        }
+
+        /* Form styling */
+        .form-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-purple);
+        }
+
+        select, input[type="date"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input[type="date"]:focus, input[type="number"]:focus {
+            border-color: var(--gold);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(187, 134, 65, 0.2);
+        }
+
+        /* Batch summary table */
+        .batch-summary {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+        }
+
+        .batch-summary th, .batch-summary td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .batch-summary th {
+            background-color: var(--light-gray);
+            color: var(--dark-purple);
+            font-weight: 600;
+            width: 30%;
+        }
+
+        .batch-summary tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="{% static 'images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
+                <h4>ETQA Implementation</h4>
+                <p class="text-muted">Assessment Coordination</p>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="active">
+                    <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="#"><i class="fas fa-building"></i> Assessment Centers</a>
+                </li>
+                <li>
+                    <a href="#"><i class="fas fa-calendar-alt"></i> Scheduling</a>
+                </li>
+                <li>
+                    <a href="#"><i class="fas fa-users"></i> Learner Batches</a>
+                </li>
+                <li>
+                    <a href="#"><i class="fas fa-chart-line"></i> Completion Tracking</a>
+                </li>
+                <li>
+                    <a href="#"><i class="fas fa-cog"></i> Configuration</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0" style="color: var(--dark-purple);">Batch Assignment</h2>
+            </div>
+
+
+            <!-- DEBUG INFO - Remove this after testing
+<div style="background-color: yellow; padding: 10px; margin-bottom: 20px;">
+    <p><strong>Debug Info:</strong></p>
+    <p>Centers count: {{ centers|length }}</p>
+    <p>Qualifications count: {{ qualifications|length }}</p>
+    <p>Selected qualification: {{ selected_qualification }}</p>
+    <p>Approved assessments count: {{ approved_assessments|length }}</p>
+</div> -->
+
+            <div class="form-container">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="center">Assessment Centre:</label>
+                        <select id="center" name="center" class="form-control" required>
+                            {% for center in centers %}
+                                <option value="{{ center.id }}">{{ center.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                   <div class="form-group">
+    <label for="qualification">Qualification:</label>
+    <select id="qualification" name="qualification" class="form-control" onchange="loadAssessments()">
+        <option value="">Select</option>
+        {% for qualification in qualifications %}
+            <option value="{{ qualification.id }}" {% if qualification.id|stringformat:'s' == selected_qualification %}selected{% endif %}>
+                {{ qualification.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+                    
+                    {% if approved_assessments %}
+                    <div class="form-group">
+                        <label for="assessment">Approved Assessment:</label>
+                        <select id="assessment" name="assessment" class="form-control" required>
+                            {% for approved_assessment in approved_assessments %}
+                                <option value="{{ approved_assessment.id }}">{{ approved_assessment.paper }} ({{ approved_assessment.eisa_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-group">
+                        <label for="date">Assessment Date:</label>
+                        <input type="date" id="date" name="date" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="number_of_learners">Number of Learners:</label>
+                        <input type="number" id="number_of_learners" name="number_of_learners" class="form-control" required min="1">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-purple">Create Batch</button>
+                </form>
+            </div>
+
+            {% if created_batch %}
+            <div class="form-container">
+                <h3 style="color: var(--dark-purple); margin-bottom: 20px;">Created Batch Summary</h3>
+                
+                <table class="batch-summary">
+                    <tr>
+                        <th>Centre</th>
+                        <td>{{ created_batch.center.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Qualification</th>
+                        <td>{{ created_batch.qualification.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Assessment</th>
+                        <td>{{ created_batch.assessment.eisa_id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ created_batch.assessment_date }}</td>
+                    </tr>
+                    <tr>
+                        <th>Learners</th>
+                        <td>{{ created_batch.number_of_learners }}</td>
+                    </tr>
+                </table>
+
+                <form method="post" action="{% url 'submit_to_center' created_batch.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-gold">Submit to Center</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+function loadAssessments() {
+    const qualificationId = document.getElementById('qualification').value;
+    if (qualificationId) {
+        // Use GET request to load assessments, not POST
+        window.location.href = `?qualification_id=${qualificationId}`;
+    } else {
+        // Clear the page if no qualification selected
+        window.location.href = window.location.pathname;
+    }
+}
+</script>
+</body>
+</html>

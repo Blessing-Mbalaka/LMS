@@ -18,6 +18,7 @@ class Qualification(models.Model):
         'Maintenance Planner': '101874',
         'Quality Controller': '117309',
         'Chemical Plant': '102156',
+        #'Not Yet Assigned': '000000',
     }
 
     name = models.CharField(max_length=100, unique=True)
@@ -232,3 +233,17 @@ class AssessmentCentre(models.Model):
 
     def __str__(self):
         return self.name
+
+# Batch model ___________________________________________________________________________________________#
+
+class Batch(models.Model):
+    center = models.ForeignKey('AssessmentCentre', on_delete=models.CASCADE)
+    qualification = models.ForeignKey('Qualification', on_delete=models.CASCADE)
+    assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE)
+    assessment_date = models.DateField()
+    number_of_learners = models.PositiveIntegerField()
+    submitted_to_center = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Batch - {self.center.name} | {self.qualification.name} | {self.assessment.eisa_id}"

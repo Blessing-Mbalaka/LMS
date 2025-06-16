@@ -2,9 +2,9 @@ import traceback
 from django.contrib import messages
 from rest_framework.parsers import MultiPartParser, JSONParser
 from .forms import QualificationForm
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
-from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion
+from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion, Batch, AssessmentCentre
 import json
 import random
 import time
@@ -23,7 +23,7 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 from .question_bank import QUESTION_BANK
 from .utils import extract_text
-from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy, Feedback
+from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy, Feedback, AssessmentCentre
 from django.views.decorators.http import require_http_methods
 from collections import defaultdict
 from django.contrib import messages
@@ -1221,3 +1221,125 @@ def approved_assessments_for_learners (request):
     return render(request, 'learner/approved_assessments_by_qualification.html', {
         'assessments': assessments,
     })
+#_____________________________________________________________________________________
+@login_required
+def etqa_dashboard(request):
+    centers = AssessmentCentre.objects.all()
+    qualifications = Qualification.objects.all()
+    selected_qualification = request.GET.get('qualification_id')
+    approved_assessments = None
+    
+    if selected_qualification:
+        approved_assessments = Assessment.objects.filter(
+            qualification_id=selected_qualification,
+            status='Approved by ETQA'
+        )
+    
+    if request.method == 'POST':
+        # Check if all required fields are present before processing
+        required_fields = ['center', 'qualification', 'assessment', 'date', 'number_of_learners']
+        
+        for field in required_fields:
+            if field not in request.POST:
+                # If any required field is missing, redirect back with error
+                return render(request, 'core/qcto/etqa_dashboard.html', {
+                    'centers': centers,
+                    'qualifications': qualifications,
+                    'selected_qualification': selected_qualification,
+                    'approved_assessments': approved_assessments,
+                    'error': f'Please fill in all required fields. Missing: {field}'
+                })
+        
+        center_id = request.POST['center']
+        qualification_id = request.POST['qualification']
+        assessment_id = request.POST['assessment']
+        date = request.POST['date']
+        num_learners = request.POST['number_of_learners']
+        
+        batch = Batch.objects.create(
+            center_id=center_id,
+            qualification_id=qualification_id,
+            assessment_id=assessment_id,
+            assessment_date=date,
+            number_of_learners=num_learners,
+        )
+        
+        return render(request, 'core/qcto/etqa_dashboard.html', {
+            'centers': centers,
+            'qualifications': qualifications,
+            'selected_qualification': qualification_id,
+            'approved_assessments': Assessment.objects.filter(
+                qualification_id=qualification_id,
+                status='Approved by ETQA'
+            ),
+            'created_batch': batch
+        })
+    
+    return render(request, 'core/qcto/etqa_dashboard.html', {
+        'centers': centers,
+        'qualifications': qualifications,
+        'selected_qualification': selected_qualification,
+        'approved_assessments': approved_assessments
+    })
+# Remove the create_batch view since it's now merged
+
+
+# create batch view_______________________________________________________________________
+# def create_batch(request):
+#     centers = AssessmentCentre.objects.all()
+#     qualifications = Qualification.objects.all()
+#     selected_qualification = request.GET.get('qualification_id')
+#     approved_assessments = None
+    
+#     # Get approved assessments if qualification is selected
+#     if selected_qualification:
+#         approved_assessments = Assessment.objects.filter(
+#             qualification_id=selected_qualification,
+#             status='Approved by ETQA'
+#         )
+#         print(f"Approved assessments found: {approved_assessments.count()}")
+    
+#     if request.method == 'POST':
+#         # Your existing POST logic
+#         center_id = request.POST['center']
+#         qualification_id = request.POST['qualification']
+#         assessment_id = request.POST['assessment']
+#         date = request.POST['date']
+#         num_learners = request.POST['number_of_learners']
+        
+#         batch = Batch.objects.create(
+#             center_id=center_id,
+#             qualification_id=qualification_id,
+#             assessment_id=assessment_id,
+#             assessment_date=date,
+#             number_of_learners=num_learners,
+#         )
+        
+#         return render(request, 'core/qcto/etqa_dashboard.html', {
+#             'centers': centers,
+#             'qualifications': qualifications,
+#             'selected_qualification': qualification_id,
+#             'approved_assessments': Assessment.objects.filter(
+#                 qualification_id=qualification_id,
+#                 status='Approved by ETQA'
+#             ),
+#             'created_batch': batch
+#         })
+    
+#     return render(request, 'core/qcto/etqa_dashboard.html', {
+#         'centers': centers,
+#         'qualifications': qualifications,
+#         'selected_qualification': selected_qualification,
+#         'approved_assessments': approved_assessments
+#     })
+
+#_________________________________________________view foe assessment centre_____________________________
+def assessment_center_view(request):
+    batches = Batch.objects.filter(submitted_to_center=True)
+    return render(request, 'assessment_center.html', {'batches': batches})
+
+def submit_to_center(request, batch_id):
+    batch = Batch.objects.get(id=batch_id)
+    batch.submitted_to_center = True
+    batch.save()
+    return redirect('assessment_center')

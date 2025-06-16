@@ -32,7 +32,8 @@ edit_assessment_centre,
 delete_assessment_centre,
 qualification_management_view, register,
 default_page,
-assessment_progress_tracker
+assessment_progress_tracker,
+etqa_dashboard, assessment_center_view, submit_to_center
 
 
 
@@ -57,6 +58,9 @@ urlpatterns = [
     path( "moderator/checklist/<int:item_id>/toggle/", toggle_checklist_item,name="toggle_checklist_item"),
     path( "moderator/checklist/stats/", checklist_stats,name="checklist_stats"),
     path('qcto/dashboard/', qcto_dashboard, name='qcto_dashboard'),
+    #_____________________________________________________________
+    path('etqa/dashboard/', etqa_dashboard, name='etqa_dashboard'),
+    #______________________________________________________________
     path('qcto/<str:eisa_id>/moderate/', qcto_moderate_assessment, name='qcto_moderate_assessment'),
     path('qcto/compliance/', qcto_compliance, name='qcto_compliance'),
     path('qcto/review/', qcto_assessment_review, name='qcto_assessment_review'),
@@ -82,6 +86,15 @@ urlpatterns = [
 #********************************************************************
 #Assessment progress Tracker this is for tracking who has the paper...
     path('assessment-tracker/', assessment_progress_tracker, name='assessment_progress_tracker'),
+
+# paths to create batch and view all the approved assessments______________________________________________
+
+    # path('create-batch/', create_batch, name='create_batch'),
+ path('assessment-center/', assessment_center_view, name='assessment_center'),   
+
+# paths to submit batch to assessment html page_______________________________________________________
+    path('submit-to-center/<int:batch_id>/', submit_to_center, name='submit_to_center'),
+
 
 ]
 

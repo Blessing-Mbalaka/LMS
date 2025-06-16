@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment centre</title>
+</head>
+<body>
+    <h1>Batches Submitted to Assessment Center</h1>
+<table border="1">
+  <tr>
+    <th>Centre</th>
+    <th>Qualification</th>
+    <th>Assessment</th>
+    <th>Date</th>
+    <th>Learners</th>
+  </tr>
+  {% for batch in batches %}
+    <tr>
+      <td>{{ batch.center.name }}</td>
+      <td>{{ batch.qualification.name }}</td>
+      <td>{{ batch.assessment.eisa_id }}</td>
+      <td>{{ batch.assessment_date }}</td>
+      <td>{{ batch.number_of_learners }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>
