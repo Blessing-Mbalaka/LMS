@@ -94,8 +94,6 @@ urlpatterns = [
 
 # paths to submit batch to assessment html page_______________________________________________________
     path('submit-to-center/<int:batch_id>/', submit_to_center, name='submit_to_center'),
-
-
 ]
 
     

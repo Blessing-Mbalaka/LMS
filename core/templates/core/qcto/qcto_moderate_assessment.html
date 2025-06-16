@@ -55,21 +55,11 @@
         </a>
       </div>
       <ul class="sidebar-nav">
-        <li><a href="{% url 'qcto_dashboard' %}"
-               class="{% if request.resolver_match.url_name == 'qcto_dashboard' %}active{% endif %}">
-          <i class="fa fa-tachometer-alt"></i> Dashboard</a></li>
-        <li><a href="{% url 'qcto_assessment_review' %}"
-               class="{% if request.resolver_match.url_name == 'qcto_assessment_review' %}active{% endif %}">
-          <i class="fa fa-check-square"></i> Review Final</a></li>
-        <li><a href="{% url 'qcto_compliance' %}"
-               class="{% if request.resolver_match.url_name == 'qcto_compliance' %}active{% endif %}">
-          <i class="fa fa-clipboard-check"></i> Compliance</a></li>
-        <li><a href="{% url 'qcto_reports' %}"
-               class="{% if request.resolver_match.url_name == 'qcto_reports' %}active{% endif %}">
-          <i class="fa fa-chart-line"></i> Reports</a></li>
-        <li><a href="{% url 'qcto_archive' %}"
-               class="{% if request.resolver_match.url_name == 'qcto_archive' %}active{% endif %}">
-          <i class="fa fa-archive"></i> Archive</a></li>
+        <li><a href="{% url 'qcto_dashboard' %}" class="{% if request.resolver_match.url_name == 'qcto_dashboard' %}active{% endif %}"><i class="fa fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="{% url 'qcto_assessment_review' %}" class="{% if request.resolver_match.url_name == 'qcto_assessment_review' %}active{% endif %}"><i class="fa fa-check-square"></i> Review Final</a></li>
+        <li><a href="{% url 'qcto_compliance' %}" class="{% if request.resolver_match.url_name == 'qcto_compliance' %}active{% endif %}"><i class="fa fa-clipboard-check"></i> Compliance</a></li>
+        <li><a href="{% url 'qcto_reports' %}" class="{% if request.resolver_match.url_name == 'qcto_reports' %}active{% endif %}"><i class="fa fa-chart-line"></i> Reports</a></li>
+        <li><a href="{% url 'qcto_archive' %}" class="{% if request.resolver_match.url_name == 'qcto_archive' %}active{% endif %}"><i class="fa fa-archive"></i> Archive</a></li>
       </ul>
     </div>
 
@@ -86,14 +76,10 @@
         </div>
 
         <div class="form-group">
-          <label for="id_status">Change Status</label>
-          <select id="id_status" name="status">
-            {% for value,label in status_choices %}
-              <option value="{{ value }}"
-                {% if assessment.status == value %}selected{% endif %}>
-                {{ label }}
-              </option>
-            {% endfor %}
+          <label for="id_decision">Decision</label>
+          <select id="id_decision" name="decision">
+            <option value="forward">Forward to ETQA</option>
+            <option value="reject">Reject</option>
           </select>
         </div>
 

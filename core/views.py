@@ -1039,26 +1039,35 @@ def qcto_dashboard(request):
 @require_http_methods(["GET", "POST"])
 def qcto_moderate_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+
+    # Ensure QCTO only handles "Submitted to QCTO"
+    if assessment.status != "Submitted to QCTO":
+        messages.error(request, "This assessment is not pending QCTO review.")
+        return redirect("qcto_dashboard")
+
     if request.method == "POST":
         notes = request.POST.get("qcto_notes", "").strip()
-        new_status = request.POST.get("status")
-        valid_statuses = [choice[0] for choice in Assessment.STATUS_CHOICES]
-        if new_status not in valid_statuses:
-            messages.error(request, "Invalid status selection.")
+        decision = request.POST.get("decision")  # 'forward' or 'reject'
+
+        if decision == "forward":
+            assessment.status = "Submitted to ETQA"
+            messages.success(request, f"{assessment.eisa_id} forwarded to ETQA.")
+        elif decision == "reject":
+            assessment.status = "Rejected"
+            messages.success(request, f"{assessment.eisa_id} has been rejected.")
         else:
-            assessment.qcto_notes = notes
-            assessment.status = new_status
-            assessment.save()
-            messages.success(request, f"{assessment.eisa_id} updated to {new_status}.")
+            messages.error(request, "Invalid decision.")
+            return redirect("qcto_moderate_assessment", eisa_id=eisa_id)
+
+        assessment.qcto_notes = notes
+        assessment.save()
         return redirect("qcto_dashboard")
-    # On GET: render with current assessment and choices
+
     return render(request, "core/qcto/qcto_moderate_assessment.html", {
         "assessment": assessment,
-        "status_choices": [
-            ("Approved by ETQA", "Approve"),
-            ("Rejected", "Reject"),
-        ],
+        "decision_choices": [("forward", "Forward to ETQA"), ("reject", "Reject")],
     })
+
     # 1) QCTO Dashboard: list assessments submitted to ETQA
 @require_http_methods(["GET"])
 def qcto_dashboard(request):
@@ -1069,22 +1078,35 @@ def qcto_dashboard(request):
 @require_http_methods(["GET", "POST"])
 def qcto_moderate_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+
+    # Ensure QCTO only handles "Submitted to QCTO"
+    if assessment.status != "Submitted to QCTO":
+        messages.error(request, "This assessment is not pending QCTO review.")
+        return redirect("qcto_dashboard")
+
     if request.method == "POST":
         notes = request.POST.get("qcto_notes", "").strip()
-        new_status = request.POST.get("status")
-        valid_statuses = [choice[0] for choice in Assessment.STATUS_CHOICES]
-        if new_status not in valid_statuses:
-            messages.error(request, "Invalid status selection.")
+        decision = request.POST.get("decision")  # 'forward' or 'reject'
+
+        if decision == "forward":
+            assessment.status = "Submitted to ETQA"
+            messages.success(request, f"{assessment.eisa_id} forwarded to ETQA.")
+        elif decision == "reject":
+            assessment.status = "Rejected"
+            messages.success(request, f"{assessment.eisa_id} has been rejected.")
         else:
-            assessment.qcto_notes = notes
-            assessment.status = new_status
-            assessment.save()
-            messages.success(request, f"{assessment.eisa_id} updated to {new_status}.")
+            messages.error(request, "Invalid decision.")
+            return redirect("qcto_moderate_assessment", eisa_id=eisa_id)
+
+        assessment.qcto_notes = notes
+        assessment.save()
         return redirect("qcto_dashboard")
+
     return render(request, "core/qcto/qcto_moderate_assessment.html", {
         "assessment": assessment,
-        "status_choices": [("Approved by ETQA", "Approve"), ("Rejected", "Reject")],
+        "decision_choices": [("forward", "Forward to ETQA"), ("reject", "Reject")],
     })
+
 
 # 3) QCTO Reports: summary of QCTO-approved assessments
 @require_http_methods(["GET"])
@@ -1232,7 +1254,8 @@ def etqa_dashboard(request):
     if selected_qualification:
         approved_assessments = Assessment.objects.filter(
             qualification_id=selected_qualification,
-            status='Approved by ETQA'
+            status='Submitted to ETQA'
+
         )
     
     if request.method == 'POST':
@@ -1281,59 +1304,9 @@ def etqa_dashboard(request):
         'selected_qualification': selected_qualification,
         'approved_assessments': approved_assessments
     })
-# Remove the create_batch view since it's now merged
 
 
-# create batch view_______________________________________________________________________
-# def create_batch(request):
-#     centers = AssessmentCentre.objects.all()
-#     qualifications = Qualification.objects.all()
-#     selected_qualification = request.GET.get('qualification_id')
-#     approved_assessments = None
-    
-#     # Get approved assessments if qualification is selected
-#     if selected_qualification:
-#         approved_assessments = Assessment.objects.filter(
-#             qualification_id=selected_qualification,
-#             status='Approved by ETQA'
-#         )
-#         print(f"Approved assessments found: {approved_assessments.count()}")
-    
-#     if request.method == 'POST':
-#         # Your existing POST logic
-#         center_id = request.POST['center']
-#         qualification_id = request.POST['qualification']
-#         assessment_id = request.POST['assessment']
-#         date = request.POST['date']
-#         num_learners = request.POST['number_of_learners']
-        
-#         batch = Batch.objects.create(
-#             center_id=center_id,
-#             qualification_id=qualification_id,
-#             assessment_id=assessment_id,
-#             assessment_date=date,
-#             number_of_learners=num_learners,
-#         )
-        
-#         return render(request, 'core/qcto/etqa_dashboard.html', {
-#             'centers': centers,
-#             'qualifications': qualifications,
-#             'selected_qualification': qualification_id,
-#             'approved_assessments': Assessment.objects.filter(
-#                 qualification_id=qualification_id,
-#                 status='Approved by ETQA'
-#             ),
-#             'created_batch': batch
-#         })
-    
-#     return render(request, 'core/qcto/etqa_dashboard.html', {
-#         'centers': centers,
-#         'qualifications': qualifications,
-#         'selected_qualification': selected_qualification,
-#         'approved_assessments': approved_assessments
-#     })
-
-#_________________________________________________view foe assessment centre_____________________________
+#_________________________________________________view for assessment centre_____________________________
 def assessment_center_view(request):
     batches = Batch.objects.filter(submitted_to_center=True)
     return render(request, 'assessment_center.html', {'batches': batches})
