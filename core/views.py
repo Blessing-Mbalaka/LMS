@@ -1250,35 +1250,33 @@ def etqa_dashboard(request):
     qualifications = Qualification.objects.all()
     selected_qualification = request.GET.get('qualification_id')
     approved_assessments = None
-    
+    assessments_for_etqa = Assessment.objects.filter(status="Submitted to ETQA")
+
     if selected_qualification:
         approved_assessments = Assessment.objects.filter(
             qualification_id=selected_qualification,
             status='Submitted to ETQA'
-
         )
-    
+
     if request.method == 'POST':
-        # Check if all required fields are present before processing
         required_fields = ['center', 'qualification', 'assessment', 'date', 'number_of_learners']
-        
         for field in required_fields:
             if field not in request.POST:
-                # If any required field is missing, redirect back with error
                 return render(request, 'core/qcto/etqa_dashboard.html', {
                     'centers': centers,
                     'qualifications': qualifications,
                     'selected_qualification': selected_qualification,
                     'approved_assessments': approved_assessments,
-                    'error': f'Please fill in all required fields. Missing: {field}'
+                    'assessments_for_etqa': assessments_for_etqa,
+                    'error': f'Missing: {field}'
                 })
-        
+
         center_id = request.POST['center']
         qualification_id = request.POST['qualification']
         assessment_id = request.POST['assessment']
         date = request.POST['date']
         num_learners = request.POST['number_of_learners']
-        
+
         batch = Batch.objects.create(
             center_id=center_id,
             qualification_id=qualification_id,
@@ -1286,7 +1284,7 @@ def etqa_dashboard(request):
             assessment_date=date,
             number_of_learners=num_learners,
         )
-        
+
         return render(request, 'core/qcto/etqa_dashboard.html', {
             'centers': centers,
             'qualifications': qualifications,
@@ -1295,15 +1293,32 @@ def etqa_dashboard(request):
                 qualification_id=qualification_id,
                 status='Approved by ETQA'
             ),
+            'assessments_for_etqa': assessments_for_etqa,
             'created_batch': batch
         })
-    
+
     return render(request, 'core/qcto/etqa_dashboard.html', {
         'centers': centers,
         'qualifications': qualifications,
         'selected_qualification': selected_qualification,
-        'approved_assessments': approved_assessments
+        'approved_assessments': approved_assessments,
+        'assessments_for_etqa': assessments_for_etqa
     })
+
+
+@login_required
+def approve_by_etqa(request, assessment_id):
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+    assessment.status = "Approved by ETQA"
+    assessment.save()
+    return redirect('etqa_dashboard')
+
+@login_required
+def reject_by_etqa(request, assessment_id):
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+    assessment.status = "Rejected"
+    assessment.save()
+    return redirect('etqa_dashboard')
 
 
 #_________________________________________________view for assessment centre_____________________________

@@ -33,7 +33,8 @@ delete_assessment_centre,
 qualification_management_view, register,
 default_page,
 assessment_progress_tracker,
-etqa_dashboard, assessment_center_view, submit_to_center
+etqa_dashboard, assessment_center_view, submit_to_center,
+approve_by_etqa, reject_by_etqa
 
 
 
@@ -94,6 +95,10 @@ urlpatterns = [
 
 # paths to submit batch to assessment html page_______________________________________________________
     path('submit-to-center/<int:batch_id>/', submit_to_center, name='submit_to_center'),
+
+
+     path('etqa/approve/<int:assessment_id>/', approve_by_etqa, name='approve_by_etqa'),
+    path('etqa/reject/<int:assessment_id>/', reject_by_etqa, name='reject_by_etqa'),
 ]
 
     

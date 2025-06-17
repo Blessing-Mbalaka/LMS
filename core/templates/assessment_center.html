@@ -1,30 +1,91 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment centre</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETQA Implementation | CHIETA</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f4f4;
+    }
+    .batches-table-container {
+      margin-top: 40px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(111, 66, 193, 0.3);
+      transition: box-shadow 0.3s ease-in-out;
+    }
+    .batches-table-container:hover {
+      box-shadow: 0 0 25px rgba(111, 66, 193, 0.6);
+    }
+    .batches-table-container h3 {
+      color: #3c1c53;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(60, 28, 83, 0.2);
+    }
+    .table-batches {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .table-batches th, .table-batches td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #dee2e6;
+      text-align: left;
+    }
+    .table-batches th {
+      background-color: #6f42c1;
+      color: white;
+      font-weight: 600;
+    }
+    .table-batches tr:hover {
+      background-color: #f1e9fc;
+      transition: background-color 0.2s ease-in-out;
+    }
+  </style>
 </head>
 <body>
-    <h1>Batches Submitted to Assessment Center</h1>
-<table border="1">
-  <tr>
-    <th>Centre</th>
-    <th>Qualification</th>
-    <th>Assessment</th>
-    <th>Date</th>
-    <th>Learners</th>
-  </tr>
-  {% for batch in batches %}
-    <tr>
-      <td>{{ batch.center.name }}</td>
-      <td>{{ batch.qualification.name }}</td>
-      <td>{{ batch.assessment.eisa_id }}</td>
-      <td>{{ batch.assessment_date }}</td>
-      <td>{{ batch.number_of_learners }}</td>
-    </tr>
-  {% endfor %}
-</table>
+  <div class="dashboard-container">
+    <div class="main-content">
 
+      <!-- Existing content here -->
+
+      <div class="batches-table-container">
+        <h3>Batches Submitted to Assessment Center</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-batches">
+            <thead>
+              <tr>
+                <th>Centre</th>
+                <th>Qualification</th>
+                <th>Assessment</th>
+                <th>Date</th>
+                <th>Learners</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for batch in batches %}
+              <tr>
+                <td>{{ batch.center.name }}</td>
+                <td>{{ batch.qualification.name }}</td>
+                <td>{{ batch.assessment.eisa_id }}</td>
+                <td>{{ batch.assessment_date }}</td>
+                <td>{{ batch.number_of_learners }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </body>
 </html>
