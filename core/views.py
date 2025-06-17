@@ -23,7 +23,7 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 from .question_bank import QUESTION_BANK
 from .utils import extract_text
-from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy, Feedback, AssessmentCentre
+from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy, Feedback, AssessmentCentre, ExamAnswer
 from django.views.decorators.http import require_http_methods
 from collections import defaultdict
 from django.contrib import messages
@@ -50,11 +50,8 @@ from google import genai
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-
-
 # Initialize AI client
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
 
 #Custom User
 @admin.register(CustomUser)
@@ -68,9 +65,6 @@ class CustomUserAdmin(UserAdmin):
     )
 
 admin.site.register(Qualification)
-
-
-
 
 # core/views.py
 
@@ -90,10 +84,12 @@ def redirect_user_by_role(user):
         return redirect('moderator_developer')
     elif role == 'internal_mod':
         return redirect('internal_moderator_dashboard')
-    elif role in ['assessor_dev', 'assessor_marker']:
+    elif role in 'assessor_dev':
         return redirect('assessor_dashboard')
-    elif role in ['etqa', 'qcto']:
+    elif role in 'qcto':
         return redirect('qcto_dashboard')
+    elif role in 'etqa':
+        return redirect('etqa_dashboard')
     elif role == 'learner':
         return redirect('home')
     else:
@@ -116,8 +112,9 @@ def register(request):
 
 def custom_login(request):
     # we reuse the registration form so the template can render both sides
+    list(messages.get_messages(request))   
     reg_form = EmailRegistrationForm()
-
+       
     if request.method == "POST":
         email = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password", "")
@@ -257,14 +254,6 @@ def toggle_user_status(request, user_id):
     return redirect('user_management')
 #********************************************************************************************************
 #********************************************************************************************************
-
-
-
-
-
-
-
-
 # ASSESSMENT CENTRE VIEWS FOR ADDING ETC________________________________________________________________
 def assessment_centres_view(request):
     centres = AssessmentCentre.objects.all()
@@ -309,7 +298,6 @@ def delete_assessment_centre(request, centre_id):
     centre.delete()
     messages.success(request, 'Assessment centre removed successfully!')
     return redirect('assessment_centres')
-
 
 @login_required
 @staff_member_required
@@ -423,16 +411,16 @@ def databank_view(request):
 def add_question(request):
     if request.method == 'POST':
         q_type = request.POST.get('question_type')
-        qualification_code = request.POST.get('qualification')
+        qualification_id   = request.POST.get('qualification')
         marks = request.POST.get('marks')
         text = request.POST.get('text')
 
         # Fetch qualification object
         try:
-            qualification = Qualification.objects.get(code=qualification_code)
-        except Qualification.DoesNotExist:
-            messages.error(request, "Selected qualification does not exist.")
-            return redirect('generate_tool_page')
+             qualification = get_object_or_404(Qualification, pk=qualification_id)
+        except ValueError:
+            messages.error(request, "Invalid qualification selected.")
+            return redirect('databank')
 
         # Prepare case study if needed
         case_study_id = request.POST.get('case_study')
@@ -478,7 +466,7 @@ def add_question(request):
                 return redirect('generate_tool_page')
 
         messages.success(request, "Question added to the databank.")
-        return redirect('generate_tool_page')
+        return redirect('databank')
 
 @csrf_exempt
 def add_case_study(request):
@@ -488,11 +476,12 @@ def add_case_study(request):
         if title and content:
             CaseStudy.objects.create(title=title, content=content)
             messages.success(request, "Case study added successfully.")
-    return redirect('generate_tool_page')
-
-
-
-#Critical
+    return redirect('databank')
+############################################################################################
+#Critical do not touch this danger!!! generate_tool is offlimits
+###########################################################################################
+############################################################################################
+########################################################################################### 
 @csrf_exempt
 def generate_tool_page(request):
     case_studies = CaseStudy.objects.all()
@@ -1331,3 +1320,59 @@ def submit_to_center(request, batch_id):
     batch.submitted_to_center = True
     batch.save()
     return redirect('assessment_center')
+
+#----------------------views students-------------------------------------------------------
+# pull the assesment under a specific qualification that the studnet has enrolled
+def student_dashboard (request):
+    user_qualification =1 #request.user.qualification
+    assessments = Assessment.objects.filter(
+        status="Approved by ETQA", #fetching from the 
+        qualification=user_qualification
+    ).prefetch_related('generated_questions') # removed , 'case_study'
+
+    return render(request, 'core/student/dashboard.html', {
+        'assessments': assessments,
+    })
+
+#pulls the questiion linked with the assesment
+def student_assessment(request, assessment_id):
+    # Get the specific assessment or return 404 if not found
+    assessment = get_object_or_404(
+        Assessment,
+        id=assessment_id,
+        status="Approved by ETQA",
+        qualification= 1 #request.user.qualification   assuming user has qualification field
+    )
+    
+    # Prefetch related questions
+    assessment = Assessment.objects.prefetch_related('generated_questions').get(id=assessment.id)
+    
+    return render(request, 'core/student/assessment.html', {
+        'assessment': assessment,  # Now passing single assessment
+    })
+
+#--submit answers to the ExamAnswer model
+from django.views.decorators.http import require_POST
+
+#@require_POST
+def submit_exam(request, assessment_id):
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+    
+    # Process each question
+    for question in assessment.generated_questions.all():
+        answer_key = f'answer_{question.id}'
+        if answer_key in request.POST:
+            answer_text = request.POST[answer_key].strip()
+            if answer_text:
+                # Create or update answer
+                ExamAnswer.objects.update_or_create(
+                    user=request.user,
+                    question=question,
+                    defaults={'answer_text': answer_text}
+                )
+    
+    messages.success(request, "Your answers have been submitted successfully!")
+    return redirect('student_dashboard')  # or wherever you want to redirect
+@login_required
+def student_results(request):
+    return render(request, 'core/student/results.html')

@@ -37,7 +37,7 @@
       </ul>
       <div class="px-3 mt-auto">
         <button class="btn btn-outline-secondary w-100 mb-2">⚙️ Settings</button>
-        <button class="btn btn-outline-secondary w-100">🚪 Log Out</button>
+        <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
       </div>
       <div class="p-3">
         <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" class="img-fluid">

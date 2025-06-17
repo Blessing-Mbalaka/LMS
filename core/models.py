@@ -247,3 +247,26 @@ class Batch(models.Model):
 
     def __str__(self):
         return f"Batch - {self.center.name} | {self.qualification.name} | {self.assessment.eisa_id}"
+
+#students model -------------------------------------------------------------------
+
+class ExamAnswer(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    question = models.ForeignKey('GeneratedQuestion', on_delete=models.CASCADE)
+    answer_text = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'question')  # Prevents duplicate answers
+        verbose_name = 'Exam Answer'
+        verbose_name_plural = 'Exam Answers'
+
+    @property
+    def assessment(self):
+        """Quick access to the assessment through the question"""
+        return self.question.assessment
+
+    def __str__(self):
+        return f"Answer by {self.user} for {self.question}"
+    
+    #to keep track of attempts

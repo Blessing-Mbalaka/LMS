@@ -20,21 +20,18 @@
             /* height: 100vh; */
         }
 
-
-        
         .sidebar ul li {
             transition: background-color 0.3s ease;
             border-top: 1.5px solid #580658;
             border-radius: 10px;
             color: #580658;
-            display: inline-block;            
-          
+            height: 30px;
             padding: 0 5px;
         }
-        .sidebar ul li a{          
+
+         .sidebar ul li a{          
             display: block;
             width: 100%;
-            height: 30px;
         }
 
         .fixy {
@@ -68,6 +65,7 @@
             color: white;
             cursor: pointer;
             border-radius: 10px;
+            height: 30px;
             list-style: none;
         }
 
@@ -239,7 +237,6 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
         }
 
         .highlight {
@@ -697,8 +694,9 @@
             margin-right: 8px;
         }
 
-       /*styling for paper tables from assessment history
+      
         /* Add new styles for assessment history */
+       /* Add new styles for assessment history */
         .assessment-history {
             margin-top: 20px;
             background: white;
@@ -751,24 +749,18 @@
             color: #ef6c00;
         }
 
-       
+        .performance-chart {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(to right, white, rgb(240, 239, 239));
+            border-radius: 8px;
+        }
+
         /* Remove unnecessary styles from original */
         .flex-container, .upload-area, .notifications-list {
             display: none;
         }
-
-        /*********message for when there are no assessments***/
-       
-
-        .alert-dashboard {
-  border-left: 4px solid #28a745;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.alert-dashboard .fa-check-circle {
-  font-size: 1.5rem;
-  color: #28a745;
-}
+        /****end of hitory style*/
     </style>
 </head>
 
@@ -789,8 +781,7 @@
                 <button class="fixy">⚙️ Settings</button>
                 <button class="fix">🚪 Log Out</button>
             </ul>
-            <img src="{% static 'core/images/rb_2149331949.png' %}" alt="" width="199px">
-          
+           <img src="{% static 'core/images/rb_2149331949.png' %}" alt="" width="199px">
         </div>
 
         <!-- Content -->
@@ -817,66 +808,69 @@
                 </div>
             </div>
 
-            <!--###################################-->
-            <div class="container mt-3">
-  {% for message in messages %}
-  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-    <div class="d-flex align-items-center">
-      <i class="fas fa-check-circle me-2"></i>
-      <div>
-        <strong>{{ message }}</strong>
-        <div class="small">You can view your results when they're available.</div>
-      </div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {% endfor %}
-</div>
-            <!--*********************************-->
-
-             <!-- Assessment History Section -->
+<!-- Assessment History Section -->
             <div class="assessment-history">
-                <h2 style="color: #580658; margin-bottom: 15px;">Your Assessments</h2>
-               
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Qualification</th>
-                        <th>Number of Questions</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if assessments %}
-                        {% for assessment in assessments %}
+                <h2 style="color: #580658; margin-bottom: 15px;">Assessment Results</h2>
+                <table class="history-table">
+                    <thead>
                         <tr>
-                            <td>{{ assessment.eisa_id }}</td>
-                            <td>{{ assessment.qualification }}</td>
-                            <td>{{ assessment.generated_questions.count }}</td>
-                            <td><span class="status-indicator completed">ready</span></td>
-                             <td><a href="{% url 'student_assessment' assessment_id=assessment.id %}" class="gradient-button">Write paper</a></td>
+                            <th>Date</th>
+                            <th>Subject</th>
+                            <th>Type</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Details</th>
                         </tr>
-                        {% endfor %}
-                    {% else %}
+                    </thead>
+                    <tbody>
                         <tr>
-                            <td colspan="6" class="error_message">You don't have ready papers.</td>
+                            <td>2024-03-15</td>
+                            <td>Mathematics</td>
+                            <td>Final Exam</td>
+                            <td class="score-cell">92%</td>
+                            <td><span class="status-indicator completed">Completed</span></td>
+                            <td><button class="gradient-button">View Details</button></td>
                         </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                        <tr>
+                            <td>2024-03-10</td>
+                            <td>Physics</td>
+                            <td>Midterm</td>
+                            <td class="score-cell">85%</td>
+                            <td><span class="status-indicator completed">Completed</span></td>
+                            <td><button class="gradient-button">View Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-01</td>
+                            <td>Chemistry</td>
+                            <td>Quiz</td>
+                            <td class="score-cell">78%</td>
+                            <td><span class="status-indicator pending">Pending Review</span></td>
+                            <td><button class="gradient-button">View Details</button></td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
 
-    
-
-
-
-
-
-
-               
+                <!-- Performance Summary -->
+                <div class="performance-chart">
+                    <h3 style="color: #580658; margin-bottom: 15px;">Performance Overview</h3>
+                    <div style="display: flex; gap: 20px; justify-content: space-around;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; color: #4CAF50;">85%</div>
+                            <div style="font-size: 14px; color: #666;">Average Score</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; color: #2196F3;">12</div>
+                            <div style="font-size: 14px; color: #666;">Completed Exams</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; color: #FF9800;">3</div>
+                            <div style="font-size: 14px; color: #666;">Pending Results</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
+          
 
            
         </div>
@@ -886,10 +880,181 @@
     <div class="confetti-container" id="confettiContainer"></div>
 
     <script>
-       
+        // File upload functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadBtn = document.getElementById('uploadBtn');
 
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
 
-        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#8f6620';
+            uploadArea.style.backgroundColor = 'rgba(143, 102, 32, 0.1)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = '';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = '';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                displayFileInfo(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                displayFileInfo(fileInput.files[0]);
+            }
+        });
+
+        uploadBtn.addEventListener('click', () => {
+            if (fileInput.files.length) {
+                // Simulate upload
+                setTimeout(() => {
+                    triggerCelebration();
+                    fileInfo.innerHTML = '<span style="color:green">✓ Upload successful!</span>';
+                    uploadBtn.disabled = true;
+                }, 1000);
+            } else {
+                fileInfo.innerHTML = '<span style="color:red">Please select a file first</span>';
+            }
+        });
+
+        function displayFileInfo(file) {
+            fileInfo.innerHTML = `Selected: <strong>${file.name}</strong> (${formatFileSize(file.size)})`;
+            uploadBtn.disabled = false;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Celebration animation
+        function triggerCelebration() {
+            const container = document.getElementById('confettiContainer');
+            container.style.display = 'block';
+            
+            // Create confetti
+            for (let i = 0; i < 100; i++) {
+                createConfetti();
+            }
+            
+            // Hide after animation
+            setTimeout(() => {
+                container.style.display = 'none';
+                container.innerHTML = '';
+            }, 3000);
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            
+            // Random properties
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            confetti.style.backgroundColor = randomColor;
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.top = -10 + 'px';
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            // Animation
+            const animation = confetti.animate([
+                { top: '-10px', opacity: 1, transform: `rotate(0deg) scale(1)` },
+                { top: '100vh', opacity: 0, transform: `rotate(${Math.random() * 360}deg) scale(0.5)` }
+            ], {
+                duration: 3000,
+                easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+            });
+            
+            document.getElementById('confettiContainer').appendChild(confetti);
+            
+            // Remove after animation
+            animation.onfinish = () => {
+                confetti.remove();
+            };
+        }
+
+        // Notification functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to all complete icons
+            document.querySelectorAll('.complete-icon').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    completeTask(this);
+                });
+            });
+
+            // Add event listeners to all dismiss icons
+            document.querySelectorAll('.dismiss-icon').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    dismissTask(this);
+                });
+            });
+
+            // Download button event listener
+            document.getElementById('downloadBtn').addEventListener('click', downloadAssessment);
+        });
+
+        // Complete task function
+        function completeTask(icon) {
+            const notificationItem = icon.closest('.notification-item');
+            notificationItem.style.opacity = '0.6';
+            notificationItem.style.backgroundColor = '#e8f5e9';
+            notificationItem.style.borderLeft = '4px solid #28a745';
+            
+            // Change icon to solid checkmark
+            icon.classList.remove('fa-check-circle');
+            icon.classList.add('fa-check');
+            icon.style.color = '#28a745';
+            
+            // Disable both icons
+            const icons = notificationItem.querySelectorAll('.action-icon');
+            icons.forEach(ic => {
+                ic.style.pointerEvents = 'none';
+            });
+            
+            // Trigger celebration
+            triggerCelebration();
+            
+            // Remove after delay
+            setTimeout(() => {
+                notificationItem.remove();
+            }, 1000);
+        }
+
+        // Dismiss task function
+        function dismissTask(icon) {
+            const notificationItem = icon.closest('.notification-item');
+            notificationItem.style.opacity = '0';
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                notificationItem.remove();
+            }, 300);
+        }
+
+        // Download assessment function
+        function downloadAssessment() {
+            // Simulate download
+            triggerCelebration();
+            alert('Assessment download started! (simulated)');
+        }
     </script>
 </body>
 </html>

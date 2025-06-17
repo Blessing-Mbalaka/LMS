@@ -60,6 +60,7 @@
         <li><a href="{% url 'qcto_compliance' %}" class="{% if request.resolver_match.url_name == 'qcto_compliance' %}active{% endif %}"><i class="fa fa-clipboard-check"></i> Compliance</a></li>
         <li><a href="{% url 'qcto_reports' %}" class="{% if request.resolver_match.url_name == 'qcto_reports' %}active{% endif %}"><i class="fa fa-chart-line"></i> Reports</a></li>
         <li><a href="{% url 'qcto_archive' %}" class="{% if request.resolver_match.url_name == 'qcto_archive' %}active{% endif %}"><i class="fa fa-archive"></i> Archive</a></li>
+        <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
       </ul>
     </div>
 

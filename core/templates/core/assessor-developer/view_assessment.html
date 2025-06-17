@@ -85,7 +85,7 @@
       <div class="sidebar-footer mt-auto text-center">
         <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" style="max-width:100%;">
         <button class="gradient-button w-100 mt-3"><i class="fa fa-cog"></i> Settings</button>
-        <button class="gradient-button w-100 mt-2"><i class="fa fa-sign-out-alt"></i> Log Out</button>
+        <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
       </div>
     </div>
 
