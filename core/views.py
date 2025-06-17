@@ -1334,24 +1334,29 @@ def student_dashboard (request):
         'assessments': assessments,
     })
 
-#pulls the questiion linked with the assesment
+@login_required
 def student_assessment(request, assessment_id):
-    # Get the specific assessment or return 404 if not found
+    # 1) Fetch the approved assessment
     assessment = get_object_or_404(
         Assessment,
         id=assessment_id,
-        status="Approved by ETQA",
-        qualification= 1 #request.user.qualification   assuming user has qualification field
+        status="Approved by ETQA"
     )
-    
-    # Prefetch related questions
-    assessment = Assessment.objects.prefetch_related('generated_questions').get(id=assessment.id)
-    
-    return render(request, 'core/student/assessment.html', {
-        'assessment': assessment,  # Now passing single assessment
-    })
 
-#--submit answers to the ExamAnswer model
+    # 2) Try to grab whatever was generated
+    generated_qs = assessment.generated_questions.all()
+
+    # 3) If none exist, fall back to the bank for this qualification
+    if not generated_qs.exists():
+        generated_qs = QuestionBankEntry.objects.filter(
+            qualification=assessment.qualification
+        )
+
+    return render(request, "core/student/assessment.html", {
+        "assessment":   assessment,
+        "generated_qs": generated_qs,
+    })
+#--submit answers to thedef student_ass ExamAnswer model
 from django.views.decorators.http import require_POST
 
 #@require_POST
