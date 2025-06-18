@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion, Batch, AssessmentCentre
 import json
 import random
+from django.db import models
 from django.urls import reverse
 import time
 import re
@@ -1351,61 +1352,113 @@ def submit_to_center(request, batch_id):
 
 #----------------------views students-------------------------------------------------------
 # pull the assesment under a specific qualification that the studnet has enrolled
-def student_dashboard (request):
-    user_qualification =1 #request.user.qualification
+from django.db.models import Max
+from .models import Assessment, ExamAnswer
+
+@login_required
+def student_dashboard(request):
     assessments = Assessment.objects.filter(
-        status="Approved by ETQA", #fetching from the 
-        qualification=user_qualification
-    ).prefetch_related('generated_questions') # removed , 'case_study'
+        status="Approved by ETQA"
+    ).prefetch_related('generated_questions')
+
+    assessment_data = []
+    for assessment in assessments:
+        attempt_count = ExamAnswer.objects.filter(
+            question__assessment=assessment,
+            user=request.user
+        ).count()
+        assessment_data.append({
+            'assessment': assessment,
+            'attempt': attempt_count
+        })
 
     return render(request, 'core/student/dashboard.html', {
-        'assessments': assessments,
+        'assessment_data': assessment_data,
     })
+
+
+
+
+
 
 @login_required
 def student_assessment(request, assessment_id):
-    # 1) Fetch the approved assessment
     assessment = get_object_or_404(
         Assessment,
         id=assessment_id,
         status="Approved by ETQA"
     )
 
-    # 2) Try to grab whatever was generated
+    # Count user's attempts on this assessment
+    user_attempts = ExamAnswer.objects.filter(
+        user=request.user,
+        question__assessment=assessment
+    ).values('attempt_number').distinct().count()
+
+    if user_attempts >= 3:
+        messages.error(request, "You've reached the maximum number of attempts (3).")
+        return redirect('student_dashboard')
+
     generated_qs = assessment.generated_questions.all()
 
-    # 3) If none exist, fall back to the bank for this qualification
     if not generated_qs.exists():
-        generated_qs = QuestionBankEntry.objects.filter(
-            qualification=assessment.qualification
-        )
+        generated_qs = QuestionBankEntry.objects.filter(qualification=assessment.qualification)
 
     return render(request, "core/student/assessment.html", {
-        "assessment":   assessment,
+        "assessment": assessment,
         "generated_qs": generated_qs,
+        "attempt_number": user_attempts + 1  # next attempt number
     })
-#--submit answers to thedef student_ass ExamAnswer model
+
 from django.views.decorators.http import require_POST
 
 #@require_POST
+@login_required
 def submit_exam(request, assessment_id):
     assessment = get_object_or_404(Assessment, id=assessment_id)
     
-    # Process each question
+    # Determine current attempt number
+    current_attempt = ExamAnswer.objects.filter(
+        user=request.user,
+        question__assessment=assessment
+    ).aggregate(max_attempt=models.Max('attempt_number'))['max_attempt'] or 0
+
+    if current_attempt >= 3:
+        messages.error(request, "You cannot submit again. You've reached the maximum attempts.")
+        return redirect('student_dashboard')
+
+    next_attempt = current_attempt + 1
+
+    # Process answers for this attempt
     for question in assessment.generated_questions.all():
         answer_key = f'answer_{question.id}'
-        if answer_key in request.POST:
-            answer_text = request.POST[answer_key].strip()
-            if answer_text:
-                # Create or update answer
-                ExamAnswer.objects.update_or_create(
-                    user=request.user,
-                    question=question,
-                    defaults={'answer_text': answer_text}
-                )
-    
-    messages.success(request, "Your answers have been submitted successfully!")
-    return redirect('student_dashboard')  # or wherever you want to redirect
+        answer_text = request.POST.get(answer_key, '').strip()
+        if answer_text:
+            ExamAnswer.objects.update_or_create(
+                user=request.user,
+                question=question,
+                attempt_number=next_attempt,
+                defaults={'answer_text': answer_text}
+            )
+
+    messages.success(request, f"Attempt {next_attempt} submitted successfully!")
+    return redirect('student_dashboard')
+
+
 @login_required
 def student_results(request):
     return render(request, 'core/student/results.html')
+
+login_required
+def write_exam(request, assessment_id):
+    # Fetch only if status is 'Approved by ETQA'
+    assessment = get_object_or_404(Assessment, id=assessment_id, status="Approved by ETQA")
+
+    # Get only the questions linked to this assessment
+    generated_qs = GeneratedQuestion.objects.filter(assessment=assessment)
+
+    return render(request, 'core/student/write_exam.html', {
+        'assessment': assessment,
+        'generated_qs': generated_qs,
+        'attempt_number': 1  # or fetch from logic if attempts are tracked
+    })

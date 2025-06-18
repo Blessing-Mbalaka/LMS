@@ -31,7 +31,7 @@ from core.views import (
 edit_assessment_centre,
 delete_assessment_centre,
 qualification_management_view, register,
-default_page,
+default_page, student_results,
 assessment_progress_tracker,
 etqa_dashboard, assessment_center_view, submit_to_center,
 approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results
@@ -125,11 +125,9 @@ urlpatterns = [
     ),
 
     # 4) Viewing past results
-    path(
-        'student/results/',
-        student_results,
-        name='student_results'
-    ),
+    path('student/results/', student_results, name='student_results'),
+
+
     
 ]
 
