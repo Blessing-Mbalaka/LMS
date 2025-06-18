@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QCTO Final Assessment Review | CHIETA</title>
+  <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    .content { padding: 30px; max-width: 1000px; margin: auto; background: #efeaea; }
+    .sidebar { width: 280px; background: #f5f5f5; padding: 20px; border-right: 1px solid #ddd; float: left; height: 100vh; }
+    .sidebar a { text-decoration: none; display: block; padding: 10px; color: #3c1c53; margin-bottom: 5px; }
+    .sidebar a.active { background: #552a74; color: white; border-radius: 4px; }
+    .main { margin-left: 300px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 20px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    thead { background: #580658; color: #fff; }
+    .btn { display: inline-block; padding: 6px 12px; background: #552a74; color: #fff; border-radius: 4px; text-decoration: none; }
+    .btn:hover { opacity: 0.9; }
+    .no-data { text-align: center; padding: 20px; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <a href="{% url 'qcto_dashboard' %}" class="{% if request.resolver_match.url_name == 'qcto_dashboard' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="{% url 'qcto_assessment_review' %}" class="{% if request.resolver_match.url_name == 'qcto_assessment_review' %}active{% endif %}"><i class="fas fa-check-square"></i> Final Review</a>
+    <a href="{% url 'qcto_compliance' %}" class="{% if request.resolver_match.url_name == 'qcto_compliance' %}active{% endif %}"><i class="fas fa-clipboard-check"></i> Compliance</a>
+    <a href="{% url 'qcto_reports' %}" class="{% if request.resolver_match.url_name == 'qcto_reports' %}active{% endif %}"><i class="fas fa-chart-line"></i> Reports</a>
+    <a href="{% url 'qcto_archive' %}" class="{% if request.resolver_match.url_name == 'qcto_archive' %}active{% endif %}"><i class="fas fa-archive"></i> Archive</a>
+    <a href="{% url 'logout' %}" style="margin-top:20px; color:#dc3545"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+  </div>
+  <div class="main">
+    <div class="content">
+      <h2>QCTO Final Assessment Review</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Assessment ID</th>
+            <th>Qualification</th>
+            <th>Questions</th>
+            <th>View PDF</th>
+            <th>QCTO Notes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in assessments %}
+            <tr>
+              <td>{{ a.eisa_id }}</td>
+              <td>{{ a.qualification.name }}</td>
+              <td>{% include 'core/includes/_question_list.html' with assessment=a %}</td>
+              <td>
+                {% if a.file %}<a href="{{ a.file.url }}" target="_blank" class="btn">View PDF</a>{% else %}-{% endif %}
+              </td>
+              <td>{{ a.qcto_notes|default:'-' }}</td>
+              <td><a href="{% url 'qcto_moderate_assessment' a.eisa_id %}" class="btn">Review</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="no-data">No assessments to review.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

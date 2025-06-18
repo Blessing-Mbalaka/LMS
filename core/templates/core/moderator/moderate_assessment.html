@@ -3,122 +3,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Moderate {{ assessment.eisa_id }}</title>
-  <!-- Bootstrap & FontAwesome -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moderate Assessment | Moderator | CHIETA</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background: #f8f9fa; }
-    .container { max-width: 900px; }
-    .embed-container { height: 600px; border: 1px solid #ddd; }
-    textarea.form-control { font-family: inherit; }
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; }
+    .dashboard-container { display: flex; min-height: 100vh; }
+    .sidebar { width: 250px; background-color: #343a40; color: #fff; padding: 20px; }
+    .sidebar h4 { color: #ffc107; margin-bottom: 20px; }
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar ul li { margin-bottom: 10px; }
+    .sidebar ul li a { color: #adb5bd; text-decoration: none; display: block; padding: 8px; border-radius: 4px; }
+    .sidebar ul li a.active, .sidebar ul li a:hover { background-color: #495057; color: #fff; }
+    .content { flex: 1; padding: 30px; max-width: 800px; margin: auto; }
+    .form-group { margin-bottom: 1.5rem; }
+    label { font-weight: 600; }
+    select, textarea { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; }
+    .btn-primary { background-color: #343a40; border: none; }
+    .btn-outline-secondary { color: #343a40; border-color: #343a40; }
+    .btn-outline-secondary:hover { background-color: #343a40; color: #fff; }
   </style>
 </head>
 <body>
-  <div class="container py-4">
+  <div class="dashboard-container">
+    <nav class="sidebar">
+      <h4>Moderator</h4>
+      <ul>
+        <li><a href="{% url 'moderator_developer' %}" class="{% if request.resolver_match.url_name == 'moderator_developer' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a href="{% url 'assessment_archive' %}" class="{% if request.resolver_match.url_name == 'assessment_archive' %}active{% endif %}"><i class="fas fa-archive"></i> Archive</a></li>
+        <li><a href="{% url 'moderate_assessment' assessment.eisa_id %}" class="active"><i class="fas fa-edit"></i> Moderate</a></li>
+        <li><a href="{% url 'add_feedback' assessment.eisa_id %}" class="{% if request.resolver_match.url_name == 'add_feedback' %}active{% endif %}"><i class="fas fa-comment-alt"></i> Feedback</a></li>
+        <li><a href="{% url 'toggle_checklist_item' 0 %}" class="{% if request.resolver_match.url_name == 'toggle_checklist_item' %}active{% endif %}"><i class="fas fa-check-square"></i> Checklist</a></li>
+      </ul>
+    </nav>
 
-    <h1 class="mb-4">
-      <i class="fas fa-user-edit text-primary"></i>
-      Moderate Paper: {{ assessment.eisa_id }}
-    </h1>
+    <div class="content">
+      <h2>Moderate Assessment {{ assessment.eisa_id }}</h2>
 
-    {% if assessment.file %}
-      <div class="mb-4">
-        <h5>Paper Preview</h5>
-        <div class="embed-container mb-2">
-          <embed
-            src="{{ assessment.file.url }}"
-            type="application/pdf"
-            width="100%"
-            height="100%"
-          />
-        </div>
-      </div>
-    {% else %}
-      <div class="alert alert-warning">
-        No paper PDF was uploaded for this assessment.
-      </div>
-    {% endif %}
-
-    {% if assessment.memo %}
-      <div class="mb-4">
-        <a
-          href="{{ assessment.memo.url }}"
-          class="btn btn-outline-secondary"
-          download
-        >
-          <i class="fas fa-file-download"></i>
-          Download Memo
-        </a>
-      </div>
-    {% endif %}
-
-    <form method="post">
-      {% csrf_token %}
-
-      <div class="mb-4">
-        <label for="moderator_notes" class="form-label">
-          Your Comments
-        </label>
-        <textarea
-          id="moderator_notes"
-          name="moderator_notes"
-          class="form-control"
-          rows="6"
-          placeholder="Add your feedback here…"
-        >{{ assessment.moderator_notes }}</textarea>
-      </div>
-
-      <div class="mb-4">
-        <label for="status" class="form-label">Select Status</label>
-        <select id="status" name="status" class="form-select">
-          {% for val,label in status_choices %}
-            <option
-              value="{{ val }}"
-              {% if assessment.status == val %}selected{% endif %}
-            >{{ label }}</option>
-          {% endfor %}
-        </select>
-        <div class="form-text">
-          Choose “Submitted to QCTO” to forward to the QCTO.
-        </div>
-      </div>
-
-      <button type="submit" class="btn btn-primary me-2">
-        <i class="fas fa-save"></i> Save
-      </button>
-
-      {% if assessment.status != "Submitted to ETQA" %}
-        <button
-          type="submit"
-          name="status"
-          value="Submitted to QCTO"
-          class="btn btn-success"
-        >
-          <i class="fas fa-paper-plane"></i> Forward to QCTO
-        </button>
+      {% if assessment.file %}
+        <p>
+          <a href="{{ assessment.file.url }}" target="_blank" class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="fas fa-file-pdf"></i> View Paper
+          </a>
+        </p>
+      {% else %}
+        <p class="text-muted">No paper PDF was uploaded for this assessment.</p>
       {% endif %}
 
-      <a
-        href="{% url 'moderator_developer' %}"
-        class="btn btn-secondary ms-2"
-      >
-        <i claspys="fas fa-arrow-left"></i> Back to Queue
-      </a>
-    </form>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="id_notes">Moderator Comments</label>
+          <textarea id="id_notes" name="moderator_notes" rows="4" class="form-control" placeholder="Add your notes…">{{ assessment.moderator_notes }}</textarea>
+        </div>
 
+        <div class="form-group">
+          <label for="id_decision">Decision</label>
+          <select id="id_decision" name="decision" class="form-control">
+            <option value="approve" {% if assessment.status == "Approved by Moderator" %}selected{% endif %}>Approve (Send to QCTO)</option>
+            <option value="return" {% if assessment.status == "Returned for Changes" %}selected{% endif %}>Return for Changes</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Decision</button>
+      </form>
+    </div>
   </div>
-  <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

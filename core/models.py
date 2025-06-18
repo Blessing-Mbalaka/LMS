@@ -115,14 +115,17 @@ class Assessment(models.Model):
 
 
     STATUS_CHOICES = [
-        ("Pending", "Pending"),
-        ("Submitted to Moderator", "Submitted to Moderator"),
-        ("Returned for Changes", "Returned for Changes"),
-        ("Approved by Moderator", "Approved by Moderator"),
-        ("Submitted to ETQA", "Submitted to ETQA"),
-        ("Approved by ETQA", "Approved by ETQA"),
-        ("Rejected", "Rejected"),
-    ]
+         ("Pending",                  "Pending"),
+         ("Submitted to Moderator",   "Submitted to Moderator"),
+         ("Returned for Changes",     "Returned for Changes"),
+         ("Approved by Moderator",    "Approved by Moderator"),
+        ("Submitted to QCTO",        "Submitted to QCTO"),
+        ("Approved by QCTO",         "Approved by QCTO"),
+         ("Submitted to ETQA",        "Submitted to ETQA"),
+         ("Approved by ETQA",         "Approved by ETQA"),
+         ("Rejected",                 "Rejected"),
+     ]
+
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="Pending")
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
