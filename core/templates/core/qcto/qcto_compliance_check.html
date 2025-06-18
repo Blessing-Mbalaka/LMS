@@ -7,20 +7,54 @@
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    .content { padding: 20px; }
-    table { width:100%; border-collapse: collapse; background-color:#fff; margin-top:20px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-    th, td { padding:12px; text-align:center; border-bottom:1px solid #eee; }
-    thead { background-color:#580658; color:white; }
-    textarea { width:90%; padding:6px; resize:vertical; border-radius:6px; border:1px solid #ccc; }
-    .action-buttons button { margin:5px; padding:6px 12px; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; }
-    .approve-btn { background-color:green; }
-    .reject-btn { background-color:red; }
-    .info-btn { background-color:orange; }
+    .content {
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+    thead {
+      background-color: #580658;
+      color: white;
+    }
+    textarea {
+      width: 90%;
+      padding: 6px;
+      resize: vertical;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .action-buttons a {
+      display: inline-block;
+      margin: 5px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .approve-btn { background-color: green; }
+    .reject-btn { background-color: red; }
+    .info-btn { background-color: orange; }
   </style>
 </head>
 <body>
   <div class="dashboard-container">
-    <div class="sidebar">… your sidebar HTML …
+    <div class="sidebar">
+      <!-- Add your sidebar content or include -->
       <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
     </div>
     <div class="content">
@@ -28,21 +62,26 @@
       <table>
         <thead>
           <tr>
-            <th>EISA ID</th><th>Qualification</th><th>Paper No.</th><th>Issues Found</th><th>Reviewer Comments</th><th>Actions</th>
+            <th>EISA ID</th>
+            <th>Qualification</th>
+            <th>Paper No.</th>
+            <th>Issues Found</th>
+            <th>Reviewer Comments</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for a in assessments %}
           <tr>
             <td>{{ a.eisa_id }}</td>
-            <td>{{ a.qualification }}</td>
-            <td>{{ a.paper }}</td>
-            <td>{{ a.comment|default:'-' }}</td>
+            <td>{{ a.get_qualification_display }}</td>
+            <td>{{ a.paper|default:"-" }}</td>
+            <td>{{ a.comment|default:"-" }}</td>
             <td><textarea placeholder="Enter comments..."></textarea></td>
             <td class="action-buttons">
-              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}" class="approve-btn">Approve</a>
-              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}" class="reject-btn">Reject</a>
-              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}" class="info-btn">Request Info</a>
+              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}?action=approve" class="approve-btn">Approve</a>
+              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}?action=reject" class="reject-btn">Reject</a>
+              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}?action=request_info" class="info-btn">Request Info</a>
             </td>
           </tr>
           {% empty %}
