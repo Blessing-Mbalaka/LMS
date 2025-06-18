@@ -19,36 +19,57 @@
     .modal-backdrop { z-index: 1040 !important; }
     .modal { z-index: 1050 !important; }
     .modal-content { z-index: 1060 !important; }
+
+     .sidebar ul {
+    list-style-type: none;
+    padding-left: 0; /* removes default padding */
+  }
+
+  .sidebar li {
+    margin-bottom: 10px; /* optional spacing between items */
+  }
+
+  .logout-btn {
+    /* display: block; */
+    /* width: 100%; */
+    padding: 7px 7px;
+    margin-top: 10px;
+    font-size: 14px;
+    background-color: #630671;
+    color: white;
+    text-align: left;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+
   </style>
 </head>
 <body>
   <div class="dashboard-container">
     <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="graduate-icon">
-        <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
-      </div>
-      <ul class="list-unstyled ps-3">
-        <li class="mb-2"><a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa fa-home me-1"></i>Dashboard</a></li>
-        <li class="mb-2"><a href="{% url 'assessment_centres' %}" class="nav-item"><i class="fa fa-upload me-1"></i>Assessment Centres</a></li>
-        <li class="mb-2"><a href="{% url 'user_management' %}" class="nav-item"><i class="fa fa-cogs me-1"></i>User Management</a></li>
-        <li class="mt-4">🔔 Notifications</li>
-        <li>🛠️ Help & Support</li>
-      </ul>
-      <div class="px-3 mt-auto">
-        <button class="btn btn-outline-secondary w-100 mb-2">⚙️ Settings</button>
-        <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
-      </div>
-      <div class="p-3">
-        <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" class="img-fluid">
-      </div>
-    </div>
+     <div class="sidebar">
+    <div class="graduate-icon">
+      <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
+    </div><br><br>
+    <ul>
+      <li><a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
+      <li><a href="{% url 'assessment_centres' %}" class="nav-item"><i class="fa fa-upload"></i> Assessment Centres</a></li>
+      <li><a href="{% url 'user_management' %}" class="nav-item"><i class="fa fa-cogs"></i> User Management</a></li>
+      <li><a href="{% url 'manage_qualifications' %}" class="nav-item"><i class="fa fa-cogs"></i> Qualifications</a></li>
+      <!-- <li>🔔 Notifications</li>
+      <li>🛠️ Help & Support</li><br><br><br><br> -->
+      <!-- <button class="fixy">⚙️ Settings</button> -->
+     <a href="{% url 'logout' %}" class="logout-btn">🚪 Log Out</a>
+    </ul>
+    <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
+  </div>
 
     <!-- CONTENT -->
     <div class="content p-4 d-flex flex-column">
       <div class="welcome-container d-flex mb-4">
         <div class="me-4">
-          <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Art" width="390" height="190">
+          <!-- <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Art" width="390" height="190"> -->
         </div>
         <div class="welcome-box flex-fill">
           <h2>User Management</h2>

@@ -90,7 +90,6 @@ body {
   flex: 1;
   padding: 30px;
   background-color: #f8f9fa;
-  background-image: url("/static/core/images/Frame.png");
   background-repeat: no-repeat;
   background-size: cover;
   overflow-y: auto;

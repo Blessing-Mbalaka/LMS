@@ -93,7 +93,7 @@ def redirect_user_by_role(user):
     elif role in 'etqa':
         return redirect('etqa_dashboard')
     elif role == 'learner':
-        return redirect('home')
+        return redirect('student_dashboard')
     else:
         return redirect('home')
 
@@ -152,7 +152,7 @@ from .models import Qualification
 CustomUser = get_user_model()  
 
 @login_required
-@staff_member_required
+# @staff_member_required
 def user_management(request):
     if request.method == 'POST':
         name  = request.POST['name']
@@ -217,7 +217,7 @@ def user_management(request):
 #______________________________________________________________________________________________________
     
 @login_required
-@staff_member_required
+# @staff_member_required
 def update_user_role(request, user_id):
     user = get_object_or_404(CustomUser, pk=user_id)
     if request.method=='POST':
@@ -229,7 +229,7 @@ def update_user_role(request, user_id):
 #_______________________________________________________________________________________________________
 # User qualification
 @login_required
-@staff_member_required
+# @staff_member_required
 def update_user_qualification(request, user_id):
     user = get_object_or_404(CustomUser, pk=user_id)
     if request.method=='POST':
@@ -241,7 +241,7 @@ def update_user_qualification(request, user_id):
 
 #User Status
 @login_required
-@staff_member_required
+# @staff_member_required
 def toggle_user_status(request, user_id):
     user = get_object_or_404(CustomUser, pk=user_id)
     user.is_active = not user.is_active
@@ -302,7 +302,7 @@ def delete_assessment_centre(request, centre_id):
     return redirect('assessment_centres')
 
 @login_required
-@staff_member_required
+# @staff_member_required
 def admin_dashboard(request):
     
     if request.method == "POST":
@@ -922,7 +922,7 @@ def view_assessment(request, eisa_id):
 
 
 @login_required
-@staff_member_required
+# @staff_member_required
 def moderator_developer_dashboard(request):
     pending = Assessment.objects.filter(
         status__in=["Pending", "Submitted to Moderator"]
@@ -1133,7 +1133,7 @@ def qcto_compliance(request):
 
 # 5) QCTO Final Assessment Review: list for QCTO decision
 @login_required
-@staff_member_required
+# @staff_member_required
 def qcto_assessment_review(request):
     assessments = Assessment.objects.filter(status='Submitted to QCTO')
     return render(request,

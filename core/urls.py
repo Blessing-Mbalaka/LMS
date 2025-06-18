@@ -41,7 +41,7 @@ approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_e
 )
 
 urlpatterns = [
-    path('', admin_dashboard, name='home'),
+    path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
     path('awaiting-activation/', default_page, name='default'),
     path('assessor/dashboard/', assessor_dashboard, name='assessor_dashboard'),
     path('assessor/assessment/<str:eisa_id>/', view_assessment, name='view_assessment'),
@@ -82,7 +82,7 @@ urlpatterns = [
 
 #Login and logout path**********************************************************
      path('logout/', custom_logout, name='logout'),
-    path('administrator/login/', custom_login, name='custom_login'),
+    path('', custom_login, name='custom_login'),
      path("register/", register, name="register"),
 #********************************************************************
 #Assessment progress Tracker this is for tracking who has the paper...

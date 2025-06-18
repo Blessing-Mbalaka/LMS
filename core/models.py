@@ -260,7 +260,7 @@ class ExamAnswer(models.Model):
     attempt_number = models.PositiveSmallIntegerField(default=1)  # Track attempts
 
     class Meta:
-        unique_together = ('user', 'question', 'attempt_number')  # Include attempts
+        unique_together = ('user', 'question', 'attempt_number')  # Include attempts 
         verbose_name = 'Exam Answer'
         verbose_name_plural = 'Exam Answers'
 

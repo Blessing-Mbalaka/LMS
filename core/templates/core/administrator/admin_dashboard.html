@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,157 +12,202 @@
 </head>
 <style>
   .content {
-      background-color: #efeaea;
-      background-image: url("{% static 'core/images/Frame.png' %}");
-      background-repeat: no-repeat;
-      background-size: cover;
-      opacity: 0.9;
+    background-color: #efeaea;
+    background-image: url("{% static 'core/images/Frame.png' %}");
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.9;
   }
+
+  .sidebar ul {
+    list-style-type: none;
+    padding-left: 0;
+    /* removes default padding */
+  }
+
+  .sidebar li {
+    margin-bottom: 10px;
+    /* optional spacing between items */
+  }
+
+  .logout-btn {
+    /* display: block; */
+    /* width: 100%; */
+    padding: 7px 7px;
+    margin-top: 10px;
+    font-size: 14px;
+    background-color: #630671;
+    color: white;
+    text-align: left;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .overal_container{
+    background-color: rgb(255, 255, 255);
+  }
+
+  /* .logout-btn:hover {
+    background-color: #c82333;
+    text-decoration: none;
+    color: #fff;
+  } */
 </style>
+
 <body>
-<div class="dashboard-container">
-  <div class="sidebar">
-    <div class="graduate-icon">
-      <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
-    </div><br><br>
-    <ul>
-      <li><a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
-      <li><a href="{% url 'assessment_centres' %}" class="nav-item"><i class="fa fa-upload"></i> Assessment Centres</a></li>
-      <li><a href="{% url 'user_management' %}" class="nav-item"><i class="fa fa-cogs"></i> User Management</a></li>
-      <li><a href="{% url 'manage_qualifications' %}" class="nav-item"><i class="fa fa-cogs"></i> qualifications</a></li>
-      <li>🔔 Notifications</li>
-      <li>🛠️ Help & Support</li><br><br><br><br>
-      <button class="fixy">⚙️ Settings</button>
-       <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
-    </ul>
-    <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
-  </div>
-
-  <div class="content p-4">
-    <div class="welcome-container">
-      <div class="image-container">
-        <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Profile Picture" width="390px" height="190px">
+  <div class="overal_container">
+    <div class="dashboard-container">
+      <div class="sidebar">
+        <div class="graduate-icon">
+          <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
+        </div><br><br>
+        <ul>
+          <li><a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
+          <li><a href="{% url 'assessment_centres' %}" class="nav-item"><i class="fa fa-upload"></i> Assessment
+              Centres</a></li>
+          <li><a href="{% url 'user_management' %}" class="nav-item"><i class="fa fa-cogs"></i> User Management</a></li>
+          <li><a href="{% url 'manage_qualifications' %}" class="nav-item"><i class="fa fa-cogs"></i> Qualifications</a>
+          </li>
+          <!-- <li>🔔 Notifications</li>
+          <li>🛠️ Help & Support</li><br><br><br><br> -->
+          <!-- <button class="fixy">⚙️ Settings</button> -->
+          <br>
+          <br>
+          <a href="{% url 'logout' %}" class="logout-btn">🚪 Log Out</a>
+        </ul>
+        <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
       </div>
-      <div class="welcome-box">
-        <h2>Administrator Dashboard</h2>
-        <div class="date">Archived Assessments</div>
-        <button class="gradient-button">Innovating for Impact</button>
-      </div>
-    </div>
 
-    <div class="row mb-4">
-      <div class="col-md-4">
-        <div class="card text-center">
-          <div class="card-body">
-            <h5 class="card-title">Databank</h5>
-            <a href="{% url 'databank' %}" class="btn btn-outline-primary btn-sm">View</a>
+      <div class="content p-4">
+        <div class="welcome-container">
+          <div class="image-container">
+            <!-- <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Profile Picture" width="390px" height="190px"> -->
+          </div>
+          <div class="welcome-box">
+            <h2>Administrator Dashboard</h2>
+            <div class="date">Archived Assessments</div>
+            <button class="gradient-button">Innovating for Impact</button>
           </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-center">
-          <div class="card-body">
-            <h5 class="card-title">Assessment Centres</h5>
-            <a href="{% url 'assessment_centres' %}" class="btn btn-outline-primary btn-sm">View</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-center">
-          <div class="card-body">
-            <h5 class="card-title">Total Registered Users</h5>
-            <p class="card-text">{{ total_users }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- ========= Upload Assessment Form ========= -->
-    <div class="card mb-4">
-      <div class="card-header">Upload New Assessment</div>
-      <div class="card-body">
-        <form method="post" enctype="multipart/form-data" class="row g-3">
-          {% csrf_token %}
+        <div class="row mb-4">
           <div class="col-md-4">
-            <label for="qual" class="form-label">Qualification</label>
-            <select id="qual" name="qualification" class="form-select form-select-sm" required>
-              <option value="">— Select —</option>
-              {% for q in qualifications %}
-                <option value="{{ q.id }}">{{ q.name }}</option>
-              {% endfor %}
-            </select>
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Databank</h5>
+                <a href="{% url 'databank' %}" class="btn btn-outline-primary btn-sm">View</a>
+              </div>
+            </div>
           </div>
-          <div class="col-md-2">
-            <label for="paper" class="form-label">Paper #</label>
-            <input type="text" id="paper" name="paper_number" class="form-control form-control-sm" required>
+          <div class="col-md-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Assessment Centres</h5>
+                <a href="{% url 'assessment_centres' %}" class="btn btn-outline-primary btn-sm">View</a>
+              </div>
+            </div>
           </div>
-          <div class="col-md-2">
-            <label for="saqa" class="form-label">SAQA ID</label>
-            <input type="text" id="saqa" name="saqa_id" class="form-control form-control-sm">
+          <div class="col-md-4">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title">Total Registered Users</h5>
+                <p class="card-text">{{ total_users }}</p>
+              </div>
+            </div>
           </div>
-          <div class="col-md-2">
-            <label for="file" class="form-label">Assessment File</label>
-            <input type="file" id="file" name="file_input" class="form-control form-control-sm">
-          </div>
-          <div class="col-md-2">
-            <label for="memo" class="form-label">Memo (opt.)</label>
-            <input type="file" id="memo" name="memo_file" class="form-control form-control-sm">
-          </div>
-          <div class="col-12 text-end">
-            <button type="submit" class="btn btn-primary btn-sm">Upload Assessment</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
 
-    <!-- ========= List of Uploaded Assessments ========= -->
-    <div class="card mb-4">
-      <div class="card-header">Assessment Tool Management</div>
-      <div class="card-body">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Qualification</th>
-              <th>Paper</th>
-              <th>Status</th>
-              <th>Uploaded By</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for tool in tools %}
-            <tr>
-              <td>{{ tool.qualification.name }}</td>
-              <td>{{ tool.paper }}</td>
-              <td>{{ tool.status }}</td>
-              <td>
-                {% if tool.created_by %}
-                  {% if tool.created_by.get_full_name %}
+        <!-- ========= Upload Assessment Form ========= -->
+        <div class="card mb-4">
+          <div class="card-header">Upload New Assessment</div>
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="row g-3">
+              {% csrf_token %}
+              <div class="col-md-4">
+                <label for="qual" class="form-label">Qualification</label>
+                <select id="qual" name="qualification" class="form-select form-select-sm" required>
+                  <option value="">— Select —</option>
+                  {% for q in qualifications %}
+                  <option value="{{ q.id }}">{{ q.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="paper" class="form-label">Paper #</label>
+                <input type="text" id="paper" name="paper_number" class="form-control form-control-sm" required>
+              </div>
+              <div class="col-md-2">
+                <label for="saqa" class="form-label">SAQA ID</label>
+                <input type="text" id="saqa" name="saqa_id" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-2">
+                <label for="file" class="form-label">Assessment File</label>
+                <input type="file" id="file" name="file_input" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-2">
+                <label for="memo" class="form-label">Memo (opt.)</label>
+                <input type="file" id="memo" name="memo_file" class="form-control form-control-sm">
+              </div>
+              <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary btn-sm">Upload Assessment</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ========= List of Uploaded Assessments ========= -->
+        <div class="card mb-4">
+          <div class="card-header">Assessment Tool Management</div>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Qualification</th>
+                  <th>Paper</th>
+                  <th>Status</th>
+                  <th>Uploaded By</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for tool in tools %}
+                <tr>
+                  <td>{{ tool.qualification.name }}</td>
+                  <td>{{ tool.paper }}</td>
+                  <td>{{ tool.status }}</td>
+                  <td>
+                    {% if tool.created_by %}
+                    {% if tool.created_by.get_full_name %}
                     {{ tool.created_by.get_full_name }}
-                  {% else %}
+                    {% else %}
                     {{ tool.created_by.email }}
-                  {% endif %}
-                {% else %}
-                  &mdash;
-                {% endif %}
-              </td>
-              <td>
-                {% if tool.file %}
-                  <a href="{{ tool.file.url }}" target="_blank">Download</a>
-                {% else %}
-                  —  
-                {% endif %}
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="5" class="text-center">No assessments uploaded yet.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+                    {% endif %}
+                    {% else %}
+                    &mdash;
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if tool.file %}
+                    <a href="{{ tool.file.url }}" target="_blank">Download</a>
+                    {% else %}
+                    —
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center">No assessments uploaded yet.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
-
   </div>
-</div>
 </body>
+
 </html>

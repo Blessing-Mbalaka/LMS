@@ -12,12 +12,12 @@
       flex: 1;
       padding: 20px;
       background-color: #efeaea;
-      background-image: url("{% static 'core/images/Frame.png' %}");
-      background-repeat: no-repeat;
-      background-size: cover;
+      /* background-image: url("{% static 'core/images/Frame.png' %}"); */
+      /* background-repeat: no-repeat; */
+      /* background-size: cover; */
     }
     .gradient-button {
-      background: linear-gradient(to right, rgb(61, 11, 86), #552a74, #360459);
+      background: linear-gradient(to right, rgb(77, 8, 112), #4a1272, #360459);
       color: white;
       padding: 10px 15px;
       border: none;
@@ -89,16 +89,16 @@
             <span>Assessment History</span>
           </a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link{% if request.resolver_match.url_name == 'assessor_reports' %} active{% endif %}"
              href="{% url 'assessor_reports' %}">
             <i class="fa fa-chart-bar"></i>
             <span>Reports</span>
           </a>
-        </li>
+        </li> -->
 
         <!-- Placeholder items (Notifications / Help) -->
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" href="#">
             <i class="fa fa-bell"></i>
             <span>Notifications</span>
@@ -109,19 +109,19 @@
             <i class="fa fa-life-ring"></i>
             <span>Help &amp; Support</span>
           </a>
-        </li>
+        </li> -->
 
         <!-- Settings / Logout Buttons -->
-        <li class="nav-item mt-4">
+        <!-- <li class="nav-item mt-4">
           <button class="gradient-button w-100">
             <i class="fa fa-cog"></i>
             <span>Settings</span>
           </button>
-        </li>
+        </li> -->
         <li class="nav-item mt-2">
           <button class="gradient-button w-100">
             <i class="fa fa-sign-out-alt"></i>
-           <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
+           <a href="{% url 'logout' %}" class="fix"> Log Out</a><br>
           </button>
         </li>
       </ul>
