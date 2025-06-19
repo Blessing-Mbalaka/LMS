@@ -7,6 +7,7 @@
   <title>ETQA Implementation | CHIETA</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <style>
     :root { --dark-purple: #3c1c53; --gold: #bb8641; --light-gray: #f8f9fa; }
     body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-gray); }
@@ -19,7 +20,15 @@
     .sidebar-menu li { margin-bottom: 5px; }
     .sidebar-menu li a { display: block; padding: 10px 15px; color: var(--dark-purple); text-decoration: none; border-radius: 5px; transition: all 0.3s; }
     .sidebar-menu li.active a { background-color: var(--dark-purple); color: white; }
-    .main-content { flex: 1; margin-left: 280px; padding: 30px; }
+.sidebar li {    margin-bottom: 10px;    /* optional spacing between items */  }
+   .sidebar ul {  list-style-type: none; padding-left: 0;    /* removes default padding */
+  }
+    
+ .main-content { flex: 1; margin-left: 280px; padding: 30px;   background-color: #efeaea;
+    background-image: url("{% static 'core/images/Frame.png' %}");
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.9;}
     .btn-purple { background-color: var(--dark-purple); color: white; border: none; padding: 8px 20px; border-radius: 4px; }
     .btn-gold { background-color: var(--gold); color: white; border: none; padding: 8px 20px; border-radius: 4px; }
     .card { border: none; box-shadow: 0 0 15px rgba(0,0,0,0.05); margin-bottom: 20px; border-radius: 8px; }
@@ -35,16 +44,9 @@
     .batch-summary tr:last-child td { border-bottom: none; }
     .question-list { list-style: none; padding-left: 0; margin: 0; }
     .question-list li { margin-bottom: 5px; }
-    .sidebar ul {
-    list-style-type: none;
-    padding-left: 0;
-    /* removes default padding */
-  }
+ 
 
-  .sidebar li {
-    margin-bottom: 10px;
-    /* optional spacing between items */
-  }
+  
   </style>
 </head>
 <body>
@@ -52,8 +54,7 @@
   <div class="sidebar">
     <div class="sidebar-header">
       <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
-      <h4>ETQA Implementation</h4>
-      <p class="text-muted">Assessment Coordination</p>
+      
     </div>
     <ul class="sidebar-menu">
       <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
@@ -62,10 +63,22 @@
       <li><a href="#"><i class="fas fa-users"></i> Learner Batches</a></li>
       <li><a href="#"><i class="fas fa-chart-line"></i> Completion Tracking</a></li>
       <li><a href="#"><i class="fas fa-cog"></i> Configuration</a></li>
-      <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+      <li><a  href="{% url 'logout' %}"><i class="fas fa-sign-out-alt logout"></i> Log Out</a></li>
     </ul>
+    <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
   </div>
   <div class="main-content">
+
+    <div class="welcome-container">
+          <div class="image-container">
+            <!-- <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Profile Picture" width="390px" height="190px"> -->
+          </div>
+          <div class="welcome-box">
+            <h2>ETQA Dashboard</h2>
+            
+            <button class="gradient-button">Innovating for Impact</button>
+          </div>
+        </div>
     <h2 style="color: var(--dark-purple);">Batch Assignment</h2>
 
     <div class="card">

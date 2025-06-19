@@ -10,7 +10,7 @@
     .dashboard-content {
       padding: 30px;
     }
-
+/**********old content styles****************/
     .content {
       background-color: #efeaea;
       background-image: url("{% static 'core/images/Frame.png' %}");
@@ -19,6 +19,12 @@
       flex-grow: 1;
       padding: 20px;
     }
+
+    /***********end of old contnet styles*********/
+
+    /*************new contnet style****************/
+   
+    /************end of new content style***************/
 
     .reports-container h2 {
       color: #552a74;
@@ -50,6 +56,7 @@
       border-bottom: none;
     }
 
+    /********start of old side bar style****************/
     .sidebar ul {
     list-style-type: none;
     padding-left: 0;
@@ -60,35 +67,70 @@
     margin-bottom: 10px;
     /* optional spacing between items */
   }
+
+  /**************************end of old sidebar style***/
+
+
+  /***********new sidebar style and contnet*****************/
+ .main-content { flex: 1; margin-left: 280px; padding: 30px;   background-color: #efeaea;
+    background-image: url("{% static 'core/images/Frame.png' %}");
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.9;}
+
+    .sidebar { width: 280px; background: linear-gradient(to bottom, #f1f1f1, white, #e0e0e0, #f5f5f5, #3c1c53); padding: 20px; color: var(--dark-purple); border-right: 1px solid var(--gold); position: fixed; height: 100%; overflow-y: auto; }
+    .sidebar-header { text-align: center; margin-bottom: 30px; }
+    .sidebar-header img { max-width: 50%; margin-bottom: 15px; }
+    .sidebar-header h4 { color: var(--dark-purple); font-weight: 600; }
+    .sidebar-menu { list-style: none; padding: 0; }
+    .sidebar-menu li { margin-bottom: 5px; }
+    .sidebar-menu li a { display: block; padding: 10px 15px; color: var(--dark-purple); text-decoration: none; border-radius: 5px; transition: all 0.3s; }
+    .sidebar-menu li.active a { background-color: var(--dark-purple); color: white; }
+    .sidebar li {    margin-bottom: 10px;    /* optional spacing between items */  }
+    .sidebar li a:hover{ background: #613085; color: white;}
+    .sidebar ul {  list-style-type: none; padding-left: 0;    /* removes default padding */
+  }
+
+  /*********************end of new sid ebar************/
   </style>
 </head>
 <body>
   <div class="dashboard-container">
     <!-- SIDEBAR (Same as Dashboard) -->
-    <div class="sidebar">
-      <div class="graduate-icon">
-        <a href="{% url 'qcto_dashboard' %}">
-          <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
-        </a>
-      </div><br><br>
-      <ul>
-        <li>
+  
+
+
+
+<div class="sidebar">
+    <div class="sidebar-header">
+      <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="{% url 'qcto_dashboard' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_dashboard' %} active{% endif %}"><i class="fa fa-home"></i> Dashboard</a></li>
+
+     <li >
   <a href="{% url 'qcto_assessment_review' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_assessment_review' %} active{% endif %}">
     <i class="fa fa-check"></i> Final Assessment Review</a>
 </li>
         <li><a href="{% url 'qcto_compliance' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_compliance' %} active{% endif %}"><i class="fa fa-clipboard-check"></i> Compliance Check</a></li>
         <li><a href="{% url 'qcto_reports' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_reports' %} active{% endif %}"><i class="fa fa-chart-line"></i> Reports</a></li>
         <li><a href="{% url 'qcto_archive' %}" class="nav-item{% if request.resolver_match.url_name == 'qcto_archive' %} active{% endif %}"><i class="fa fa-archive"></i> Assessment Archive</a></li>
-        <li>🔔 Notifications</li>
-        <li>🛠️ Help & Support</li><br><br><br><br>
-        <button class="fixy">⚙️ Settings</button>
-       <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
-      </ul>
-      <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
-    </div>
+       
+         <li><a  href="{% url 'logout' %}"><i class="fas fa-sign-out-alt logout"></i> Log Out</a></li>
+    
+    
+    
+        </ul>
+    <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
+  </div>
+
+
+
+
+
 
     <!-- MAIN CONTENT -->
-    <div class="content">
+    <div class="main-content">
       <div class="dashboard-content reports-container">
         <h2>QCTO Reports</h2>
         <table class="report-table">
