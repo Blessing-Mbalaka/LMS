@@ -72,7 +72,7 @@ WSGI_APPLICATION = 'chieta_LMS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Chiet2_db',
+        'NAME': 'Chieta_demo_db',
         'USER': 'postgres',
         'PASSWORD': '12345',
         'HOST': 'localhost',
