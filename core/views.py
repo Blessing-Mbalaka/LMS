@@ -1348,7 +1348,7 @@ def submit_to_center(request, batch_id):
     batch = Batch.objects.get(id=batch_id)
     batch.submitted_to_center = True
     batch.save()
-    return redirect('assessment_center')
+    return redirect('etqa_dashboard')
 
 #----------------------views students-------------------------------------------------------
 # pull the assesment under a specific qualification that the studnet has enrolled
