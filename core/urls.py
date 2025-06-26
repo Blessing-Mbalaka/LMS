@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from core.views import (
     generate_tool_page,
-    generate_tool,
+    generate_tool, save_extracted_questions,
     assessor_dashboard,
     view_assessment,
     upload_assessment,
@@ -20,7 +20,7 @@ from core.views import (
     qcto_reports,
     qcto_view_assessment,
     qcto_latest_assessment_detail,
-    databank_view,
+    databank_view, clean_questions,
     admin_dashboard,
     assessment_centres_view,
     user_management,
@@ -31,7 +31,7 @@ from core.views import (
 edit_assessment_centre,
 delete_assessment_centre,
 qualification_management_view, register,
-default_page, student_results,
+default_page, student_results, beta_paper_extractor, #Beta_paper extractor might delete if it does not work...
 assessment_progress_tracker,
 etqa_dashboard, assessment_center_view, submit_to_center,
 approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results
@@ -42,6 +42,12 @@ approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_e
 
 urlpatterns = [
     path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
+
+    #paper extraction views still in development
+    path('administrator/beta-paper/', beta_paper_extractor, name='beta_paper'),
+     path("api/clean-questions/", clean_questions, name="clean_questions"),
+    path('administrator/save-extracted/', save_extracted_questions, name='save_extracted_questions'),
+#___________________________________________________________________________________________________________
     path('awaiting-activation/', default_page, name='default'),
     path('assessor/dashboard/', assessor_dashboard, name='assessor_dashboard'),
     path('assessor/assessment/<str:eisa_id>/', view_assessment, name='view_assessment'),

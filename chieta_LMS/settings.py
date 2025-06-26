@@ -9,6 +9,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -70,9 +72,9 @@ WSGI_APPLICATION = 'chieta_LMS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Chieta_demo_db',          # match what's in pgAdmin
+        'NAME': 'chieta_db',          # match what's in pgAdmin
         'USER': 'postgres',
-        'PASSWORD': '12345',  # update accordingly
+        'PASSWORD': 'Revolution88@',  # update accordingly
         'HOST': 'localhost',
         'PORT': '5432',
     }

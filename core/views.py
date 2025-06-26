@@ -1,3 +1,4 @@
+import os
 import traceback
 from django.contrib import messages
 from rest_framework.parsers import MultiPartParser, JSONParser
@@ -38,6 +39,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Qualification, CustomUser
 from .forms import CustomUserForm
 from django.contrib import admin
+from django.conf import settings
 from django.contrib.auth.admin import UserAdmin
 from .models import AssessmentCentre
 from .forms import AssessmentCentreForm, QualificationForm
@@ -51,6 +53,7 @@ from .utils import extract_text
 from google import genai
 from django.conf import settings
 from django.contrib.auth import get_user_model
+
 
 # Initialize AI client
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
@@ -1462,3 +1465,177 @@ def write_exam(request, assessment_id):
         'generated_qs': generated_qs,
         'attempt_number': 1  # or fetch from logic if attempts are tracked
     })
+
+import re
+from django.shortcuts import render
+from .utils import extract_text
+
+def beta_paper_extractor(request):
+    questions = []
+
+    if request.method == "POST":
+        file = request.FILES.get("paper")
+        crop_text = request.POST.get("cropped_text")
+        use_marks = request.POST.get("use_marks") == "on"
+        crop_mode = request.POST.get("crop_mode") == "on"
+
+        if crop_mode and crop_text:
+            text = crop_text
+        else:
+            text = extract_text(file, file.content_type)
+
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        case_study_buffer = ""
+        current_q = None
+
+        for line in lines:
+            if line.lower().startswith("case study"):
+                case_study_buffer += line + "\n"
+                continue
+
+            number_match = re.match(r"^(\d{1,2}(?:\.\d{1,2})+)", line)
+            marks_match = re.search(r"\((\d+)\s*marks?\)", line, re.IGNORECASE)
+
+            if number_match:
+                if current_q:
+                    questions.append(current_q)
+                current_q = {
+                    "number": number_match.group(1),
+                    "question": line,
+                    "marks": int(marks_match.group(1)) if marks_match else "",
+                    "case_study": case_study_buffer.strip()
+                }
+                case_study_buffer = ""
+            elif current_q:
+                current_q["question"] += " " + line
+
+        if current_q:
+            questions.append(current_q)
+
+    return render(request, "core/administrator/beta_paper_extractor.html", {
+        "questions": questions,
+        "use_marks": request.POST.get("use_marks") == "on",
+        "crop_mode": request.POST.get("crop_mode") == "on"
+    })
+
+
+
+import json, traceback
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from google import genai
+
+# make sure your Gemini client is initialized somewhere at top:
+# from django.conf import settings
+# genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+import json, traceback
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+# …make sure you’ve already got:
+# from google import genai
+# from django.conf import settings
+# genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+import json, traceback
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+# make sure you already have:
+# from google import genai
+# from django.conf import settings
+# genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+@csrf_exempt
+@require_POST
+def clean_questions(request):
+    """
+    POST JSON: { "questions": [ "...", ... ] }
+    Returns   JSON: { "cleaned": [ true, false, ... ] }
+    """
+    try:
+        payload = json.loads(request.body)
+        qs      = payload.get("questions", [])
+        if not isinstance(qs, list):
+            return JsonResponse({"error": "`questions` must be an array"}, status=400)
+
+        system_prompt = (
+            "You will receive a JSON list of question texts. "
+            "Return ONLY a JSON object {\"cleaned\": [...]}, where each entry is "
+            "`true` if that text is a real exam question or `false` otherwise."
+        )
+
+        resp = genai_client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=[system_prompt, json.dumps(qs)]
+        )
+        raw = (resp.text or "").strip()
+
+        if not raw:
+            flags = [True] * len(qs)
+        else:
+            try:
+                data = json.loads(raw)
+                flags = data.get("cleaned") or data.get("valid")
+                if not isinstance(flags, list) or len(flags) != len(qs):
+                    raise ValueError(f"Bad format/length: {flags}")
+            except Exception:
+                flags = [True] * len(qs)
+
+        return JsonResponse({"cleaned": flags})
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON body"}, status=400)
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e),
+            "traceback": traceback.format_exc().splitlines()[:5]
+        }, status=500)
+
+#Imports close to functions to makesure import order does not impede the functions.
+from django.shortcuts import redirect, render
+from .models import QuestionBankEntry
+from django.contrib import messages
+
+def save_extracted_questions(request):
+    if request.method == 'POST':
+        counter = 1
+        questions_to_save = []
+
+        while f"question_{counter}" in request.POST:
+            number = request.POST.get(f"number_{counter}")
+            question = request.POST.get(f"question_{counter}")
+            marks = request.POST.get(f"marks_{counter}")
+            status = request.POST.get(f"status_{counter}")
+            case_study = request.POST.get(f"case_study_{counter}")
+
+            if question and number:
+                entry = QuestionBankEntry(
+                    number=number,
+                    text=question,
+                    marks=int(marks) if marks else 0,
+                    status=status,
+                    case_study=case_study or ''
+                )
+                questions_to_save.append(entry)
+            counter += 1
+
+        # Bulk save
+        QuestionBankEntry.objects.bulk_create(questions_to_save)
+        messages.success(request, f"{len(questions_to_save)} questions saved successfully.")
+        return redirect('beta_paper_extractor')  # replace with your actual view name
+
+    return redirect('beta_paper_extractor')
+
+
+
+
+
+
+
+
+

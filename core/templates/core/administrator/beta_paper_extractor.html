@@ -1,0 +1,147 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Beta Paper Extractor - Review &amp; Edit</h2>
+  <form id="extractor-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="paper" class="form-label">Upload Document (PDF or DOCX)</label>
+      <input type="file" class="form-control" id="paper" name="paper">
+    </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" value="on" id="crop_mode" name="crop_mode" {% if crop_mode %}checked{% endif %}>
+      <label class="form-check-label" for="crop_mode">
+        Enable Crop Mode (select snippet below)
+      </label>
+    </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" value="on" id="use_marks" name="use_marks" {% if use_marks %}checked{% endif %}>
+      <label class="form-check-label" for="use_marks">
+        Use Marks as Delimiter
+      </label>
+    </div>
+
+    <!-- PDF.js viewer placeholder -->
+    <div id="pdf-viewer" class="mb-3" style="border:1px solid #ccc; height:500px; display:none;"></div>
+
+    <!-- Hidden field for selected/cropped text -->
+    <input type="hidden" id="cropped_text" name="cropped_text">
+
+    <button type="submit" class="btn btn-primary">Extract Questions</button>
+    <button type="button" id="clean-data-btn" class="btn btn-warning ms-2">Clean Data</button>
+  </form>
+
+  {% if questions %}
+  <hr>
+  <table class="table table-bordered" id="questions-table">
+    <thead>
+      <tr>
+        <th>Number</th><th>Question</th><th>Marks</th><th>Case Study</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for q in questions %}
+      <tr>
+        <td><input class="form-control" name="number_{{ forloop.counter }}" value="{{ q.number }}"></td>
+        <td><textarea class="form-control question-cell" name="question_{{ forloop.counter }}">{{ q.question }}</textarea></td>
+        <td><input type="number" class="form-control" name="marks_{{ forloop.counter }}" value="{{ q.marks }}"></td>
+        <td><input class="form-control" name="case_study_{{ forloop.counter }}" value="{{ q.case_study }}"></td>
+        <td><button type="button" class="btn btn-sm btn-danger delete-row-btn">Delete</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button type="button" id="save-questions-btn" class="btn btn-success">Save to Question Bank</button>
+  {% endif %}
+</div>
+
+<!-- PDF.js & selection script -->
+<script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+<script>
+$(function() {
+  const form = $('#extractor-form');
+  const cropCheckbox = $('#crop_mode');
+  const marksCheckbox = $('#use_marks');
+  const pdfViewer = $('#pdf-viewer');
+
+  // Toggle PDF viewer when crop mode is enabled
+  cropCheckbox.on('change', () => {
+    if (cropCheckbox.is(':checked')) {
+      pdfViewer.show();
+      initPDFViewer();
+    } else {
+      pdfViewer.hide();
+    }
+  });
+
+  function initPDFViewer() {
+    if (pdfViewer.data('loaded')) return;
+    const fileInput = document.getElementById('paper');
+    const viewer = document.getElementById('pdf-viewer');
+    const url = URL.createObjectURL(fileInput.files[0]);
+    const loadingTask = pdfjsLib.getDocument(url);
+    loadingTask.promise.then(pdf => {
+      pdf.getPage(1).then(page => {
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        viewer.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        page.render({ canvasContext: ctx, viewport });
+
+        // Enable simple text selection
+        canvas.style.userSelect = 'none';
+        canvas.addEventListener('mouseup', () => {
+          const selection = window.getSelection().toString();
+          if (selection) document.getElementById('cropped_text').value = selection;
+        });
+      });
+    });
+    pdfViewer.data('loaded', true);
+  }
+
+  // Delete rows
+  $('#questions-table').on('click', '.delete-row-btn', function() {
+    $(this).closest('tr').remove();
+  });
+
+  // Clean Data button logic
+  $('#clean-data-btn').on('click', function() {
+    const rows = [];
+    $('#questions-table tbody tr').each(function() {
+      rows.push($(this).find('.question-cell').val());
+    });
+    $('#clean-data-btn').prop('disabled', true).text('Cleaning...');
+    fetch('{% url "clean_questions" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ questions: rows })
+    })
+    .then(res => res.json())
+    .then(data => {
+      $('#clean-data-btn').prop('disabled', false).text('Clean Data');
+      data.cleaned.forEach((keep, idx) => {
+        if (!keep) $('#questions-table tbody tr').eq(idx).remove();
+      });
+    })
+    .catch(err => {
+      console.error('Clean error:', err);
+      $('#clean-data-btn').prop('disabled', false).text('Clean Data');
+      alert('Clean failed, see console');
+    });
+  });
+
+  // Save to Question Bank
+  $('#save-questions-btn').on('click', function() {
+    form.attr('action', '{% url "save_extracted_questions" %}').submit();
+  });
+});
+</script>
+{% endblock %}

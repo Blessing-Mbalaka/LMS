@@ -1,15 +1,15 @@
-# chieta_LMS/utils.py
 import io
 from PyPDF2 import PdfReader
 import docx
 
 def extract_text_from_pdf(f):
     reader = PdfReader(f)
-    return "\n\n".join(page.extract_text() or "" for page in reader.pages)
+    return "\n".join(page.extract_text() or "" for page in reader.pages)
 
 def extract_text_from_docx(f):
+    f.seek(0)
     doc = docx.Document(io.BytesIO(f.read()))
-    return "\n\n".join(p.text for p in doc.paragraphs)
+    return "\n".join(p.text.strip() for p in doc.paragraphs if p.text.strip())
 
 def extract_text(file_obj, content_type):
     file_obj.seek(0)

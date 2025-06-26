@@ -72,16 +72,17 @@ WSGI_APPLICATION = 'chieta_LMS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Chieta_demo_db',
+        'NAME': 'chieta_db',
         'USER': 'postgres',
-        'PASSWORD': '12345',
+        'PASSWORD': 'Revolution88@',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
 
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
