@@ -1484,43 +1484,95 @@ from django.shortcuts import render
 from .utils import extract_text
 
 def beta_paper_extractor(request):
+    # Always start with an empty list
     questions = []
     raw_text  = ""
-
+    
     if request.method == "POST":
+        errors        = []
         uploaded_file = request.FILES.get("paper")
         use_marks     = request.POST.get("use_marks") == "on"
         crop_mode     = request.POST.get("crop_mode") == "on"
         crop_text     = request.POST.get("cropped_text", "").strip()
-
-        # 1) get full text for modal
-        if crop_mode and crop_text:
-            raw_text = crop_text
-        elif uploaded_file:
-            raw_text = extract_text(uploaded_file, uploaded_file.content_type)
-
-        # 2) split into question blocks
-        blocks = re.split(r'(?m)(?=^\d{1,2}(?:\.\d+)+\b)', raw_text)
-        num_re = re.compile(r'^(?P<number>\d{1,2}(?:\.\d+)+)\b')
-        marks_re = re.compile(r"\((?P<marks>\d+)\s*marks?\)", re.IGNORECASE)
-
-        for block in blocks:
-            block = block.strip()
-            if not block:
-                continue
-            m = num_re.match(block)
-            if not m:
-                continue
-            num = m.group("number")
-            body = block[len(num):].strip()
-            marks_m = marks_re.search(body)
-            questions.append({
-                "number":     num,
-                "question":   body,
-                "marks":      int(marks_m.group("marks")) if marks_m else "",
-                "case_study": ""
-            })
-
+        
+        # 1) Extract the text
+        try:
+            if crop_mode and crop_text:
+                raw_text = crop_text
+            elif uploaded_file:
+                raw_text = extract_text(uploaded_file, uploaded_file.content_type)
+            else:
+                raise ValueError("No file uploaded and no crop text provided.")
+        except Exception as e:
+            errors.append(f"❌ Text extraction failed: {e}")
+        
+        # 2) Only attempt parsing if we have something
+        if raw_text:
+            try:
+                # Patterns
+                num_pat   = re.compile(r"^(\d+(?:\.\d+)*)(?:[.)]\s*)")
+                marks_pat = re.compile(r"\((\d+)\s*marks?\)", re.IGNORECASE)
+                
+                # Split into blocks by blank lines
+                blocks = re.split(r"\r?\n\s*\r?\n", raw_text)
+                current = None
+                case_buf = ""
+                started = False
+                
+                for blk in blocks:
+                    text = blk.strip()
+                    if not text:
+                        continue
+                    
+                    # only start once you hit a 1.1* question
+                    if not started:
+                        if re.match(r"^1\.1(?:\.\d+)*", text):
+                            started = True
+                        else:
+                            continue
+                    
+                    # capture Case Study if embedded
+                    if "Case Study:" in text:
+                        before, after = text.split("Case Study:", 1)
+                        text = before.strip()
+                        case_buf = after.strip()
+                    
+                    mnum = num_pat.match(text)
+                    mmks = marks_pat.search(text)
+                    
+                    if mnum:
+                        # flush previous
+                        if current:
+                            questions.append(current)
+                        current = {
+                            "number":     mnum.group(1),
+                            "question":   text,
+                            "marks":      int(mmks.group(1)) if mmks else "",
+                            "case_study": case_buf
+                        }
+                        case_buf = ""
+                    elif current:
+                        # continuation line
+                        current["question"] += " " + text
+                        # if using marks as delimiter, end here
+                        if use_marks and mmks:
+                            current["marks"] = int(mmks.group(1))
+                            questions.append(current)
+                            current = None
+                
+                # final flush
+                if current:
+                    questions.append(current)
+            
+            except Exception as e:
+                tb = traceback.format_exc().splitlines()[-1]
+                errors.append(f"❌ Parsing error: {e} ({tb})")
+        
+        # 3) Push all errors into Django messages
+        for err in errors:
+            messages.error(request, err)
+    
+    # Render—questions is always a list, raw_text shows full dump
     return render(request, "core/administrator/beta_paper_extractor.html", {
         "questions": questions,
         "raw_text":  raw_text,
