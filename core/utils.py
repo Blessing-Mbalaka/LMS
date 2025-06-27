@@ -32,3 +32,48 @@ def extract_text(file_obj, content_type):
     else:
         # fallback: try decoding
         return file_obj.read().decode("utf-8", errors="ignore")
+
+
+import re
+
+def extract_case_studies(raw_text):
+    """
+    Scan raw_text for every `Case Study:` block, capturing
+    everything until the next question-number marker.
+    Returns a dict: { question_number: case_study_text }
+    """
+    # question numbers look like 1.1 or 1.1.2 etc.
+    qn_rx = re.compile(r"^(\d+(?:\.\d+)+)\b", re.MULTILINE)
+    cs_rx = re.compile(r"Case Study\s*:\s*", re.IGNORECASE)
+
+    lines = raw_text.splitlines()
+    cs_map = {}
+    current_q = None
+    buffer = []
+
+    for line in lines:
+        # new question
+        m_q = qn_rx.match(line.strip())
+        if m_q:
+            # if we were buffering a case‐study, attach it to the *previous* qn
+            if current_q and buffer:
+                cs_map[current_q] = "\n".join(buffer).strip()
+            buffer = []
+            current_q = m_q.group(1)
+            continue
+
+        # case‐study start
+        if cs_rx.search(line):
+            # begin buffering
+            buffer.append(cs_rx.sub("", line).strip())
+            continue
+
+        # if buffering, keep adding until next question
+        if buffer is not None and buffer != []:
+            buffer.append(line.strip())
+
+    # final flush
+    if current_q and buffer:
+        cs_map[current_q] = "\n".join(buffer).strip()
+
+    return cs_map

@@ -1481,104 +1481,84 @@ from .utils import extract_text
 
 import re
 from django.shortcuts import render
-from .utils import extract_text
+from .utils import extract_text, extract_case_studies
+from django.core.files.storage import FileSystemStorage
 
 def beta_paper_extractor(request):
-    # Always start with an empty list
     questions = []
     raw_text  = ""
-    
+    file_url  = None
+
     if request.method == "POST":
-        errors        = []
-        uploaded_file = request.FILES.get("paper")
-        use_marks     = request.POST.get("use_marks") == "on"
-        crop_mode     = request.POST.get("crop_mode") == "on"
-        crop_text     = request.POST.get("cropped_text", "").strip()
-        
-        # 1) Extract the text
-        try:
-            if crop_mode and crop_text:
-                raw_text = crop_text
-            elif uploaded_file:
-                raw_text = extract_text(uploaded_file, uploaded_file.content_type)
-            else:
-                raise ValueError("No file uploaded and no crop text provided.")
-        except Exception as e:
-            errors.append(f"❌ Text extraction failed: {e}")
-        
-        # 2) Only attempt parsing if we have something
-        if raw_text:
-            try:
-                # Patterns
-                num_pat   = re.compile(r"^(\d+(?:\.\d+)*)(?:[.)]\s*)")
-                marks_pat = re.compile(r"\((\d+)\s*marks?\)", re.IGNORECASE)
-                
-                # Split into blocks by blank lines
-                blocks = re.split(r"\r?\n\s*\r?\n", raw_text)
-                current = None
-                case_buf = ""
-                started = False
-                
-                for blk in blocks:
-                    text = blk.strip()
-                    if not text:
-                        continue
-                    
-                    # only start once you hit a 1.1* question
-                    if not started:
-                        if re.match(r"^1\.1(?:\.\d+)*", text):
-                            started = True
-                        else:
-                            continue
-                    
-                    # capture Case Study if embedded
-                    if "Case Study:" in text:
-                        before, after = text.split("Case Study:", 1)
-                        text = before.strip()
-                        case_buf = after.strip()
-                    
-                    mnum = num_pat.match(text)
-                    mmks = marks_pat.search(text)
-                    
-                    if mnum:
-                        # flush previous
-                        if current:
-                            questions.append(current)
-                        current = {
-                            "number":     mnum.group(1),
-                            "question":   text,
-                            "marks":      int(mmks.group(1)) if mmks else "",
-                            "case_study": case_buf
-                        }
-                        case_buf = ""
-                    elif current:
-                        # continuation line
-                        current["question"] += " " + text
-                        # if using marks as delimiter, end here
-                        if use_marks and mmks:
-                            current["marks"] = int(mmks.group(1))
-                            questions.append(current)
-                            current = None
-                
-                # final flush
+        uploaded = request.FILES.get("paper")
+        use_marks = request.POST.get("use_marks") == "on"
+        crop_mode = request.POST.get("crop_mode") == "on"
+        crop_txt  = request.POST.get("cropped_text", "").strip()
+
+        # 1) Save file so we can preview it
+        if uploaded:
+            fs = FileSystemStorage()
+            name = fs.save(uploaded.name, uploaded)
+            file_url = fs.url(name)
+
+        # 2) Get raw text
+        if crop_mode and crop_txt:
+            raw_text = crop_txt
+        elif uploaded:
+            raw_text = extract_text(uploaded, uploaded.content_type)
+        else:
+            raw_text = ""
+
+        # 3) Extract case studies
+        cs_map = extract_case_studies(raw_text)
+
+        # 4) Build questions
+        qn_rx    = re.compile(r"^(?P<num>\d+(?:\.\d+)+)\b")
+        marks_rx = re.compile(r"\((?P<marks>\d+)\s*Marks?\)", re.IGNORECASE)
+        lines    = raw_text.splitlines()
+        current  = None
+
+        for line in lines:
+            txt = line.strip()
+            if not txt:
+                continue
+
+            m_q = qn_rx.match(txt)
+            if m_q:
                 if current:
                     questions.append(current)
-            
-            except Exception as e:
-                tb = traceback.format_exc().splitlines()[-1]
-                errors.append(f"❌ Parsing error: {e} ({tb})")
-        
-        # 3) Push all errors into Django messages
-        for err in errors:
-            messages.error(request, err)
-    
-    # Render—questions is always a list, raw_text shows full dump
+                num     = m_q.group("num")
+                m_m     = marks_rx.search(txt)
+                marks   = int(m_m.group("marks")) if m_m else ""
+                body    = qn_rx.sub("", txt)
+                body    = marks_rx.sub("", body).strip()
+                current = {
+                    "number":     num,
+                    "question":   body,
+                    "marks":      marks,
+                    "case_study": cs_map.get(num, "")
+                }
+                continue
+
+            if current:
+                current["question"] += " " + txt
+                if use_marks and marks_rx.search(txt):
+                    current["marks"] = int(marks_rx.search(txt).group("marks"))
+                    questions.append(current)
+                    current = None
+
+        if current:
+            questions.append(current)
+
     return render(request, "core/administrator/beta_paper_extractor.html", {
         "questions": questions,
         "raw_text":  raw_text,
+        "file_url":  file_url,
         "use_marks": request.POST.get("use_marks") == "on",
         "crop_mode": request.POST.get("crop_mode") == "on",
     })
+
+
 
 
 
