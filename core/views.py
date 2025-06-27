@@ -1470,52 +1470,62 @@ import re
 from django.shortcuts import render
 from .utils import extract_text
 
+import re
+from django.shortcuts import render
+from .utils import extract_text
+
+import re
+from django.shortcuts import render
+from .utils import extract_text
+
+
+import re
+from django.shortcuts import render
+from .utils import extract_text
+
 def beta_paper_extractor(request):
     questions = []
+    raw_text  = ""
 
     if request.method == "POST":
-        file = request.FILES.get("paper")
-        crop_text = request.POST.get("cropped_text")
-        use_marks = request.POST.get("use_marks") == "on"
-        crop_mode = request.POST.get("crop_mode") == "on"
+        uploaded_file = request.FILES.get("paper")
+        use_marks     = request.POST.get("use_marks") == "on"
+        crop_mode     = request.POST.get("crop_mode") == "on"
+        crop_text     = request.POST.get("cropped_text", "").strip()
 
+        # 1) get full text for modal
         if crop_mode and crop_text:
-            text = crop_text
-        else:
-            text = extract_text(file, file.content_type)
+            raw_text = crop_text
+        elif uploaded_file:
+            raw_text = extract_text(uploaded_file, uploaded_file.content_type)
 
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        case_study_buffer = ""
-        current_q = None
+        # 2) split into question blocks
+        blocks = re.split(r'(?m)(?=^\d{1,2}(?:\.\d+)+\b)', raw_text)
+        num_re = re.compile(r'^(?P<number>\d{1,2}(?:\.\d+)+)\b')
+        marks_re = re.compile(r"\((?P<marks>\d+)\s*marks?\)", re.IGNORECASE)
 
-        for line in lines:
-            if line.lower().startswith("case study"):
-                case_study_buffer += line + "\n"
+        for block in blocks:
+            block = block.strip()
+            if not block:
                 continue
-
-            number_match = re.match(r"^(\d{1,2}(?:\.\d{1,2})+)", line)
-            marks_match = re.search(r"\((\d+)\s*marks?\)", line, re.IGNORECASE)
-
-            if number_match:
-                if current_q:
-                    questions.append(current_q)
-                current_q = {
-                    "number": number_match.group(1),
-                    "question": line,
-                    "marks": int(marks_match.group(1)) if marks_match else "",
-                    "case_study": case_study_buffer.strip()
-                }
-                case_study_buffer = ""
-            elif current_q:
-                current_q["question"] += " " + line
-
-        if current_q:
-            questions.append(current_q)
+            m = num_re.match(block)
+            if not m:
+                continue
+            num = m.group("number")
+            body = block[len(num):].strip()
+            marks_m = marks_re.search(body)
+            questions.append({
+                "number":     num,
+                "question":   body,
+                "marks":      int(marks_m.group("marks")) if marks_m else "",
+                "case_study": ""
+            })
 
     return render(request, "core/administrator/beta_paper_extractor.html", {
         "questions": questions,
+        "raw_text":  raw_text,
         "use_marks": request.POST.get("use_marks") == "on",
-        "crop_mode": request.POST.get("crop_mode") == "on"
+        "crop_mode": request.POST.get("crop_mode") == "on",
     })
 
 
@@ -1525,27 +1535,12 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from google import genai
-
-# make sure your Gemini client is initialized somewhere at top:
-# from django.conf import settings
-# genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
 import json, traceback
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
 # …make sure you’ve already got:
-# from google import genai
-# from django.conf import settings
-# genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
-import json, traceback
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-
-# make sure you already have:
 # from google import genai
 # from django.conf import settings
 # genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
