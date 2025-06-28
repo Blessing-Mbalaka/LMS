@@ -11,7 +11,7 @@ from core.views import (
     assessment_archive,
     assessor_reports,
     submit_generated_paper,
-    add_question,
+    add_question, auto_classify_blocks,
     add_case_study,
     add_feedback,
     moderator_developer_dashboard,
@@ -46,6 +46,7 @@ urlpatterns = [
     path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
 
     #paper extraction views still in development
+    path('administrator/auto-classify/', auto_classify_blocks, name='auto_classify_blocks'),
     path("administrator/review-paper/", paper_as_is_view, name="review_paper"),
 
     path("administrator/beta-paper-tables/", beta_paper_tables_view, name="beta_paper_tables"),
