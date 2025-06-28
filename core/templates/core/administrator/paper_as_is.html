@@ -2,15 +2,16 @@
 {% load static %}
 
 {% block content %}
-<h2>Review Paper "As-Is"</h2>
-<form method="post" enctype="multipart/form-data" class="mb-4">
+<div class="container mt-5">
+  <h2>Review Paper "As-Is"</h2>
+  <form method="post" enctype="multipart/form-data" class="mb-4">
     {% csrf_token %}
     <input type="file" name="paper" class="form-control mb-3" accept=".docx">
     <button type="submit" class="btn btn-primary">Upload & Preview</button>
-</form>
+  </form>
 
-{% if blocks %}
-  <form method="post" enctype="multipart/form-data" id="blocks-form">
+  {% if blocks %}
+  <form method="post" id="blocks-form">
     {% csrf_token %}
     <div class="d-flex justify-content-between mb-3">
       <button type="button" id="ai-classify-btn" class="btn btn-info">Auto-Classify with AI</button>
@@ -19,25 +20,28 @@
 
     <div class="mt-4">
       {% for block in blocks %}
-        <div class="block mb-5 p-3 border rounded position-relative" data-index="{{ forloop.counter }}">
-          <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 delete-block-btn">Delete Block</button>
+        <div class="block mb-4 p-3 border rounded position-relative" data-index="{{ forloop.counter }}">
+          <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 delete-block-btn">×</button>
+          <input type="hidden" name="delete_{{ forloop.counter }}" class="delete-flag" value="0">
           <div class="mb-2 d-flex align-items-center">
             <label class="me-2 fw-bold">Type:</label>
             <select name="type_{{ forloop.counter }}" class="form-select w-auto">
-              <option value="question_header" {% if block.type == "question_header" %}selected{% endif %}>Question Header</option>
-              <option value="case_study" {% if block.type == "case_study" %}selected{% endif %}>Case Study</option>
-              <option value="paragraph" {% if block.type == "paragraph" %}selected{% endif %}>Paragraph</option>
-              <option value="table" {% if block.type == "table" %}selected{% endif %}>Table</option>
-              <option value="instruction" {% if block.type == "instruction" %}selected{% endif %}>Instruction</option>
-              <option value="rubric" {% if block.type == "rubric" %}selected{% endif %}>Rubric</option>
-              <option value="diagram" {% if block.type == "diagram" %}selected{% endif %}>Diagram</option>
-              <option value="figure" {% if block.type == "figure" %}selected{% endif %}>Figure</option>
+              <option value="question_header" {% if block.type == 'question_header' %}selected{% endif %}>Question Header</option>
+              <option value="case_study" {% if block.type == 'case_study' %}selected{% endif %}>Case Study</option>
+              <option value="paragraph" {% if block.type == 'paragraph' %}selected{% endif %}>Paragraph</option>
+              <option value="table" {% if block.type == 'table' %}selected{% endif %}>Table</option>
+              <option value="instruction" {% if block.type == 'instruction' %}selected{% endif %}>Instruction</option>
+              <option value="rubric" {% if block.type == 'rubric' %}selected{% endif %}>Rubric</option>
+              <option value="diagram" {% if block.type == 'diagram' %}selected{% endif %}>Diagram</option>
+              <option value="figure" {% if block.type == 'figure' %}selected{% endif %}>Figure</option>
             </select>
           </div>
 
-          {% if block.type != "table" %}
-            <textarea name="text_{{ forloop.counter }}" class="form-control" rows="3">{{ block.text }}</textarea>
-          {% else %}
+          {% if block.type == 'figure' %}
+            <div class="text-center mb-3">
+              <img src="{{ block.data_uri }}" class="img-fluid" alt="Figure">
+            </div>
+          {% elif block.type == 'table' %}
             <div class="table-responsive mb-2">
               <table class="table table-bordered editable-table" data-index="{{ forloop.counter }}">
                 {% for row in block.rows %}
@@ -62,101 +66,113 @@
             </div>
             <input type="hidden" name="rows_{{ forloop.counter }}" class="row-count" value="{{ block.rows|length }}">
             <input type="hidden" name="cols_{{ forloop.counter }}" class="col-count" value="{{ block.rows.0|length }}">
+          {% else %}
+            <textarea name="text_{{ forloop.counter }}" class="form-control" rows="3">{{ block.text }}</textarea>
           {% endif %}
-          <input type="hidden" name="delete_{{ forloop.counter }}" class="delete-flag" value="0">
         </div>
       {% endfor %}
     </div>
   </form>
+</div>
 
-  <script>
-    // Auto-classify
-    document.getElementById('ai-classify-btn').addEventListener('click', async () => {
-      const blocks = Array.from(document.querySelectorAll('textarea[name^="text_"]')).map(el => el.value);
-      const response = await fetch("{% url 'auto_classify_blocks' %}", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-        body: JSON.stringify({blocks})
+<script>
+// AI classify handler
+document.getElementById('ai-classify-btn').addEventListener('click', async () => {
+  const blocks = [];
+  document.querySelectorAll('.block').forEach(div => {
+    const idx = div.dataset.index;
+    const type = div.querySelector(`select[name='type_${idx}']`).value;
+
+    if (type === 'figure') {
+      blocks.push({ type, data_uri: div.querySelector(`input[name='data_uri_${idx}']`).value });
+    } else if (type === 'table') {
+      const rows = [];
+      div.querySelectorAll('table tr').forEach(tr => {
+        rows.push(Array.from(tr.cells).map(td => td.querySelector('input').value));
       });
-      if (!response.ok) return;
-      const data = await response.json();
-      data.types.forEach((type, i) => {
-        const sel = document.querySelector(`select[name="type_${i+1}"]`);
-        if (sel) sel.value = type;
-      });
-    });
+      blocks.push({ type, rows });
+    } else {
+      blocks.push({ type, text: div.querySelector(`textarea[name='text_${idx}']`).value });
+    }
+  });
 
-    // Delete-block
-    document.querySelectorAll('.delete-block-btn').forEach(btn => btn.addEventListener('click', () => {
-      const blockDiv = btn.closest('.block');
-      const index = blockDiv.dataset.index;
-      blockDiv.querySelector(`.delete-flag[name="delete_${index}"]`).value = '1';
-      blockDiv.style.display = 'none';
-    }));
+  const resp = await fetch("{% url 'auto_classify_blocks' %}", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+    body: JSON.stringify({ blocks })
+  });
+  if (!resp.ok) return;
+  const { types } = await resp.json();
+  types.forEach((t, i) => {
+    document.querySelector(`select[name='type_${i+1}']`).value = t;
+  });
+});
 
-    // Add Row
-    document.querySelectorAll('.add-row-btn').forEach(btn => btn.addEventListener('click', () => {
-      const idx = btn.dataset.index;
-      const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
-      const rowCountInput = document.querySelector(`input.row-count[name="rows_${idx}"]`);
-      let rows = parseInt(rowCountInput.value);
-      const cols = parseInt(document.querySelector(`input.col-count[name="cols_${idx}"]`).value);
-      const newRow = document.createElement('tr');
-      for (let c = 1; c <= cols; c++) {
-        const td = document.createElement('td');
-        const inp = document.createElement('input'); inp.type = 'text'; inp.name = `cell_${idx}_${rows+1}_${c}`;
-        inp.className = 'form-control form-control-sm'; td.appendChild(inp);
-        newRow.appendChild(td);
-      }
-      table.appendChild(newRow);
-      rowCountInput.value = rows + 1;
-    }));
+// Delete block handler
+document.querySelectorAll('.delete-block-btn').forEach(btn => btn.addEventListener('click', () => {
+  const div = btn.closest('.block');
+  div.querySelector(`input[name='delete_${div.dataset.index}']`).value = '1';
+  div.classList.add('d-none');
+}));
 
-    // Remove Row
-    document.querySelectorAll('.remove-row-btn').forEach(btn => btn.addEventListener('click', () => {
-      const idx = btn.dataset.index;
-      const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
-      const rowCountInput = document.querySelector(`input.row-count[name="rows_${idx}"]`);
-      let rows = parseInt(rowCountInput.value);
-      if (rows > 1) {
-        table.deleteRow(rows - 1);
-        rowCountInput.value = rows - 1;
-      }
-    }));
+// Table edit controls
+// Add/Remove Row
+document.querySelectorAll('.add-row-btn').forEach(btn => btn.addEventListener('click', () => {
+  const idx = btn.dataset.index;
+  const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
+  const rowCountInput = document.querySelector(`input.row-count[name="rows_${idx}"]`);
+  let rows = parseInt(rowCountInput.value, 10);
+  const cols = parseInt(document.querySelector(`input.col-count[name="cols_${idx}"]`).value, 10);
+  const newRow = document.createElement('tr');
+  for (let c = 0; c < cols; c++) {
+    const td = document.createElement('td');
+    const inp = document.createElement('input'); inp.type = 'text'; inp.name = `cell_${idx}_${rows}_${c}`; inp.className = 'form-control form-control-sm'; td.appendChild(inp);
+    newRow.appendChild(td);
+  }
+  table.appendChild(newRow);
+  rowCountInput.value = rows + 1;
+}));
 
-    // Add Column
-    document.querySelectorAll('.add-col-btn').forEach(btn => btn.addEventListener('click', () => {
-      const idx = btn.dataset.index;
-      const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
-      const colCountInput = document.querySelector(`input.col-count[name="cols_${idx}"]`);
-      let cols = parseInt(colCountInput.value);
-      const rows = parseInt(document.querySelector(`input.row-count[name="rows_${idx}"]`).value);
-      table.querySelectorAll('tr').forEach((tr, rIndex) => {
-        const td = document.createElement('td');
-        const inp = document.createElement('input'); inp.type = 'text'; inp.name = `cell_${idx}_${rIndex+1}_${cols+1}`;
-        inp.className = 'form-control form-control-sm'; td.appendChild(inp);
-        tr.appendChild(td);
-      });
-      colCountInput.value = cols + 1;
-    }));
+document.querySelectorAll('.remove-row-btn').forEach(btn => btn.addEventListener('click', () => {
+  const idx = btn.dataset.index;
+  const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
+  const rowCountInput = document.querySelector(`input.row-count[name="rows_${idx}"]`);
+  let rows = parseInt(rowCountInput.value, 10);
+  if (rows > 1) {
+    table.deleteRow(rows - 1);
+    rowCountInput.value = rows - 1;
+  }
+}));
 
-    // Remove Column
-    document.querySelectorAll('.remove-col-btn').forEach(btn => btn.addEventListener('click', () => {
-      const idx = btn.dataset.index;
-      const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
-      const colCountInput = document.querySelector(`input.col-count[name="cols_${idx}"]`);
-      let cols = parseInt(colCountInput.value);
-      if (cols > 1) {
-        table.querySelectorAll('tr').forEach(tr => tr.deleteCell(cols - 1));
-        colCountInput.value = cols - 1;
-      }
-    }));
-  </script>
+// Add/Remove Column
+document.querySelectorAll('.add-col-btn').forEach(btn => btn.addEventListener('click', () => {
+  const idx = btn.dataset.index;
+  const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
+  const colCountInput = document.querySelector(`input.col-count[name="cols_${idx}"]`);
+  let cols = parseInt(colCountInput.value, 10);
+  table.querySelectorAll('tr').forEach((tr, rIndex) => {
+    const td = document.createElement('td');
+    const inp = document.createElement('input'); inp.type = 'text'; inp.name = `cell_${idx}_${rIndex}_${cols}`; inp.className = 'form-control form-control-sm'; td.appendChild(inp);
+    tr.appendChild(td);
+  });
+  colCountInput.value = cols + 1;
+}));
 
-  <style>
-    .editable-table input { border: none; background: transparent; width: 100%; padding: 0.25rem; }
-    .editable-table input:focus { background: #fff3cd; outline: 1px solid #ffc107; }
-    .block.deleted { display: none; }
-  </style>
+document.querySelectorAll('.remove-col-btn').forEach(btn => btn.addEventListener('click', () => {
+  const idx = btn.dataset.index;
+  const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
+  const colCountInput = document.querySelector(`input.col-count[name="cols_${idx}"]`);
+  let cols = parseInt(colCountInput.value, 10);
+  if (cols > 1) {
+    table.querySelectorAll('tr').forEach(tr => tr.deleteCell(cols - 1));
+    colCountInput.value = cols - 1;
+  }
+}));
+</script>
+
+<style>
+  .editable-table input { background: transparent; border: none; width: 100%; padding: .25rem; }
+  .editable-table input:focus { background: #fff3cd; outline: 1px solid #ffc107; }
+</style>
 {% endif %}
 {% endblock %}

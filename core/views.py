@@ -25,7 +25,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 from .question_bank import QUESTION_BANK
-from .utils import extract_text, extract_all_tables, extract_questions_with_metadata
+from .utils import auto_classify_blocks, extract_text, extract_all_tables, extract_questions_with_metadata 
 from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy, Feedback, AssessmentCentre, ExamAnswer
 from django.views.decorators.http import require_http_methods
 from collections import defaultdict
@@ -1641,38 +1641,4 @@ def paper_as_is_view(request):
     return render(request, "core/administrator/paper_as_is.html", {"blocks": blocks})
 
 
-# core/views.py
-import json
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 
-@require_POST
-@csrf_exempt
-# Auto-classify each text block using Gemini API, treating all content before the first '1.1' as instructions.
-def auto_classify_blocks(request):
-    try:
-        payload = json.loads(request.body)
-        blocks  = payload.get("blocks", [])
-        # AI prompt:
-        system_prompt = (
-            "You are given a list of text blocks from an exam paper, in their original order. "
-            "Any blocks occurring before the first block that starts with '1.1' (case-insensitive) are paper metadata or instructions, so classify all of those as 'instruction'. "
-            "After the first '1.1', classify each block as exactly one of: question_header, case_study, paragraph, table, instruction, rubric, diagram, figure. "
-            "Return ONLY valid JSON: {\"types\": [\"...\", ...]}, where the list length matches the number of blocks."
-        )
-        # Call Gemini
-        resp = genai_client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=[system_prompt, json.dumps(blocks)]
-        )
-        raw  = (resp.text or "").strip()
-        data = json.loads(raw)
-        types = data.get("types")
-        # Validate length
-        if not isinstance(types, list) or len(types) != len(blocks):
-            raise ValueError("Invalid classification length")
-    except Exception:
-        # Fallback: everything as paragraph
-        types = ["paragraph"] * len(blocks)
-    return JsonResponse({"types": types})

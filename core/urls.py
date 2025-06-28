@@ -46,7 +46,8 @@ urlpatterns = [
     path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
 
     #paper extraction views still in development
-    path('administrator/auto-classify/', auto_classify_blocks, name='auto_classify_blocks'),
+    path('administrator/auto-classify-blocks/', auto_classify_blocks, name='auto_classify_blocks'),
+    #path('administrator/auto-classify/', auto_classify_blocks, name='auto_classify_blocks'),
     path("administrator/review-paper/", paper_as_is_view, name="review_paper"),
 
     path("administrator/beta-paper-tables/", beta_paper_tables_view, name="beta_paper_tables"),
