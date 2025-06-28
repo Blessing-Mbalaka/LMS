@@ -271,3 +271,12 @@ class ExamAnswer(models.Model):
 
     def __str__(self):
         return f"Answer by {self.user} for {self.question} (Attempt {self.attempt_number})"
+
+class ExtractedQuestion(models.Model):
+    number = models.CharField(max_length=20)  # e.g. 1.1.1
+    instruction = models.TextField(blank=True)
+    question_text = models.TextField()
+    case_study = models.TextField(blank=True)
+    marks = models.CharField(max_length=10, blank=True)
+    table_data = models.JSONField(null=True, blank=True)
+    source_paper = models.ForeignKey('Assessment', on_delete=models.SET_NULL, null=True)

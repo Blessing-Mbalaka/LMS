@@ -25,7 +25,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 from .question_bank import QUESTION_BANK
-from .utils import extract_text
+from .utils import extract_text, extract_all_tables, extract_questions_with_metadata
 from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy, Feedback, AssessmentCentre, ExamAnswer
 from django.views.decorators.http import require_http_methods
 from collections import defaultdict
@@ -37,6 +37,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 import random, string
 from django.contrib.auth.decorators import login_required
 from .models import Qualification, CustomUser
+
+
 from .forms import CustomUserForm
 from django.contrib import admin
 from django.conf import settings
@@ -58,18 +60,7 @@ from django.contrib.auth import get_user_model
 # Initialize AI client
 genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-#Custom User
-@admin.register(CustomUser)
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
-    list_display = ['email', 'first_name', 'last_name', 'role', 'is_active']
-    ordering = ['-created_at']
-    search_fields = ['email', 'first_name', 'last_name']
-    fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('role', 'qualification', 'activated_at', 'deactivated_at')}),
-    )
 
-admin.site.register(Qualification)
 
 # core/views.py
 
@@ -1483,85 +1474,45 @@ import re
 from django.shortcuts import render
 from .utils import extract_text, extract_case_studies
 from django.core.files.storage import FileSystemStorage
+from .utils import extract_text, extract_case_studies, extract_questions_with_metadata
+
+from core.utils import extract_text, extract_all_tables, extract_questions_with_metadata
 
 def beta_paper_extractor(request):
-    questions = []
-    raw_text  = ""
-    file_url  = None
+    questions    = {}
+    raw_text     = ""
+    file_url     = None
+    match_tables = []
+    mcq_tables   = []
 
     if request.method == "POST":
         uploaded = request.FILES.get("paper")
-        use_marks = request.POST.get("use_marks") == "on"
-        crop_mode = request.POST.get("crop_mode") == "on"
-        crop_txt  = request.POST.get("cropped_text", "").strip()
-
-        # 1) Save file so we can preview it
-        if uploaded:
-            fs = FileSystemStorage()
+        if uploaded and uploaded.name.lower().endswith(".docx"):
+            # save file (if you still need file_url)
+            fs   = FileSystemStorage()
             name = fs.save(uploaded.name, uploaded)
             file_url = fs.url(name)
 
-        # 2) Get raw text
-        if crop_mode and crop_txt:
-            raw_text = crop_txt
-        elif uploaded:
+            # plain text (you can keep this or drop it)
             raw_text = extract_text(uploaded, uploaded.content_type)
-        else:
-            raw_text = ""
 
-        # 3) Extract case studies
-        cs_map = extract_case_studies(raw_text)
+            # if you still want the separate match/MCQ tables:
+            uploaded.seek(0)
+            table_data   = extract_all_tables(uploaded)
+            match_tables = table_data.get("match_tables", [])
+            mcq_tables   = table_data.get("mcq_tables", [])
 
-        # 4) Build questions
-        qn_rx    = re.compile(r"^(?P<num>\d+(?:\.\d+)+)\b")
-        marks_rx = re.compile(r"\((?P<marks>\d+)\s*Marks?\)", re.IGNORECASE)
-        lines    = raw_text.splitlines()
-        current  = None
-
-        for line in lines:
-            txt = line.strip()
-            if not txt:
-                continue
-
-            m_q = qn_rx.match(txt)
-            if m_q:
-                if current:
-                    questions.append(current)
-                num     = m_q.group("num")
-                m_m     = marks_rx.search(txt)
-                marks   = int(m_m.group("marks")) if m_m else ""
-                body    = qn_rx.sub("", txt)
-                body    = marks_rx.sub("", body).strip()
-                current = {
-                    "number":     num,
-                    "question":   body,
-                    "marks":      marks,
-                    "case_study": cs_map.get(num, "")
-                }
-                continue
-
-            if current:
-                current["question"] += " " + txt
-                if use_marks and marks_rx.search(txt):
-                    current["marks"] = int(marks_rx.search(txt).group("marks"))
-                    questions.append(current)
-                    current = None
-
-        if current:
-            questions.append(current)
+            # **NEW** structured extraction:
+            uploaded.seek(0)
+            questions = extract_questions_with_metadata(uploaded)
 
     return render(request, "core/administrator/beta_paper_extractor.html", {
-        "questions": questions,
-        "raw_text":  raw_text,
-        "file_url":  file_url,
-        "use_marks": request.POST.get("use_marks") == "on",
-        "crop_mode": request.POST.get("crop_mode") == "on",
+        "raw_text":     raw_text,
+        "file_url":     file_url,
+        "match_tables": match_tables,
+        "mcq_tables":   mcq_tables,
+        "questions":    questions,      # now a dict keyed by question number
     })
-
-
-
-
-
 import json, traceback
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -1654,13 +1605,40 @@ def save_extracted_questions(request):
         # Bulk save
         QuestionBankEntry.objects.bulk_create(questions_to_save)
         messages.success(request, f"{len(questions_to_save)} questions saved successfully.")
-        return redirect('beta_paper_extractor')  # replace with your actual view name
+        return redirect('beta_paper')  # replace with your actual view name
 
-    return redirect('beta_paper_extractor')
-
-
+    return redirect('beta_paper')
 
 
+
+
+
+
+
+
+
+
+from django.shortcuts import render
+from .utils import extract_all_tables
+
+def beta_paper_tables_view(request):
+    tables = {}
+    if request.method == "POST":
+        uploaded = request.FILES.get("paper")
+        if uploaded and uploaded.name.endswith(".docx"):
+            tables = extract_all_tables(uploaded)
+    return render(request, "core/administrator/extracted_tables.html", {"tables": tables})
+
+from django.shortcuts import render
+from .utils import extract_full_docx_structure
+
+def paper_as_is_view(request):
+    blocks = []
+    if request.method == "POST":
+        uploaded = request.FILES.get("paper")
+        if uploaded and uploaded.name.endswith(".docx"):
+            blocks = extract_full_docx_structure(uploaded)
+    return render(request, "core/administrator/paper_as_is.html", {"blocks": blocks})
 
 
 

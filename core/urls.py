@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.urls import path, include
 from core.views import (
     generate_tool_page,
-    generate_tool, save_extracted_questions,
+    generate_tool, save_extracted_questions, beta_paper_tables_view,
     assessor_dashboard,
     view_assessment,
     upload_assessment,
@@ -15,7 +15,7 @@ from core.views import (
     add_case_study,
     add_feedback,
     moderator_developer_dashboard,
-    moderate_assessment,
+    moderate_assessment, paper_as_is_view,
     checklist_stats,
     toggle_checklist_item, qcto_dashboard, qcto_moderate_assessment, qcto_compliance,qcto_assessment_review,
     qcto_archive,
@@ -46,6 +46,9 @@ urlpatterns = [
     path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
 
     #paper extraction views still in development
+    path("administrator/review-paper/", paper_as_is_view, name="review_paper"),
+
+    path("administrator/beta-paper-tables/", beta_paper_tables_view, name="beta_paper_tables"),
     path('administrator/beta-paper/', beta_paper_extractor, name='beta_paper'),
      path("api/clean-questions/", clean_questions, name="clean_questions"),
     path('administrator/save-extracted/', save_extracted_questions, name='save_extracted_questions'),
