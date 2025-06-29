@@ -1640,5 +1640,76 @@ def paper_as_is_view(request):
             blocks = extract_full_docx_structure(uploaded)
     return render(request, "core/administrator/paper_as_is.html", {"blocks": blocks})
 
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from google import genai
+
+# Initialize your gemini client (ensure you've set up api key)
+# from google import genai_client
+# genai_client = genai.GeminiClient()
+
+@require_POST
+@csrf_exempt
+def auto_fix_blocks(request):
+    """
+    Accepts JSON {blocks: [...]}. Returns JSON {fixes: [...]} with suggested corrections
+    for 'mark', 'type', 'text' or 'rows' fields in each block.
+    """
+    try:
+        payload = json.loads(request.body)
+        blocks = payload.get('blocks', [])
+        system_prompt = (
+            "You are an exam formatting assistant. Each block has fields 'type', 'text', 'mark', and optionally 'rows'.\n"
+            "Analyze each block and correct any misplaced marks, refine the type if needed, adjust text formatting, and ensure tables ('rows') stay intact.\n"
+            "Respond with JSON {'fixes': [...]} where each entry matches the input blocks and may include updated 'mark', 'type', 'text', and 'rows'."
+        )
+        # Call Gemini
+        resp = genai_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=[system_prompt, json.dumps(blocks)]
+        )
+        data = json.loads((resp.text or '').strip())
+        fixes = data.get('fixes', [])
+        if not isinstance(fixes, list) or len(fixes) != len(blocks):
+            raise ValueError("Invalid fixes format")
+    except Exception:
+        # Fallback: echo original fields
+        fixes = []
+        for blk in blocks:
+            fixes.append({
+                'mark': blk.get('mark', ''),
+                'type': blk.get('type', ''),
+                'text': blk.get('text', ''),
+                'rows': blk.get('rows', []),
+            })
+    return JsonResponse({'fixes': fixes})
+
+@require_POST
+@csrf_exempt
+def auto_place_marks(request):
+    """
+    Accepts JSON {blocks: [...]}. Extracts marks from text if present
+    and returns JSON {marks: [...]} aligned by index.
+    """
+    try:
+        payload = json.loads(request.body)
+        blocks = payload.get('blocks', [])
+        system_prompt = (
+            "You are an exam parsing assistant. Each block may contain a marks notation like '(5 marks)' or 'x 10'.\n"
+            "Extract the correct mark value for each block and return JSON {'marks': [...]} aligned to input indices."
+        )
+        resp = genai_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=[system_prompt, json.dumps(blocks)]
+        )
+        data = json.loads((resp.text or '').strip())
+        marks = data.get('marks', [])
+        if not isinstance(marks, list) or len(marks) != len(blocks):
+            raise ValueError("Invalid marks format")
+    except Exception:
+        marks = [blk.get('mark', '') for blk in blocks]
+    return JsonResponse({'marks': marks})
 
 

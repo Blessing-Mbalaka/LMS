@@ -42,6 +42,7 @@
               <img src="{{ block.data_uri }}" class="img-fluid" alt="Figure">
             </div>
           {% elif block.type == 'table' %}
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-2 toggle-table-controls" data-index="{{ forloop.counter }}">Edit Table</button>
             <div class="table-responsive mb-2">
               <table class="table table-bordered editable-table" data-index="{{ forloop.counter }}">
                 {% for row in block.rows %}
@@ -58,7 +59,7 @@
                 {% endfor %}
               </table>
             </div>
-            <div class="mb-3">
+            <div class="table-controls mb-3" data-index="{{ forloop.counter }}" style="display: none;">
               <button type="button" class="btn btn-sm btn-secondary add-row-btn" data-index="{{ forloop.counter }}">Add Row</button>
               <button type="button" class="btn btn-sm btn-secondary remove-row-btn" data-index="{{ forloop.counter }}">Remove Row</button>
               <button type="button" class="btn btn-sm btn-secondary add-col-btn" data-index="{{ forloop.counter }}">Add Column</button>
@@ -76,98 +77,121 @@
 </div>
 
 <script>
-// AI classify handler
-document.getElementById('ai-classify-btn').addEventListener('click', async () => {
-  const blocks = [];
-  document.querySelectorAll('.block').forEach(div => {
-    const idx = div.dataset.index;
-    const type = div.querySelector(`select[name='type_${idx}']`).value;
+document.addEventListener('DOMContentLoaded', () => {
+  // AI classify handler
+  document.getElementById('ai-classify-btn').addEventListener('click', async () => {
+    const blocks = Array.from(document.querySelectorAll('.block')).map(div => {
+      const idx = div.dataset.index;
+      const type = div.querySelector(`select[name='type_${idx}']`).value;
+      if (type === 'figure') {
+        return { type, data_uri: div.querySelector(`input[name='data_uri_${idx}']`).value };
+      }
+      if (type === 'table') {
+        const rows = [];
+        div.querySelectorAll('table tr').forEach(tr =>
+          rows.push(Array.from(tr.cells).map(td => td.querySelector('input').value))
+        );
+        return { type, rows };
+      }
+      return { type, text: div.querySelector(`textarea[name='text_${idx}']`).value };
+    });
 
-    if (type === 'figure') {
-      blocks.push({ type, data_uri: div.querySelector(`input[name='data_uri_${idx}']`).value });
-    } else if (type === 'table') {
-      const rows = [];
-      div.querySelectorAll('table tr').forEach(tr => {
-        rows.push(Array.from(tr.cells).map(td => td.querySelector('input').value));
+    const resp = await fetch("{% url 'auto_classify_blocks' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ blocks })
+    });
+    if (!resp.ok) return;
+    const { types } = await resp.json();
+    types.forEach((t, i) => {
+      document.querySelector(`select[name='type_${i+1}']`).value = t;
+    });
+  });
+
+  // Delete block handler
+  document.querySelectorAll('.delete-block-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const block = btn.closest('.block');
+      block.querySelector(`input[name='delete_${block.dataset.index}']`).value = '1';
+      block.style.display = 'none';
+    })
+  );
+
+  // Toggle table controls (Add/Remove Row/Col)
+  document.querySelectorAll('.toggle-table-controls').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const idx = btn.dataset.index;
+      const panel = document.querySelector(`.table-controls[data-index="${idx}"]`);
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    })
+  );
+
+  // Add Row
+  document.querySelectorAll('.add-row-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const idx = btn.dataset.index;
+      const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
+      const rowCountInput = document.querySelector(`input.row-count[name="rows_${idx}"]`);
+      let rows = parseInt(rowCountInput.value, 10);
+      const cols = parseInt(document.querySelector(`input.col-count[name="cols_${idx}"]`).value, 10);
+      const newRow = document.createElement('tr');
+      for (let c = 0; c < cols; c++) {
+        const td = document.createElement('td');
+        td.innerHTML = `<input type="text" name="cell_${idx}_${rows}_${c}" class="form-control form-control-sm">`;
+        newRow.appendChild(td);
+      }
+      table.appendChild(newRow);
+      rowCountInput.value = rows + 1;
+    })
+  );
+
+  // Remove Row
+  document.querySelectorAll('.remove-row-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const idx = btn.dataset.index;
+      const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
+      const rowCountInput = document.querySelector(`input.row-count[name="rows_${idx}"]`);
+      let rows = parseInt(rowCountInput.value, 10);
+      if (rows > 1) {
+        table.deleteRow(rows - 1);
+        rowCountInput.value = rows - 1;
+      }
+    })
+  );
+
+  // Add Column
+  document.querySelectorAll('.add-col-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const idx = btn.dataset.index;
+      const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
+      const colCountInput = document.querySelector(`input.col-count[name="cols_${idx}"]`);
+      let cols = parseInt(colCountInput.value, 10);
+      table.querySelectorAll('tr').forEach((tr, rowIndex) => {
+        const td = document.createElement('td');
+        td.innerHTML = `<input type="text" name="cell_${idx}_${rowIndex}_${cols}" class="form-control form-control-sm">`;
+        tr.appendChild(td);
       });
-      blocks.push({ type, rows });
-    } else {
-      blocks.push({ type, text: div.querySelector(`textarea[name='text_${idx}']`).value });
-    }
-  });
+      colCountInput.value = cols + 1;
+    })
+  );
 
-  const resp = await fetch("{% url 'auto_classify_blocks' %}", {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-    body: JSON.stringify({ blocks })
-  });
-  if (!resp.ok) return;
-  const { types } = await resp.json();
-  types.forEach((t, i) => {
-    document.querySelector(`select[name='type_${i+1}']`).value = t;
-  });
+  // Remove Column
+  document.querySelectorAll('.remove-col-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const idx = btn.dataset.index;
+      const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
+      const colCountInput = document.querySelector(`input.col-count[name="cols_${idx}"]`);
+      let cols = parseInt(colCountInput.value, 10);
+      if (cols > 1) {
+        table.querySelectorAll('tr').forEach(tr => tr.deleteCell(cols - 1));
+        colCountInput.value = cols - 1;
+      }
+    })
+  );
 });
-
-// Delete block handler
-document.querySelectorAll('.delete-block-btn').forEach(btn => btn.addEventListener('click', () => {
-  const div = btn.closest('.block');
-  div.querySelector(`input[name='delete_${div.dataset.index}']`).value = '1';
-  div.classList.add('d-none');
-}));
-
-// Table edit controls
-// Add/Remove Row
-document.querySelectorAll('.add-row-btn').forEach(btn => btn.addEventListener('click', () => {
-  const idx = btn.dataset.index;
-  const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
-  const rowCountInput = document.querySelector(`input.row-count[name="rows_${idx}"]`);
-  let rows = parseInt(rowCountInput.value, 10);
-  const cols = parseInt(document.querySelector(`input.col-count[name="cols_${idx}"]`).value, 10);
-  const newRow = document.createElement('tr');
-  for (let c = 0; c < cols; c++) {
-    const td = document.createElement('td');
-    const inp = document.createElement('input'); inp.type = 'text'; inp.name = `cell_${idx}_${rows}_${c}`; inp.className = 'form-control form-control-sm'; td.appendChild(inp);
-    newRow.appendChild(td);
-  }
-  table.appendChild(newRow);
-  rowCountInput.value = rows + 1;
-}));
-
-document.querySelectorAll('.remove-row-btn').forEach(btn => btn.addEventListener('click', () => {
-  const idx = btn.dataset.index;
-  const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
-  const rowCountInput = document.querySelector(`input.row-count[name="rows_${idx}"]`);
-  let rows = parseInt(rowCountInput.value, 10);
-  if (rows > 1) {
-    table.deleteRow(rows - 1);
-    rowCountInput.value = rows - 1;
-  }
-}));
-
-// Add/Remove Column
-document.querySelectorAll('.add-col-btn').forEach(btn => btn.addEventListener('click', () => {
-  const idx = btn.dataset.index;
-  const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
-  const colCountInput = document.querySelector(`input.col-count[name="cols_${idx}"]`);
-  let cols = parseInt(colCountInput.value, 10);
-  table.querySelectorAll('tr').forEach((tr, rIndex) => {
-    const td = document.createElement('td');
-    const inp = document.createElement('input'); inp.type = 'text'; inp.name = `cell_${idx}_${rIndex}_${cols}`; inp.className = 'form-control form-control-sm'; td.appendChild(inp);
-    tr.appendChild(td);
-  });
-  colCountInput.value = cols + 1;
-}));
-
-document.querySelectorAll('.remove-col-btn').forEach(btn => btn.addEventListener('click', () => {
-  const idx = btn.dataset.index;
-  const table = document.querySelector(`.editable-table[data-index="${idx}"]`);
-  const colCountInput = document.querySelector(`input.col-count[name="cols_${idx}"]`);
-  let cols = parseInt(colCountInput.value, 10);
-  if (cols > 1) {
-    table.querySelectorAll('tr').forEach(tr => tr.deleteCell(cols - 1));
-    colCountInput.value = cols - 1;
-  }
-}));
 </script>
 
 <style>

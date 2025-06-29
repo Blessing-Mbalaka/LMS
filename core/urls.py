@@ -31,7 +31,7 @@ from core.views import (
     update_user_role,
     custom_login, custom_logout,
 edit_assessment_centre,
-delete_assessment_centre,
+delete_assessment_centre, auto_fix_blocks,
 qualification_management_view, register,
 default_page, student_results, beta_paper_extractor, #Beta_paper extractor might delete if it does not work...
 assessment_progress_tracker,
@@ -46,6 +46,7 @@ urlpatterns = [
     path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
 
     #paper extraction views still in development
+    path('administrator/auto-fix-blocks/', auto_fix_blocks, name='auto_fix_blocks'),
     path('administrator/auto-classify-blocks/', auto_classify_blocks, name='auto_classify_blocks'),
     #path('administrator/auto-classify/', auto_classify_blocks, name='auto_classify_blocks'),
     path("administrator/review-paper/", paper_as_is_view, name="review_paper"),
