@@ -1629,16 +1629,44 @@ def beta_paper_tables_view(request):
             tables = extract_all_tables(uploaded)
     return render(request, "core/administrator/extracted_tables.html", {"tables": tables})
 
+# core/views.py
+
 from django.shortcuts import render
-from .utils import extract_full_docx_structure
+from .utils import extract_full_docx_structure  
 
 def paper_as_is_view(request):
     blocks = []
     if request.method == "POST":
         uploaded = request.FILES.get("paper")
         if uploaded and uploaded.name.endswith(".docx"):
+            # 1) extract everything as before
             blocks = extract_full_docx_structure(uploaded)
+
+            # 2) find the first table block
+            first_table_idx = next(
+                (i for i, b in enumerate(blocks) if b["type"] == "table"),
+                None
+            )
+
+            # 3) collapse all immediately-following paragraphs into one
+            if first_table_idx is not None:
+                merged_texts = []
+                i = first_table_idx + 1
+                # keep popping while the next block is a paragraph
+                while i < len(blocks) and blocks[i]["type"] == "paragraph":
+                    merged_texts.append(blocks.pop(i)["text"])
+                if merged_texts:
+                    # insert a single combined paragraph in its place
+                    blocks.insert(i, {
+                        "type": "paragraph",
+                        "text": "\n\n".join(merged_texts),
+                        # if you need original_text for preview, you could join them too
+                        "original_text": "\n\n".join(merged_texts),
+                    })
+
     return render(request, "core/administrator/paper_as_is.html", {"blocks": blocks})
+
+
 
 import json
 from django.http import JsonResponse

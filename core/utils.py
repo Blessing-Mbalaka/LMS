@@ -424,34 +424,64 @@ R_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 @csrf_exempt
 def auto_classify_blocks(request):
     """
-    Classify each block via Gemini into:
-    question_header, case_study, paragraph, table, instruction,
-    rubric, diagram, figure.
-    Returns JSON {"types": [...]} aligned with input blocks.
+    Calls Gemini to classify each block into one of eight types
+    (question_header, case_study, paragraph, table, instruction,
+     rubric, diagram, figure) aligned with input.
     """
     try:
         payload = json.loads(request.body)
         blocks  = payload.get('blocks', [])
 
-        system_prompt = """
-You are a classification assistant. You receive a JSON list of text/image blocks from an exam paper, in order.
-Produce {"types": [...]} matching each block. Valid: question_header, case_study, paragraph, table, instruction, rubric, diagram, figure.
-Rules:
-0. A hyphen-only block (>=5 '-') is 'instruction' boundary.
-1. The FIRST block whose text starts with a pattern like '1.1' marks the start of questions; all preceding blocks are 'instruction'.
-2. Inline image blocks are 'figure'.
-3. Any block beginning with 'Case Study' (case-insensitive) and its following paragraphs until next question/table are 'case_study'.
-4. Question-header lines matching numbering patterns are 'question_header'.
-5. After first question_header, other blocks default to 'paragraph', unless clearly 'instruction', 'rubric', or 'diagram'.
-Output strictly JSON."""
-        resp = genai.models.generate_content(
+        # Pre-classify based on simple patterns
+        types = []
+        for b in blocks:
+            text = (b.get('text') or '').strip()
+            # Question headers like '1.1', '2.3.4', etc.
+            if re.match(r'^\d+(?:\.\d+)+', text):
+                types.append('question_header')
+                continue
+            # Case study markers
+            if text.lower().startswith('case study'):
+                types.append('case_study')
+                continue
+            # Inline images
+            if b.get('data_uri'):
+                types.append('figure')
+                continue
+            # Tables
+            if b.get('rows') is not None:
+                types.append('table')
+                continue
+            # Hyphen separator
+            if re.fullmatch(r'-{5,}', text):
+                types.append('instruction')
+                continue
+            # Fallback placeholder, will refine via AI
+            types.append(None)
+
+        # Build system prompt for remaining unknowns
+        system_prompt = ("""
+You are a classification assistant. For any block where I haven't pre-assigned a type,
+classify it into one of: paragraph, instruction, rubric, diagram.
+Use the context of the content. Do NOT reclassify ones already pre-labeled.
+Output JSON only: {"types": [...]} matching each input block.
+""")
+
+        # Send blocks and partial-types to Gemini
+        resp = genai_client.models.generate_content(
             model='gemini-2.0-flash',
-            contents=[system_prompt, json.dumps(blocks)]
+            contents=[system_prompt, json.dumps({'blocks': blocks, 'partial_types': types})]
         )
-        data = json.loads(resp.text.strip())
-        types = data.get('types')
-        if not isinstance(types, list) or len(types) != len(blocks):
-            raise ValueError
+        data = json.loads((resp.text or '').strip())
+        ai_types = data.get('types', [])
+
+        # Merge: use pre-classified if present, else AI result
+        final_types = []
+        for pre, ai in zip(types, ai_types):
+            final_types.append(pre or ai)
+
     except Exception:
-        types = ['paragraph'] * len(blocks)
-    return JsonResponse({'types': types})
+        # On error, default to paragraph
+        final_types = ['paragraph'] * len(blocks)
+
+    return JsonResponse({'types': final_types})
