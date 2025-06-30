@@ -45,7 +45,12 @@ def extract_case_studies(raw_text):
     Returns a dict: { question_number: case_study_text }
     """
     # question numbers look like 1.1 or 1.1.2 etc.
-    qn_rx = re.compile(r"^(\d+(?:\.\d+)+)\b", re.MULTILINE)
+    qn_rx = re.compile(
+    r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\s*\((\d+)\s*marks?\))?\s*$', 
+    re.IGNORECASE
+)
+
+
     cs_rx = re.compile(r"Case Study\s*:\s*", re.IGNORECASE)
 
     lines = raw_text.splitlines()
@@ -190,7 +195,12 @@ def extract_questions_with_metadata(docx_file):
         return {"error": "Uploaded file is not a valid .docx document."}
 
     # Regex to detect question numbers and marks
-    qn_rx    = re.compile(r'^(\d+(?:\.\d+)+)\b')
+    qn_rx = re.compile(
+    r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\s*\((\d+)\s*marks?\))?\s*$', 
+    re.IGNORECASE
+)
+
+
     marks_rx = re.compile(r'\((\d+)\s*Marks?\)', re.IGNORECASE)
 
     results   = {}
@@ -338,68 +348,141 @@ Output only JSON.
     return JsonResponse({'types': types})
 
 
+import io
+import re
+import base64
+from zipfile import BadZipFile
+from docx import Document
+from docx.text.paragraph import Paragraph
+from docx.table import Table
+
+# Namespace constants for inline drawing
+W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+A_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+
+
 def extract_full_docx_structure(docx_file):
     """
-    Extracts .docx into blocks: question_header, case_study,
-    paragraph, table, figure.
-    Inline images are converted to data-URI figure blocks.
+    Extracts a .docx into structured blocks including question headers, paragraphs, 
+    tables, images, and case studies. Captures “(10 Marks)” either on the same line
+    as the question or as its own paragraph immediately after.
     """
+    # Regex definitions
+    qn_rx = re.compile(
+        r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\(\s*(\d+)\s*marks?\))?\s*$',
+        re.IGNORECASE
+    )
+    marks_only_rx = re.compile(r'^\(?\s*(\d+)\s*marks?\)?$', re.IGNORECASE)
+    cs_rx = re.compile(r'(?i)^Case Study\s*:?')
+
     docx_file.seek(0)
     try:
         doc = Document(io.BytesIO(docx_file.read()))
     except BadZipFile:
         return {'error': 'Invalid .docx'}
 
-    qn_rx = re.compile(r'^(\d+(?:\.\d+)+)\\b')
-    cs_rx = re.compile(r'(?i)^Case Study\\s*:?')
-
     blocks = []
-    in_cs = False
+    current_case_study = None
 
     for el in doc.element.body:
-        # Paragraph with possible inline images
+        # -- Paragraph handling --
         if el.tag.endswith('}p'):
-            # Extract inline images
-            for drawing in el.iter(f'{{{W_NS}}}drawing'):
-                for blip in drawing.iter(f'{{{A_NS}}}blip'):
-                    rid = blip.get(f'{{{R_NS}}}embed')
-                    part = doc.part.related_parts.get(rid)
-                    if part:
-                        b64 = base64.b64encode(part.blob).decode('ascii')
-                        uri = f"data:{part.content_type};base64,{b64}"
-                        blocks.append({'type': 'figure', 'data_uri': uri})
-            # Text content
             para = Paragraph(el, doc)
             text = para.text.strip()
             if not text:
                 continue
-            # Question header
-            if qn_rx.match(text):
-                in_cs = False
-                blocks.append({'type': 'question_header', 'text': text})
+
+            # 1) Standalone marks-only paragraph immediately after a question header
+            m_marksonly = marks_only_rx.match(text)
+            if m_marksonly and blocks and blocks[-1]['type'] == 'question_header':
+                blocks[-1]['marks'] = m_marksonly.group(1)
                 continue
-            # Case study start
+
+            # 2) Inline images
+            has_image = False
+            for drawing in el.iter(f'{{{W_NS}}}drawing'):
+                for blip in drawing.iter(f'{{{A_NS}}}blip'):
+                    rid = blip.get(f'{{{R_NS}}}embed')
+                    if not rid:
+                        continue  # Skip malformed image
+                    part = doc.part.related_parts.get(rid)
+                    if not part:
+                        continue  # Skip broken/missing image
+                    b64 = base64.b64encode(part.blob).decode('ascii')
+                    uri = f"data:{part.content_type};base64,{b64}"
+                    blocks.append({'type': 'figure', 'data_uri': uri})
+                    has_image = True
+                    current_case_study = None
+            if has_image:
+                continue  # Don't process this paragraph as text
+
+            # 3) Question header inline
+            m_q = qn_rx.match(text)
+            if m_q:
+                num, rest, mark = m_q.groups()
+                blocks.append({
+                    'type': 'question_header',
+                    'text': f"{num} {rest}".strip(),
+                    'marks': mark or ""
+                })
+                current_case_study = None
+                continue
+
+            # 4) Case study start
             if cs_rx.match(text):
-                in_cs = True
-                content = cs_rx.sub('', text).strip()
-                blocks.append({'type': 'case_study', 'text': content})
+                current_case_study = {
+                    'type': 'case_study',
+                    'text': cs_rx.sub('', text).strip()
+                }
                 continue
-            # Continue case study
-            if in_cs and blocks and blocks[-1]['type'] == 'case_study':
-                blocks[-1]['text'] += '\n' + text
+
+            # 5) Inside case study
+            if current_case_study:
+                current_case_study['text'] += '\n' + text
                 continue
-            # Regular paragraph
-            in_cs = False
+
+            # 6) Regular paragraph
             blocks.append({'type': 'paragraph', 'text': text})
-        # Table
+
+        # -- Table handling --
         elif el.tag.endswith('}tbl'):
-            in_cs = False
             tbl = Table(el, doc)
-            rows = [[cell.text.strip() for cell in row.cells]
-                    for row in tbl.rows if any(cell.text.strip() for cell in row.cells)]
+            rows = [
+                [cell.text.strip() for cell in row.cells]
+                for row in tbl.rows
+                if any(cell.text.strip() for cell in row.cells)
+            ]
+
+            # A single-cell table that matches a question header? Treat as header.
+            if len(rows) == 1 and len(rows[0]) == 1:
+                cell_text = rows[0][0]
+                m = qn_rx.match(cell_text)
+                if m:
+                    num, rest, mark = m.groups()
+                    blocks.append({
+                        'type': 'question_header',
+                        'text': f"{num} {rest}".strip(),
+                        'marks': mark or ""
+                    })
+                    current_case_study = None
+                    continue
+
+            # Flush any open case study first
+            if current_case_study:
+                blocks.append(current_case_study)
+                current_case_study = None
+
+            # Otherwise treat as a normal table
             if rows:
                 blocks.append({'type': 'table', 'rows': rows})
+
+    # Flush trailing case study
+    if current_case_study:
+        blocks.append(current_case_study)
+
     return blocks
+
 
 
 import io

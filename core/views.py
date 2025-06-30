@@ -1632,39 +1632,49 @@ def beta_paper_tables_view(request):
 # core/views.py
 
 from django.shortcuts import render
-from .utils import extract_full_docx_structure  
+from .utils import extract_full_docx_structure 
+
+
+import re
+
+from django.shortcuts import render
+from .utils import extract_full_docx_structure
+
 
 def paper_as_is_view(request):
+    # 1️⃣ Always extract your blocks
     blocks = []
     if request.method == "POST":
         uploaded = request.FILES.get("paper")
-        if uploaded and uploaded.name.endswith(".docx"):
-            # 1) extract everything as before
+        if uploaded and uploaded.name.lower().endswith(".docx"):
             blocks = extract_full_docx_structure(uploaded)
 
-            # 2) find the first table block
-            first_table_idx = next(
-                (i for i, b in enumerate(blocks) if b["type"] == "table"),
-                None
-            )
+    # 2️⃣ Build the questions list off those same blocks
+    questions = []
+    current_q = None
+    for blk in blocks:
+        if blk["type"] == "question_header":
+            if current_q:
+                questions.append(current_q)
+            num, _, _ = blk["text"].partition(" ")
+            current_q = {
+                "number": num,
+                "header":  blk["text"],
+                "marks":   blk.get("marks",""),
+                "body":    []
+            }
+        else:
+            if current_q:
+                current_q["body"].append(blk)
+    if current_q:
+        questions.append(current_q)
 
-            # 3) collapse all immediately-following paragraphs into one
-            if first_table_idx is not None:
-                merged_texts = []
-                i = first_table_idx + 1
-                # keep popping while the next block is a paragraph
-                while i < len(blocks) and blocks[i]["type"] == "paragraph":
-                    merged_texts.append(blocks.pop(i)["text"])
-                if merged_texts:
-                    # insert a single combined paragraph in its place
-                    blocks.insert(i, {
-                        "type": "paragraph",
-                        "text": "\n\n".join(merged_texts),
-                        # if you need original_text for preview, you could join them too
-                        "original_text": "\n\n".join(merged_texts),
-                    })
+    # 3️⃣ Pass them both to the template
+    return render(request, "core/administrator/paper_as_is.html", {
+        "blocks":    blocks,
+        "questions": questions,
+    })
 
-    return render(request, "core/administrator/paper_as_is.html", {"blocks": blocks})
 
 
 
