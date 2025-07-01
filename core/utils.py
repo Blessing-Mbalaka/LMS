@@ -45,9 +45,13 @@ def extract_case_studies(raw_text):
     Returns a dict: { question_number: case_study_text }
     """
     # question numbers look like 1.1 or 1.1.2 etc.
+    #qn_rx = re.compile(
+    #r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\s*\((\d+)\s*marks?\))?\s*$', 
+    #re.IGNORECASE
+#)
     qn_rx = re.compile(
-    r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\s*\((\d+)\s*marks?\))?\s*$', 
-    re.IGNORECASE
+    r'^\s*(\d+(?:\.\d+)+)\s+(.*?)\s*(?:\(\s*(\d+)\s*marks?\s*\))?\s*$',
+    re.IGNORECASE | re.DOTALL
 )
 
 
@@ -85,26 +89,24 @@ def extract_case_studies(raw_text):
 
     return cs_map
 
-#Table extraction regex logic-This will be used to extract tables and questions,
-#So what is happening? The code uses a regex delimination approach to identify the 
-#XML file components of the word document and use the table fields deliminator to 
+# Table extraction regex logic-This will be used to extract tables and questions,
+# So what is happening? The code uses a regex delimination approach to identify the 
+# XML file components of the word document and use the table fields deliminator to 
 # Identify the fields on the table, and populate the data. 
 
 # *In very simple*  terms: The question and its table should get extracted with this table---
-#This is going to be an option, called the advanced extraction approach to help 
-#structure the data. 
+# This is going to be an option, called the advanced extraction approach to help 
+# structure the data. 
 
-#_____________________________________________________________________________________
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# _____________________________________________________________________________________
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-#These close imports matter please leave them here...
+# These close imports matter please leave them here...
 from docx import Document
 from zipfile import BadZipFile
-
-
 import io
 import re
 from docx import Document
@@ -195,10 +197,15 @@ def extract_questions_with_metadata(docx_file):
         return {"error": "Uploaded file is not a valid .docx document."}
 
     # Regex to detect question numbers and marks
+    #qn_rx = re.compile(
+    #r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\s*\((\d+)\s*marks?\))?\s*$', 
+    #re.IGNORECASE
+#)
+
     qn_rx = re.compile(
-    r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\s*\((\d+)\s*marks?\))?\s*$', 
-    re.IGNORECASE
-)
+        r'^\s*(\d+(?:\.\d+)+)\s+(.*?)\s*(?:\(\s*(\d+)\s*marks?\s*\))?\s*$',
+        re.IGNORECASE | re.DOTALL
+    )
 
 
     marks_rx = re.compile(r'\((\d+)\s*Marks?\)', re.IGNORECASE)
@@ -236,6 +243,8 @@ def extract_questions_with_metadata(docx_file):
                 cs_body = re.sub(r'(?i)^case study\s*:?', '', text).strip()
                 results[current_q]["case_study"] += cs_body + "\n"
                 continue
+
+
 
             # 3️⃣ Any other paragraph
             if current_q:
@@ -292,7 +301,7 @@ def extract_generic_tables(docx_file):
     return generic_tables
 
 
-#This is the latest view which is meant to extract the full paper as is since we have proved we can extract each component individually.
+#This is the latest function which is meant to extract the full paper as is since we have proved we can extract each component individually.
 import io
 import re
 import json
@@ -369,10 +378,15 @@ def extract_full_docx_structure(docx_file):
     as the question or as its own paragraph immediately after.
     """
     # Regex definitions
+    #qn_rx = re.compile(
+        #r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\(\s*(\d+)\s*marks?\))?\s*$',
+        #re.IGNORECASE
+    #)
+
     qn_rx = re.compile(
-        r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\(\s*(\d+)\s*marks?\))?\s*$',
-        re.IGNORECASE
-    )
+    r'^\s*(\d+(?:\.\d+)+)\s+(.*?)\s*(?:\(\s*(\d+)\s*marks?\s*\))?\s*$',
+    re.IGNORECASE | re.DOTALL
+)
     marks_only_rx = re.compile(r'^\(?\s*(\d+)\s*marks?\)?$', re.IGNORECASE)
     cs_rx = re.compile(r'(?i)^Case Study\s*:?')
 
@@ -395,9 +409,15 @@ def extract_full_docx_structure(docx_file):
 
             # 1) Standalone marks-only paragraph immediately after a question header
             m_marksonly = marks_only_rx.match(text)
-            if m_marksonly and blocks and blocks[-1]['type'] == 'question_header':
-                blocks[-1]['marks'] = m_marksonly.group(1)
+            if m_marksonly:
+    # Check if previous block is a question_text or paragraph with no marks
+                for i in reversed(range(len(blocks))):
+                    if blocks[i]['type'] == 'question_header':
+                        if not blocks[i].get('marks'):
+                            blocks[i]['marks'] = m_marksonly.group(1)
+                        break
                 continue
+
 
             # 2) Inline images
             has_image = False
@@ -443,7 +463,7 @@ def extract_full_docx_structure(docx_file):
                 continue
 
             # 6) Regular paragraph
-            blocks.append({'type': 'paragraph', 'text': text})
+            blocks.append({'type': 'question_text', 'text': text})
 
         # -- Table handling --
         elif el.tag.endswith('}tbl'):
@@ -483,7 +503,7 @@ def extract_full_docx_structure(docx_file):
 
     return blocks
 
-
+#***********************************END OF *****************************************************************************************************
 
 import io
 import re

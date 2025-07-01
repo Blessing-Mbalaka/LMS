@@ -280,3 +280,64 @@ class ExtractedQuestion(models.Model):
     marks = models.CharField(max_length=10, blank=True)
     table_data = models.JSONField(null=True, blank=True)
     source_paper = models.ForeignKey('Assessment', on_delete=models.SET_NULL, null=True)
+
+
+#<-------------------------------------------Questions storage Models --------------------------------------------------->
+class Paper(models.Model):(models.Model)
+name = models.CharField(max_length=50)  # e.g. "Paper 1A"
+qualification = models.ForeignKey(Qualification, on_delete=models.CASCADE)
+total_marks = models.IntegerField(default=0)
+
+class QuestionNode(models.Model):
+    number = models.CharField(max_length=10)       # e.g. "1.1"
+paper = models.ForeignKey(Paper, on_delete=models.CASCADE)
+qualification = models.ForeignKey(Qualification, on_delete=models.CASCADE)
+marks = models.IntegerField(default=0)         # total marks for this node
+instruction = models.TextField(blank=True)
+active = models.BooleanField(default=True)     # use in live pools or archive
+
+class QuestionItem(models.Model):
+    node = models.ForeignKey(QuestionNode, on_delete=models.CASCADE, related_name='items')
+    number = models.CharField(max_length=20)       # e.g. "1.1.1"
+    text = models.TextField(blank=True)
+    marks = models.IntegerField(default=0)
+    case_study = models.TextField(blank=True)
+    table_data = models.JSONField(blank=True, null=True)
+    image_data = models.TextField(blank=True, null=True)
+    question_type = models.CharField(
+        max_length=50,
+        choices=[
+            ("constructed", "Constructed Response"),
+            ("extended", "Extended Constructed Response"),
+            ("case_study", "Case Study"),
+            ("mcq", "Multiple Choice"),
+            ("true_false", "True/False"),
+            ("performance", "Performance Task"),
+            ("tech", "Technology Enhanced"),
+            ("mix_match", "Mix and Match")
+        ]
+    )
+    active = models.BooleanField(default=True)
+
+from django.db import models
+
+
+#The pool the randomization will use.
+class QuestionPoolEntry(models.Model):
+    paper_number = models.CharField(max_length=10)  # e.g. "1A"
+    qualification_id = models.CharField(max_length=50)  # e.g. "NQF4"
+
+    question_number = models.CharField(max_length=20)  # e.g. "1.1", "1.1.1"
+    parent_number = models.CharField(max_length=20, blank=True, null=True)  # optional
+
+    question_type = models.CharField(max_length=50)  # e.g. mcq, extended
+    marks = models.PositiveIntegerField(default=0)
+
+    question_text = models.TextField(blank=True)
+    table_data = models.JSONField(blank=True, null=True)
+    image_data_uri = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.paper_number} - Q{self.question_number} ({self.question_type})"

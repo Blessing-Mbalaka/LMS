@@ -1,10 +1,7 @@
-# core/forms.py
 from django import forms
 from django.contrib.auth import get_user_model
-from .models import Qualification
-from .models import AssessmentCentre
-from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
+from .models import Qualification, AssessmentCentre, CustomUser
 
 User = get_user_model()
 
@@ -28,7 +25,6 @@ class AssessmentCentreForm(forms.ModelForm):
         model = AssessmentCentre
         fields = ['name', 'location', 'qualification_assigned']
 
-        from .models import Qualification
 
 class QualificationForm(forms.ModelForm):
     class Meta:
@@ -38,42 +34,34 @@ class QualificationForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'qualification_type': forms.Select(attrs={
                 'class': 'form-control',
-                'id': 'qualificationType'  # 👈 JS will hook onto this
+                'id': 'qualificationType'
             }),
             'saqa_id': forms.TextInput(attrs={
                 'class': 'form-control',
                 'readonly': 'readonly',
-                'id': 'saqaId'  # 👈 JS will update this
+                'id': 'saqaId'
             }),
             'code': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'level': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}),
         }
 
-        
-
-
-#User creation 
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, Qualification
-
 class EmailRegistrationForm(UserCreationForm):
     email = forms.EmailField(label="Email address", required=True)
     first_name = forms.CharField(label="First name", required=True)
     last_name = forms.CharField(label="Last name", required=True)
 
-    class Meta:
+class Meta:
         model = CustomUser
         fields = ("email", "first_name", "last_name",)
 
-    def clean_email(self):
+def clean_email(self):
         email = self.cleaned_data["email"].lower()
         if CustomUser.objects.filter(email=email).exists():
             raise forms.ValidationError("A user with that email already exists.")
         return email
 
-    def save(self, commit=True):
+def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data["email"].lower()
         user.username = user.email
@@ -81,7 +69,6 @@ class EmailRegistrationForm(UserCreationForm):
         user.last_name = self.cleaned_data["last_name"]
         user.set_password(self.cleaned_data["password1"])
 
-        # Don't assign role/qualification here — assign in the view
         if commit:
             user.save()
         return user

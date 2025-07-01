@@ -70,7 +70,7 @@ from django.contrib import messages
 from .forms import EmailRegistrationForm
 from .models import CustomUser
 from django.utils.timezone import now
-def redirect_user_by_role(user):
+def redirect_user_by_role(user ):
     role = user.role
     if role == 'default':
         return redirect ('default')
@@ -1611,13 +1611,6 @@ def save_extracted_questions(request):
 
 
 
-
-
-
-
-
-
-
 from django.shortcuts import render
 from .utils import extract_all_tables
 
@@ -1640,16 +1633,13 @@ import re
 from django.shortcuts import render
 from .utils import extract_full_docx_structure
 
-
 def paper_as_is_view(request):
-    # 1️⃣ Always extract your blocks
     blocks = []
     if request.method == "POST":
         uploaded = request.FILES.get("paper")
         if uploaded and uploaded.name.lower().endswith(".docx"):
             blocks = extract_full_docx_structure(uploaded)
 
-    # 2️⃣ Build the questions list off those same blocks
     questions = []
     current_q = None
     for blk in blocks:
@@ -1658,20 +1648,29 @@ def paper_as_is_view(request):
                 questions.append(current_q)
             num, _, _ = blk["text"].partition(" ")
             current_q = {
-                "number": num,
-                "header":  blk["text"],
-                "marks":   blk.get("marks",""),
-                "body":    []
+                "number": num.strip(),
+                "header": blk["text"].strip(),
+                "marks": blk.get("marks", ""),
+                "body": []
             }
         else:
+            # 🧠 Even figures and tables should be stored under current question
             if current_q:
                 current_q["body"].append(blk)
+            else:
+                # 👇 Optional fallback: create dummy container for orphaned blocks (e.g. figures before Q1)
+                current_q = {
+                    "number": "",
+                    "header": "",
+                    "marks": "",
+                    "body": [blk]
+                }
+
     if current_q:
         questions.append(current_q)
 
-    # 3️⃣ Pass them both to the template
     return render(request, "core/administrator/paper_as_is.html", {
-        "blocks":    blocks,
+        "blocks": blocks,
         "questions": questions,
     })
 
