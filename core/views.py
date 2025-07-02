@@ -1702,6 +1702,10 @@ def save_blocks(request, paper_pk):
     except json.JSONDecodeError:
         messages.error(request, "Malformed data – cannot decode JSON.")
         return redirect("review_paper", paper_pk=paper_pk)
+    
+    for n in nodes:
+        if not n.get("id") or n["id"] == "None":
+            n["id"] = uuid.uuid4().hex
 
     paper = get_object_or_404(Paper, pk=paper_pk)
 
