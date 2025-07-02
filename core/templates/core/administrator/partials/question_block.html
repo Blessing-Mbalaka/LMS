@@ -1,9 +1,12 @@
+{% load uuid_extras %}
+
 {# this file renders a single “block” node #}
 <div class="block mb-4 p-3 border rounded"
-     data-id="{{ q.id|default:uuid }}"
+     data-id="{% if q.id %}{{ q.id }}{% else %}{% generate_uuid %}{% endif %}"
      data-qn="{{ q.number }}"
      data-type="{{ q.type }}"
      data-marks="{{ q.marks|default:'' }}">
+
   {% if q.type == 'figure' %}
     <div class="text-center mb-4">
       <img src="{{ q.data_uri }}" class="img-fluid" alt="Figure">

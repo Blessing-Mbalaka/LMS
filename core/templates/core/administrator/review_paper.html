@@ -78,50 +78,55 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // 1) indent children under parents
   const blocks = Array.from(document.querySelectorAll('.block'));
   const map = {};
   const parents = {};
 
+  // Map question numbers to block elements
   blocks.forEach(b => {
-    if (b.dataset.qn) map[b.dataset.qn] = b;
+    const qn = b.dataset.qn;
+    if (qn) map[qn] = b;
   });
 
+  // Determine parent relationships
   blocks.forEach(b => {
-    if (b.dataset.type !== 'question_header') return;
-    const parts = (b.dataset.qn || '').split('.');
+    if (b.dataset.type !== 'question') return;
+    const qn = b.dataset.qn;
+    if (!qn) return;
+
+    const parts = qn.split('.');
     if (parts.length < 2) return;
 
     const parentKey = parts.slice(0, -1).join('.');
     const parent = map[parentKey];
     if (!parent) return;
 
-    // Store parent relationship
+    // Record parent ID
     parents[b.dataset.id] = parent.dataset.id;
 
+    // Visual indent (optional)
     let wrapper = parent.querySelector('.children');
     if (!wrapper) {
       wrapper = document.createElement('div');
-      wrapper.className = 'children ms-4 mt-3';
+      wrapper.className = 'children ms-4 mt-2';
       parent.appendChild(wrapper);
     }
     wrapper.appendChild(b);
   });
 
-  // 2) serialise on submit
+  // Save structure on form submit
   const form = document.getElementById('blocks-form');
   if (!form) return;
 
   form.addEventListener('submit', () => {
     const out = [];
-
     document.querySelectorAll('.block').forEach(b => {
       out.push({
-        id:         b.dataset.id,
-        number:     b.dataset.qn,
-        type:       b.dataset.type,
-        marks:      b.dataset.marks || "",
-        parent_id:  parents[b.dataset.id] || null
+        id: b.dataset.id,
+        number: b.dataset.qn,
+        type: b.dataset.type,
+        marks: b.dataset.marks || "",
+        parent_id: parents[b.dataset.id] || null
       });
     });
 
@@ -129,5 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+
+
 
 {% endblock %}

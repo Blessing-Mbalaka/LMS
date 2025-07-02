@@ -1615,6 +1615,7 @@ from django.views.decorators.http import require_POST
 from .models           import Qualification, Paper, ExamNode
 from utils             import extract_full_docx_structure
 from add_ids           import ensure_ids
+import uuid
 
 def paper_as_is_view(request, paper_pk=None):
     """
@@ -1691,7 +1692,6 @@ def save_blocks(request, paper_pk):
     print("SAVE BLOCKS TRIGGERED")
     print(request.POST.get("nodes_json", ""))
 
-    """Persist the edits from the JS-serialised form."""
     raw = request.POST.get("nodes_json", "")
     if not raw:
         messages.error(request, "Nothing to save – no data received.")
@@ -1702,17 +1702,24 @@ def save_blocks(request, paper_pk):
     except json.JSONDecodeError:
         messages.error(request, "Malformed data – cannot decode JSON.")
         return redirect("review_paper", paper_pk=paper_pk)
-    
+
+    # Normalize and ensure all node IDs are valid strings
     for n in nodes:
-        if not n.get("id") or n["id"] == "None":
+        if not n.get("id") or n["id"] in ["None", "", None]:
             n["id"] = uuid.uuid4().hex
+        else:
+            n["id"] = str(n["id"]).replace("-", "")[:32]
+
+        # Clean parent_id the same way
+        if n.get("parent_id"):
+            n["parent_id"] = str(n["parent_id"]).replace("-", "")[:32]
 
     paper = get_object_or_404(Paper, pk=paper_pk)
 
     with transaction.atomic():
         id_to_node = {}
 
-        # First: create/update without setting parent yet
+        # First: create/update each node without parent
         for n in nodes:
             node, _ = ExamNode.objects.update_or_create(
                 id=n["id"],
@@ -1721,11 +1728,12 @@ def save_blocks(request, paper_pk):
                     "marks":     n.get("marks", ""),
                     "node_type": n.get("type", ""),
                     "payload":   n,
+                    
                 },
             )
             id_to_node[n["id"]] = node
 
-        # Second: assign parents now that all nodes exist
+        # Second: assign parent-child relationships
         for n in nodes:
             parent_id = n.get("parent_id")
             if parent_id and parent_id in id_to_node:
@@ -1736,6 +1744,7 @@ def save_blocks(request, paper_pk):
 
     messages.success(request, "Manual edits saved.")
     return redirect("review_paper", paper_pk=paper_pk)
+
 
 
 
