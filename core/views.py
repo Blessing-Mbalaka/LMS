@@ -25,7 +25,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, JSONParser
 from google import genai
 from .question_bank import QUESTION_BANK
-from .utils import auto_classify_blocks, extract_text, extract_all_tables, extract_questions_with_metadata 
+
 from .models import Assessment, GeneratedQuestion, QuestionBankEntry, CaseStudy, Feedback, AssessmentCentre, ExamAnswer
 from django.views.decorators.http import require_http_methods
 from collections import defaultdict
@@ -51,7 +51,7 @@ from .models import (
 )
 from .forms import QualificationForm, AssessmentCentreForm, CustomUserForm
 from .question_bank import QUESTION_BANK
-from .utils import extract_text
+from utils import extract_text
 from google import genai
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -1457,26 +1457,9 @@ def write_exam(request, assessment_id):
         'attempt_number': 1  # or fetch from logic if attempts are tracked
     })
 
-import re
-from django.shortcuts import render
-from .utils import extract_text
-
-import re
-from django.shortcuts import render
-from .utils import extract_text
-
-import re
-from django.shortcuts import render
-from .utils import extract_text
 
 
-import re
-from django.shortcuts import render
-from .utils import extract_text, extract_case_studies
-from django.core.files.storage import FileSystemStorage
-from .utils import extract_text, extract_case_studies, extract_questions_with_metadata
-
-from core.utils import extract_text, extract_all_tables, extract_questions_with_metadata
+from utils import extract_text, extract_all_tables, extract_questions_with_metadata
 
 def beta_paper_extractor(request):
     questions    = {}
@@ -1513,15 +1496,7 @@ def beta_paper_extractor(request):
         "mcq_tables":   mcq_tables,
         "questions":    questions,      # now a dict keyed by question number
     })
-import json, traceback
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from google import genai
-import json, traceback
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+
 
 # …make sure you’ve already got:
 # from google import genai
@@ -1612,7 +1587,7 @@ def save_extracted_questions(request):
 
 
 from django.shortcuts import render
-from .utils import extract_all_tables
+from utils import extract_all_tables
 
 def beta_paper_tables_view(request):
     tables = {}
@@ -1624,56 +1599,139 @@ def beta_paper_tables_view(request):
 
 # core/views.py
 
-from django.shortcuts import render
-from .utils import extract_full_docx_structure 
 
 
-import re
 
-from django.shortcuts import render
-from .utils import extract_full_docx_structure
 
-def paper_as_is_view(request):
-    blocks = []
-    if request.method == "POST":
-        uploaded = request.FILES.get("paper")
-        if uploaded and uploaded.name.lower().endswith(".docx"):
-            blocks = extract_full_docx_structure(uploaded)
 
+
+
+
+import json
+from django.shortcuts  import get_object_or_404, render, redirect
+from django.contrib    import messages
+from django.db         import transaction
+from django.views.decorators.http import require_POST
+from .models           import Qualification, Paper, ExamNode
+from utils             import extract_full_docx_structure
+from add_ids           import ensure_ids
+
+def paper_as_is_view(request, paper_pk=None):
+    """
+    • GET  (no pk) → show upload form
+    • POST (no pk) → save .docx, create a Paper, redirect to /…/<paper_pk>/
+    • GET  (with pk) → show the pre-parsed blocks for manual editing
+    """
+    # — POST with file and no paper_pk → create & redirect
+    if request.method == "POST" and request.FILES.get("paper") and paper_pk is None:
+        # form inputs
+        paper_number     = (request.POST.get("paper_number") or "").strip() or "1A"
+        qualification_id = (request.POST.get("qualification_id") or "").strip()
+        qualification = (
+            Qualification.objects.filter(code=qualification_id).first()
+            or Qualification.objects.filter(saqa_id=qualification_id).first()
+        )
+
+        # create the Paper row
+        paper = Paper.objects.create(
+            name          = paper_number,
+            qualification = qualification,
+            total_marks   = 0,
+        )
+
+        # parse the DOCX into a nested dict-list
+        blocks    = extract_full_docx_structure(request.FILES["paper"])
+        questions = _flatten_structure(blocks)
+        ensure_ids(questions)
+
+        # update total_marks
+        paper.total_marks = sum(int(q.get("marks") or 0) for q in _walk(questions))
+        paper.save(update_fields=["total_marks"])
+
+        # stash the blocks in the session so that the GET can pick them up
+        request.session[f"paper_{paper.pk}_questions"] = questions
+
+        return redirect("review_paper", paper_pk=paper.pk)
+
+    # — GET with paper_pk → pull questions from session (or re-parse from file if you saved it)
     questions = []
-    current_q = None
-    for blk in blocks:
-        if blk["type"] == "question_header":
-            if current_q:
-                questions.append(current_q)
-            num, _, _ = blk["text"].partition(" ")
-            current_q = {
-                "number": num.strip(),
-                "header": blk["text"].strip(),
-                "marks": blk.get("marks", ""),
-                "body": []
-            }
-        else:
-            # 🧠 Even figures and tables should be stored under current question
-            if current_q:
-                current_q["body"].append(blk)
-            else:
-                # 👇 Optional fallback: create dummy container for orphaned blocks (e.g. figures before Q1)
-                current_q = {
-                    "number": "",
-                    "header": "",
-                    "marks": "",
-                    "body": [blk]
-                }
+    paper     = None
+    if paper_pk is not None:
+        paper     = get_object_or_404(Paper, pk=paper_pk)
+        questions = request.session.get(f"paper_{paper_pk}_questions", [])
 
-    if current_q:
-        questions.append(current_q)
+    return render(request,
+                  "core/administrator/review_paper.html",
+                  {"questions": questions, "paper": paper})
 
-    return render(request, "core/administrator/paper_as_is.html", {
-        "blocks": blocks,
-        "questions": questions,
-    })
 
+def _flatten_structure(qs):
+    flattened = []
+    for q in qs:
+        flattened.append({
+            "id":       q.get("id"),              # make sure ensure_ids ran
+            "type":     q.get("type", ""),
+            "number":   q.get("number", ""),
+            "marks":    q.get("marks", ""),
+            "text":     q.get("text", ""),
+            "content":  q.get("content", []),
+            "children": _flatten_structure(q.get("children", [])),
+            **({"data_uri": q["data_uri"]} if q.get("type") == "figure" else {}),
+        })
+    return flattened
+
+def _walk(nodes):
+    for n in nodes:
+        yield n
+        yield from _walk(n.get("children", []))
+
+
+@require_POST
+def save_blocks(request, paper_pk):
+    print("SAVE BLOCKS TRIGGERED")
+    print(request.POST.get("nodes_json", ""))
+
+    """Persist the edits from the JS-serialised form."""
+    raw = request.POST.get("nodes_json", "")
+    if not raw:
+        messages.error(request, "Nothing to save – no data received.")
+        return redirect("review_paper", paper_pk=paper_pk)
+
+    try:
+        nodes = json.loads(raw)
+    except json.JSONDecodeError:
+        messages.error(request, "Malformed data – cannot decode JSON.")
+        return redirect("review_paper", paper_pk=paper_pk)
+
+    paper = get_object_or_404(Paper, pk=paper_pk)
+
+    with transaction.atomic():
+        id_to_node = {}
+
+        # First: create/update without setting parent yet
+        for n in nodes:
+            node, _ = ExamNode.objects.update_or_create(
+                id=n["id"],
+                defaults={
+                    "number":    n.get("number", ""),
+                    "marks":     n.get("marks", ""),
+                    "node_type": n.get("type", ""),
+                    "payload":   n,
+                },
+            )
+            id_to_node[n["id"]] = node
+
+        # Second: assign parents now that all nodes exist
+        for n in nodes:
+            parent_id = n.get("parent_id")
+            if parent_id and parent_id in id_to_node:
+                node = id_to_node[n["id"]]
+                parent = id_to_node[parent_id]
+                node.parent = parent
+                node.save(update_fields=["parent"])
+
+    messages.success(request, "Manual edits saved.")
+    return redirect("review_paper", paper_pk=paper_pk)
 
 
 
@@ -1750,3 +1808,28 @@ def auto_place_marks(request):
     return JsonResponse({'marks': marks})
 
 
+
+
+# core/views.py
+import json
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_POST
+
+@require_POST
+def auto_classify_blocks(request, paper_pk):
+    """
+    AJAX helper – receives the current blocks as JSON, runs your AI classifier,
+    returns the enriched blocks back to the browser.
+
+    For now we just echo the payload so the route exists and Django can import it.
+    """
+    try:
+        nodes = json.loads(request.body)
+    except (TypeError, json.JSONDecodeError):
+        return HttpResponseBadRequest("Invalid JSON")
+
+    # ───── TODO: call your ML model here and mutate `nodes` as needed ─────
+    # for n in nodes:
+    #     n["marks"] = my_classifier.predict(n["text"])
+
+    return JsonResponse(nodes, safe=False)

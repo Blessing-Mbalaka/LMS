@@ -1,0 +1,48 @@
+{# this file renders a single “block” node #}
+<div class="block mb-4 p-3 border rounded"
+     data-id="{{ q.id }}"
+     data-qn="{{ q.number }}"
+     data-type="{{ q.type }}"
+     data-marks="{{ q.marks|default:'' }}">
+  {% if q.type == 'figure' %}
+    <div class="text-center mb-4">
+      <img src="{{ q.data_uri }}" class="img-fluid" alt="Figure">
+    </div>
+  {% else %}
+    <div class="d-flex justify-content-between mb-2">
+      <strong>Question {{ q.number }}</strong>
+      <span>Marks: {{ q.marks|default:"0" }}</span>
+    </div>
+    <div class="mb-2">
+      <strong>{{ q.text }}</strong>
+    </div>
+
+    {% if q.content %}
+      {% for block in q.content %}
+        {% if block.type == "question_text" %}
+          <p>{{ block.text }}</p>
+        {% elif block.type == "case_study" %}
+          <div class="border p-2 bg-light mb-2">
+            <em>Case Study:</em><br>{{ block.text }}
+          </div>
+        {% elif block.type == "figure" %}
+          <div class="text-center mb-2">
+            <img src="{{ block.data_uri }}" class="img-fluid" alt="Figure">
+          </div>
+        {% elif block.type == "table" %}
+          <div class="table-responsive mb-2">
+            <table class="table table-bordered">
+              {% for row in block.rows %}
+                <tr>
+                  {% for cell in row %}
+                    <td>{{ cell }}</td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </table>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+</div>

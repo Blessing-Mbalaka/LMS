@@ -34,7 +34,7 @@ edit_assessment_centre,
 delete_assessment_centre, auto_fix_blocks,
 qualification_management_view, register,
 default_page, student_results, beta_paper_extractor, #Beta_paper extractor might delete if it does not work...
-assessment_progress_tracker,
+assessment_progress_tracker, save_blocks,
 etqa_dashboard, assessment_center_view, submit_to_center,
 approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results
 
@@ -46,10 +46,33 @@ urlpatterns = [
     path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
 
     #paper extraction views still in development
+     path('papers/<int:paper_pk>/save-blocks/', save_blocks, name='save-blocks'),
     path('administrator/auto-fix-blocks/', auto_fix_blocks, name='auto_fix_blocks'),
     path('administrator/auto-classify-blocks/', auto_classify_blocks, name='auto_classify_blocks'),
-    #path('administrator/auto-classify/', auto_classify_blocks, name='auto_classify_blocks'),
-    path("administrator/review-paper/", paper_as_is_view, name="review_paper"),
+    #Paper Extraction 
+   
+    path(
+        "administrator/review-paper/",
+        paper_as_is_view,
+        name="upload_review_paper",
+    ),
+
+    # 2️⃣ show the blocks for an existing paper
+    path(
+        "administrator/review-paper/<int:paper_pk>/",
+        paper_as_is_view,
+        name="review_paper",
+    ),
+
+    # 3️⃣ persist manual edits
+    path(
+        "administrator/review-paper/<int:paper_pk>/save-blocks/",
+        save_blocks,
+        name="save_blocks",
+    ),
+
+
+
 
     path("administrator/beta-paper-tables/", beta_paper_tables_view, name="beta_paper_tables"),
     path('administrator/beta-paper/', beta_paper_extractor, name='beta_paper'),

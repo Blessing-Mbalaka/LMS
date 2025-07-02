@@ -49,9 +49,16 @@ def extract_case_studies(raw_text):
     #r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\s*\((\d+)\s*marks?\))?\s*$', 
     #re.IGNORECASE
 #)
-    qn_rx = re.compile(
-    r'^\s*(\d+(?:\.\d+)+)\s+(.*?)\s*(?:\(\s*(\d+)\s*marks?\s*\))?\s*$',
-    re.IGNORECASE | re.DOTALL
+    qn_rx = re.compile(r'''
+    ^\s*
+    (?:Question(?:\s+Header)?\s*[:\-–]?\s*)?   # optional “Question” or “Question Header:” prefix
+    (?P<number>\d+(?:\.\d+)+)\.?                # the numbering: 1.1 or 1.1.1 etc
+    (?:\s*[-\.)]\s*)?                           # optional separator (., ), or – 
+    (?P<text>.*?)                               # any following text (can be empty)
+    (?:\s*\(\s*(?P<marks>\d+)\s*marks?\s*\))?   # optional “(10 Marks)”
+    \s*$
+    ''',
+    re.IGNORECASE | re.VERBOSE
 )
 
 
@@ -313,11 +320,13 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from google import genai
+import base64
 
 # Namespaces for inline image extraction
 W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 A_NS = 'http://schemas.openxmlformats.org/drawingml/2006/main'
 R_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+V_NS = "urn:schemas-microsoft-com:vml"
 
 @require_POST
 @csrf_exempt
@@ -356,7 +365,6 @@ Output only JSON.
 
     return JsonResponse({'types': types})
 
-
 import io
 import re
 import base64
@@ -365,30 +373,26 @@ from docx import Document
 from docx.text.paragraph import Paragraph
 from docx.table import Table
 
-# Namespace constants for inline drawing
+# XML namespaces for different image formats
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 A_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
 R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-
+V_NS = "urn:schemas-microsoft-com:vml"
 
 def extract_full_docx_structure(docx_file):
-    """
-    Extracts a .docx into structured blocks including question headers, paragraphs, 
-    tables, images, and case studies. Captures “(10 Marks)” either on the same line
-    as the question or as its own paragraph immediately after.
-    """
-    # Regex definitions
-    #qn_rx = re.compile(
-        #r'^\s*(\d+(?:\.\d+)+)\s+(.*?)(?:\(\s*(\d+)\s*marks?\))?\s*$',
-        #re.IGNORECASE
-    #)
-
-    qn_rx = re.compile(
-    r'^\s*(\d+(?:\.\d+)+)\s+(.*?)\s*(?:\(\s*(\d+)\s*marks?\s*\))?\s*$',
-    re.IGNORECASE | re.DOTALL
-)
+    qn_rx = re.compile(r'''
+        ^\s*
+        (?:Question(?:\s+Header)?\s*[:\-–]?\s*)?
+        (?P<number>\d+(?:\.\d+)+)\.?   # question number, including subquestions
+        (?:\s*[-\.)]\s*)?
+        (?P<text>.*?)                     # the question text
+        (?:\s*\(\s*(?P<marks>\d+)\s*marks?\s*\))?  # optional marks in parentheses
+        \s*$''', re.IGNORECASE | re.VERBOSE)
     marks_only_rx = re.compile(r'^\(?\s*(\d+)\s*marks?\)?$', re.IGNORECASE)
     cs_rx = re.compile(r'(?i)^Case Study\s*:?')
+
+    def is_subquestion(child, parent):
+        return child.startswith(parent + '.') and child.count('.') == parent.count('.') + 1
 
     docx_file.seek(0)
     try:
@@ -396,112 +400,153 @@ def extract_full_docx_structure(docx_file):
     except BadZipFile:
         return {'error': 'Invalid .docx'}
 
-    blocks = []
+    structured_questions = []
+    question_stack = []
     current_case_study = None
 
     for el in doc.element.body:
-        # -- Paragraph handling --
+        # -- Paragraphs --
         if el.tag.endswith('}p'):
+            # Extract images first (even if no text)
+            has_image = False
+            # Modern drawing-based images
+            for drawing in el.iter(f'{{{W_NS}}}drawing'):
+                for blip in drawing.iter(f'{{{A_NS}}}blip'):
+                    rid = blip.get(f'{{{R_NS}}}embed')
+                    if not rid: continue
+                    part = doc.part.related_parts.get(rid)
+                    if not part: continue
+                    b64 = base64.b64encode(part.blob).decode('ascii')
+                    uri = f"data:{part.content_type};base64,{b64}"
+                    image_block = {'type': 'figure', 'data_uri': uri}
+                    if question_stack:
+                        question_stack[-1]['content'].append(image_block)
+                    else:
+                        structured_questions.append(image_block)
+                    has_image = True
+            # Legacy VML images
+            for shape in el.iter(f'{{{V_NS}}}imagedata'):
+                rid = shape.get(f'{{{R_NS}}}id')
+                if not rid: continue
+                part = doc.part.related_parts.get(rid)
+                if not part: continue
+                b64 = base64.b64encode(part.blob).decode('ascii')
+                uri = f"data:{part.content_type};base64,{b64}"
+                image_block = {'type': 'figure', 'data_uri': uri}
+                if question_stack:
+                    question_stack[-1]['content'].append(image_block)
+                else:
+                    structured_questions.append(image_block)
+                has_image = True
+            if has_image:
+                # skip text-only logic when we've handled images
+                current_case_study = None
+                continue
+
+            # Now handle text in paragraph
             para = Paragraph(el, doc)
             text = para.text.strip()
             if not text:
                 continue
 
-            # 1) Standalone marks-only paragraph immediately after a question header
+            # Marks-only standalone
             m_marksonly = marks_only_rx.match(text)
             if m_marksonly:
-    # Check if previous block is a question_text or paragraph with no marks
-                for i in reversed(range(len(blocks))):
-                    if blocks[i]['type'] == 'question_header':
-                        if not blocks[i].get('marks'):
-                            blocks[i]['marks'] = m_marksonly.group(1)
+                for q in reversed(question_stack):
+                    if not q.get('marks'):
+                        q['marks'] = m_marksonly.group(1)
                         break
                 continue
 
-
-            # 2) Inline images
-            has_image = False
-            for drawing in el.iter(f'{{{W_NS}}}drawing'):
-                for blip in drawing.iter(f'{{{A_NS}}}blip'):
-                    rid = blip.get(f'{{{R_NS}}}embed')
-                    if not rid:
-                        continue  # Skip malformed image
-                    part = doc.part.related_parts.get(rid)
-                    if not part:
-                        continue  # Skip broken/missing image
-                    b64 = base64.b64encode(part.blob).decode('ascii')
-                    uri = f"data:{part.content_type};base64,{b64}"
-                    blocks.append({'type': 'figure', 'data_uri': uri})
-                    has_image = True
-                    current_case_study = None
-            if has_image:
-                continue  # Don't process this paragraph as text
-
-            # 3) Question header inline
+            # Question header
             m_q = qn_rx.match(text)
             if m_q:
                 num, rest, mark = m_q.groups()
-                blocks.append({
-                    'type': 'question_header',
-                    'text': f"{num} {rest}".strip(),
-                    'marks': mark or ""
-                })
+                new_q = {
+                    'type': 'question',
+                    'number': num,
+                    'text': rest.strip(),
+                    'marks': mark or '',
+                    'content': [],
+                    'children': []
+                }
+                while question_stack and not is_subquestion(num, question_stack[-1]['number']):
+                    question_stack.pop()
+                if question_stack:
+                    question_stack[-1]['children'].append(new_q)
+                else:
+                    structured_questions.append(new_q)
+                question_stack.append(new_q)
                 current_case_study = None
                 continue
 
-            # 4) Case study start
+            # Case study header
             if cs_rx.match(text):
-                current_case_study = {
-                    'type': 'case_study',
-                    'text': cs_rx.sub('', text).strip()
-                }
+                current_case_study = {'type': 'case_study', 'text': cs_rx.sub('', text).strip()}
                 continue
-
-            # 5) Inside case study
             if current_case_study:
                 current_case_study['text'] += '\n' + text
                 continue
 
-            # 6) Regular paragraph
-            blocks.append({'type': 'question_text', 'text': text})
+            # Normal question text
+            block = {'type': 'question_text', 'text': text}
+            if question_stack:
+                question_stack[-1]['content'].append(block)
+            else:
+                structured_questions.append(block)
 
-        # -- Table handling --
+        # -- Tables --
         elif el.tag.endswith('}tbl'):
             tbl = Table(el, doc)
-            rows = [
-                [cell.text.strip() for cell in row.cells]
-                for row in tbl.rows
-                if any(cell.text.strip() for cell in row.cells)
-            ]
+            rows = [[cell.text.strip() for cell in row.cells] for row in tbl.rows if any(cell.text.strip() for cell in row.cells)]
+            if not rows: continue
 
-            # A single-cell table that matches a question header? Treat as header.
+            # Single-cell table as header
             if len(rows) == 1 and len(rows[0]) == 1:
-                cell_text = rows[0][0]
-                m = qn_rx.match(cell_text)
+                m = qn_rx.match(rows[0][0])
                 if m:
                     num, rest, mark = m.groups()
-                    blocks.append({
-                        'type': 'question_header',
-                        'text': f"{num} {rest}".strip(),
-                        'marks': mark or ""
-                    })
+                    new_q = {
+                        'type': 'question',
+                        'number': num,
+                        'text': rest.strip(),
+                        'marks': mark or '',
+                        'content': [],
+                        'children': []
+                    }
+                    while question_stack and not is_subquestion(num, question_stack[-1]['number']):
+                        question_stack.pop()
+                    if question_stack:
+                        question_stack[-1]['children'].append(new_q)
+                    else:
+                        structured_questions.append(new_q)
+                    question_stack.append(new_q)
                     current_case_study = None
                     continue
 
-            # Flush any open case study first
+            # Flush any open case study
             if current_case_study:
-                blocks.append(current_case_study)
+                if question_stack:
+                    question_stack[-1]['content'].append(current_case_study)
+                else:
+                    structured_questions.append(current_case_study)
                 current_case_study = None
 
-            # Otherwise treat as a normal table
-            if rows:
-                blocks.append({'type': 'table', 'rows': rows})
+            # Regular table
+            table_block = {'type': 'table', 'rows': rows}
+            if question_stack:
+                question_stack[-1]['content'].append(table_block)
+            else:
+                structured_questions.append(table_block)
 
-    # Flush trailing case study
+    # Final flush of case study
     if current_case_study:
-        blocks.append(current_case_study)
+        if question_stack:
+            question_stack[-1]['content'].append(current_case_study)
+        else:
+            structured_questions.append(current_case_study)
 
-    return blocks
+    return structured_questions
 
 #***********************************END OF *****************************************************************************************************
 

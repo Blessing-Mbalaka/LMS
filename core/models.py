@@ -283,10 +283,24 @@ class ExtractedQuestion(models.Model):
 
 
 #<-------------------------------------------Questions storage Models --------------------------------------------------->
-class Paper(models.Model):(models.Model)
-name = models.CharField(max_length=50)  # e.g. "Paper 1A"
-qualification = models.ForeignKey(Qualification, on_delete=models.CASCADE)
-total_marks = models.IntegerField(default=0)
+# core/models.py
+from django.db import models
+
+
+class Paper(models.Model):          #  ✅ only one “(models.Model)”, colon right here
+    name          = models.CharField(max_length=50)          # inside the class
+    qualification = models.ForeignKey(
+        "Qualification",
+        on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+    total_marks   = models.PositiveIntegerField(default=0)
+
+    created_at    = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
 
 class QuestionNode(models.Model):
     number = models.CharField(max_length=10)       # e.g. "1.1"
@@ -341,3 +355,20 @@ class QuestionPoolEntry(models.Model):
 
     def __str__(self):
         return f"{self.paper_number} - Q{self.question_number} ({self.question_type})"
+
+from django.db.models import JSONField                
+
+
+class ExamNode(models.Model):
+    id         = models.CharField(primary_key=True, max_length=32)  # the UUID hex
+    parent     = models.ForeignKey(
+                    'self', null=True, blank=True,
+                    on_delete=models.CASCADE, related_name='children')
+    node_type  = models.CharField(max_length=50)     # "question", "table", ...
+    number     = models.CharField(max_length=20, blank=True)
+    marks      = models.CharField(max_length=10,  blank=True)
+    payload    = JSONField()                         # raw dict for convenience
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.node_type} {self.number or ''} ({self.id})"
