@@ -1913,84 +1913,36 @@ def new_databank_view(request):
 #<---------------------------------Start of load saved paper--------------------------------------------------------->
 from django.shortcuts import get_object_or_404, redirect
 from .models import ExamNode, Paper
+# --- Updated load & serialize to preserve nested content blocks exactly ---
+from utils import serialize_node  # ensure you import this
 
 def load_saved_paper_view(request, paper_pk):
+    """
+    Load a previously saved paper either from session or from DB,
+    and always serialize to a consistent structure for the template.
+    """
     paper = get_object_or_404(Paper, pk=paper_pk)
-    all_nodes = ExamNode.objects.filter(paper=paper).select_related("parent")
 
-    def enrich_content(blocks):
-        enriched = []
-        for block in blocks:
-            block_type = block.get("type")
-            if block_type == "figure":
-                enriched.append({
-                    "type": "figure",
-                    "data_uri": block.get("data_uri", "")
-                })
-            elif block_type == "table":
-                enriched.append({
-                    "type": "table",
-                    "rows": block.get("rows", [])
-                })
-            elif block_type == "question_text":
-                enriched.append({
-                    "type": "question_text",
-                    "text": block.get("text", "")
-                })
-            elif block_type == "case_study":
-                enriched.append({
-                    "type": "case_study",
-                    "text": block.get("text", "")
-                })
-            else:
-                enriched.append(block)
-        return enriched
+    session_data = request.session.get(f"paper_{paper_pk}_questions", [])
 
-    # Flattened list → node ID map
-    node_map = {}
-    for n in all_nodes:
-        payload = n.payload or {}
-        node_map[n.id] = {
-            "id": str(n.id),
-            "type": n.node_type,
-            "number": n.number,
-            "marks": n.marks,
-            "text": payload.get("text", ""),
-            "content": enrich_content(payload.get("content", [])),
-            "data_uri": payload.get("data_uri", ""),
-            "parent_id": str(n.parent_id) if n.parent_id else None,
-            "children": []
-        }
-
-    # Rebuild tree structure
-    root_nodes = []
-    for node in node_map.values():
-        parent_id = node.get("parent_id")
-        if parent_id and parent_id in node_map:
-            node_map[parent_id]["children"].append(node)
-        else:
-            root_nodes.append(node)
-
-    # Store in session just like before
-    request.session[f"paper_{paper_pk}_questions"] = root_nodes
+    if session_data:
+        # Always serialize session data to normalize the structure
+        questions = [serialize_node(q) for q in session_data]
+    else:
+        # Fallback to DB if session is cleared
+        roots = ExamNode.objects.filter(paper=paper, parent__isnull=True).order_by('number')
+        questions = [serialize_node(n) for n in roots]
 
     return render(request, "core/administrator/review_paper.html", {
-        "questions": root_nodes,
+        "questions": questions,
         "paper": paper
     })
 
-
-#View here works with the one above, so that it display the pre-saved questions in the DB.
-
-from django.shortcuts import render, redirect
-from .models import Paper
-
+# --- Selector view unchanged ---
 def review_saved_selector(request):
     papers = Paper.objects.order_by("-id")
     if request.method == "POST":
-        selected_id = request.POST.get("paper_id")
-        if selected_id:
-            return redirect("load_saved_paper", paper_pk=selected_id)
-    return render(request, "core/administrator/review_saved_selector.html", {"papers": papers,})
-
-# <--------------------------end of load saved paper----------------------------------------------------------->
+        sel = request.POST.get("paper_id")
+        if sel:
+            return redirect("load_saved_paper", paper_pk=sel)
+    return render(request, "core/administrator/review_saved_selector.html", {"papers": papers})

@@ -680,3 +680,37 @@ Output JSON only: {"types": [...]} matching each input block.
         final_types = ['paragraph'] * len(blocks)
 
     return JsonResponse({'types': final_types})
+#----------------------------------------------------------------------------------------------
+
+#<---------------Serializer Node-----[used to preserve paper structure]----------------------->
+def serialize_node(obj):
+    """
+    Converts either an extracted dict OR an ExamNode instance into a unified format.
+    """
+    if isinstance(obj, dict):
+        return {
+            "id":       obj.get("id"),
+            "type":     obj.get("type", ""),
+            "number":   obj.get("number", ""),
+            "marks":    obj.get("marks", ""),
+            "text":     obj.get("text", ""),
+            "content":  obj.get("content", []),
+            "children": [serialize_node(c) for c in obj.get("children", [])],
+            **({"data_uri": obj.get("data_uri", "")} if obj.get("type") == "figure" else {})
+        }
+
+    if isinstance(obj, ExamNode):
+        payload = obj.payload or {}
+        return {
+            "id":       str(obj.id),
+            "type":     obj.node_type,
+            "number":   obj.number,
+            "marks":    obj.marks,
+            "text":     payload.get("text", ""),
+            "content":  payload.get("content", []),
+            "children": [serialize_node(child) for child in obj.children.all().order_by("number")],
+            **({"data_uri": payload.get("data_uri", "")} if obj.node_type == "figure" else {})
+        }
+
+    raise TypeError("Unsupported object type")
+#<---------------Critical for paper reconstruction and preserving formating------------------->
