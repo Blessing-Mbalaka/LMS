@@ -380,173 +380,220 @@ R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 V_NS = "urn:schemas-microsoft-com:vml"
 
 def extract_full_docx_structure(docx_file):
+    # Question‐header regex: supports "1", "1.1", "2.3.4", multiline text, optional marks
     qn_rx = re.compile(r'''
         ^\s*
         (?:Question(?:\s+Header)?\s*[:\-–]?\s*)?
-        (?P<number>\d+(?:\.\d+)+)\.?   # question number, including subquestions
+        (?P<number>\d+(?:\.\d+)*)
         (?:\s*[-\.)]\s*)?
-        (?P<text>.*?)                     # the question text
-        (?:\s*\(\s*(?P<marks>\d+)\s*marks?\s*\))?  # optional marks in parentheses
-        \s*$''', re.IGNORECASE | re.VERBOSE)
+        (?P<text>.*?)
+        (?:\s*\(\s*(?P<marks>\d+)\s*marks?\s*\))?
+        \s*$
+    ''', re.IGNORECASE | re.VERBOSE | re.DOTALL)
+
+    # Specific question‐type detectors
+    cr_rx  = re.compile(r'(?i)^Constructive Response\s*:?')
+    mcq_rx = re.compile(r'(?i)^Multiple Choice Questions?\s*:?')
+    cs_rx  = re.compile(r'(?i)^Case Study\s*:?')
+
+    # Standalone "(10 Marks)" paragraphs
     marks_only_rx = re.compile(r'^\(?\s*(\d+)\s*marks?\)?$', re.IGNORECASE)
-    cs_rx = re.compile(r'(?i)^Case Study\s*:?')
 
     def is_subquestion(child, parent):
         return child.startswith(parent + '.') and child.count('.') == parent.count('.') + 1
 
+    # Read document
     docx_file.seek(0)
     try:
         doc = Document(io.BytesIO(docx_file.read()))
     except BadZipFile:
         return {'error': 'Invalid .docx'}
 
-    structured_questions = []
-    question_stack = []
-    current_case_study = None
+    structured = []
+    stack = []
+    current_cs = None
 
     for el in doc.element.body:
-        # -- Paragraphs --
+        # --- Paragraphs ---
         if el.tag.endswith('}p'):
-            # Extract images first (even if no text)
-            has_image = False
-            # Modern drawing-based images
+            # handle images first
+            handled_image = False
             for drawing in el.iter(f'{{{W_NS}}}drawing'):
                 for blip in drawing.iter(f'{{{A_NS}}}blip'):
                     rid = blip.get(f'{{{R_NS}}}embed')
                     if not rid: continue
                     part = doc.part.related_parts.get(rid)
                     if not part: continue
-                    b64 = base64.b64encode(part.blob).decode('ascii')
-                    uri = f"data:{part.content_type};base64,{b64}"
-                    image_block = {'type': 'figure', 'data_uri': uri}
-                    if question_stack:
-                        question_stack[-1]['content'].append(image_block)
-                    else:
-                        structured_questions.append(image_block)
-                    has_image = True
-            # Legacy VML images
+                    uri = ("data:" + part.content_type +
+                           ";base64," + base64.b64encode(part.blob).decode())
+                    block = {'type': 'figure', 'data_uri': uri}
+                    if stack: stack[-1]['content'].append(block)
+                    else:    structured.append(block)
+                    handled_image = True
             for shape in el.iter(f'{{{V_NS}}}imagedata'):
                 rid = shape.get(f'{{{R_NS}}}id')
                 if not rid: continue
                 part = doc.part.related_parts.get(rid)
                 if not part: continue
-                b64 = base64.b64encode(part.blob).decode('ascii')
-                uri = f"data:{part.content_type};base64,{b64}"
-                image_block = {'type': 'figure', 'data_uri': uri}
-                if question_stack:
-                    question_stack[-1]['content'].append(image_block)
-                else:
-                    structured_questions.append(image_block)
-                has_image = True
-            if has_image:
-                # skip text-only logic when we've handled images
-                current_case_study = None
+                uri = ("data:" + part.content_type +
+                       ";base64," + base64.b64encode(part.blob).decode())
+                block = {'type': 'figure', 'data_uri': uri}
+                if stack: stack[-1]['content'].append(block)
+                else:    structured.append(block)
+                handled_image = True
+
+            if handled_image:
+                current_cs = None
                 continue
 
-            # Now handle text in paragraph
             para = Paragraph(el, doc)
             text = para.text.strip()
             if not text:
                 continue
 
-            # Marks-only standalone
-            m_marksonly = marks_only_rx.match(text)
-            if m_marksonly:
-                for q in reversed(question_stack):
+            # standalone marks
+            m_mark = marks_only_rx.match(text)
+            if m_mark:
+                for q in reversed(stack):
                     if not q.get('marks'):
-                        q['marks'] = m_marksonly.group(1)
+                        q['marks'] = m_mark.group(1)
                         break
                 continue
 
-            # Question header
+            # question header?
             m_q = qn_rx.match(text)
             if m_q:
-                num, rest, mark = m_q.groups()
+                num   = m_q.group('number')
+                rest  = m_q.group('text').strip()
+                mark  = m_q.group('marks') or ''
+                subtype = 'other'
+                if cr_rx.match(rest):
+                    subtype = 'constructive_response'
+                elif mcq_rx.match(rest):
+                    subtype = 'multiple_choice'
+                elif cs_rx.match(rest):
+                    subtype = 'case_study'
+
                 new_q = {
-                    'type': 'question',
-                    'number': num,
-                    'text': rest.strip(),
-                    'marks': mark or '',
+                    'type':    'question',
+                    'subtype': subtype,
+                    'number':  num,
+                    'text':    rest,
+                    'marks':   mark,
                     'content': [],
                     'children': []
                 }
-                while question_stack and not is_subquestion(num, question_stack[-1]['number']):
-                    question_stack.pop()
-                if question_stack:
-                    question_stack[-1]['children'].append(new_q)
+                # pop until parent fits
+                while stack and not is_subquestion(num, stack[-1]['number']):
+                    stack.pop()
+                if stack:
+                    stack[-1]['children'].append(new_q)
                 else:
-                    structured_questions.append(new_q)
-                question_stack.append(new_q)
-                current_case_study = None
+                    structured.append(new_q)
+                stack.append(new_q)
+                current_cs = None
                 continue
 
-            # Case study header
+            # case study continuation?
             if cs_rx.match(text):
-                current_case_study = {'type': 'case_study', 'text': cs_rx.sub('', text).strip()}
+                current_cs = {'type': 'case_study', 'text': cs_rx.sub('', text).strip()}
                 continue
-            if current_case_study:
-                current_case_study['text'] += '\n' + text
+            if current_cs:
+                current_cs['text'] += '\n' + text
                 continue
 
-            # Normal question text
+            # normal question text
             block = {'type': 'question_text', 'text': text}
-            if question_stack:
-                question_stack[-1]['content'].append(block)
+            if stack:
+                stack[-1]['content'].append(block)
             else:
-                structured_questions.append(block)
+                structured.append(block)
 
         # -- Tables --
         elif el.tag.endswith('}tbl'):
             tbl = Table(el, doc)
-            rows = [[cell.text.strip() for cell in row.cells] for row in tbl.rows if any(cell.text.strip() for cell in row.cells)]
-            if not rows: continue
+            rows = [
+                [cell.text.strip() for cell in row.cells]
+                for row in tbl.rows
+            ]
+            rows = [r for r in rows if any(r)]
+            
+            # —— ANY TABLE whose first cell is a header becomes a question ——
+            if rows:
+                m0 = qn_rx.match(rows[0][0])
+                if m0:
+                    num   = m0.group('number')
+                    rest  = m0.group('text').strip()
+                    mark  = m0.group('marks') or ''
+                    # detect subtype
+                    subtype = 'other'
+                    if mcq_rx.match(rest):
+                        subtype = 'multiple_choice'
+                    elif cr_rx.match(rest):
+                        subtype = 'constructive_response'
+                    elif cs_rx.match(rest):
+                        subtype = 'case_study'
 
-            # Single-cell table as header
-            if len(rows) == 1 and len(rows[0]) == 1:
-                m = qn_rx.match(rows[0][0])
-                if m:
-                    num, rest, mark = m.groups()
                     new_q = {
-                        'type': 'question',
-                        'number': num,
-                        'text': rest.strip(),
-                        'marks': mark or '',
-                        'content': [],
+                        'type':     'question',
+                        'subtype':  subtype,
+                        'number':   num,
+                        'text':     rest,
+                        'marks':    mark,
+                        'content':  [],
                         'children': []
                     }
-                    while question_stack and not is_subquestion(num, question_stack[-1]['number']):
-                        question_stack.pop()
-                    if question_stack:
-                        question_stack[-1]['children'].append(new_q)
+                    while stack and not is_subquestion(num, stack[-1]['number']):
+                        stack.pop()
+                    if stack:
+                        stack[-1]['children'].append(new_q)
                     else:
-                        structured_questions.append(new_q)
-                    question_stack.append(new_q)
+                        structured.append(new_q)
+                    stack.append(new_q)
                     current_case_study = None
+
+                    # everything after the header‐row becomes .content
+                    if len(rows) > 1:
+                        new_q['content'].append({
+                            'type': 'table',
+                            'rows': rows[1:]
+                        })
                     continue
 
-            # Flush any open case study
-            if current_case_study:
-                if question_stack:
-                    question_stack[-1]['content'].append(current_case_study)
+            # —— FALL BACK TO A “PURE” TABLE BLOCK ——
+            if rows:
+                table_block = {'type': 'table', 'rows': rows}
+                if stack:
+                    stack[-1]['content'].append(table_block)
                 else:
-                    structured_questions.append(current_case_study)
-                current_case_study = None
+                    structured.append(table_block)
+            continue
 
-            # Regular table
-            table_block = {'type': 'table', 'rows': rows}
-            if question_stack:
-                question_stack[-1]['content'].append(table_block)
-            else:
-                structured_questions.append(table_block)
 
-    # Final flush of case study
-    if current_case_study:
-        if question_stack:
-            question_stack[-1]['content'].append(current_case_study)
+            # flush open case study
+        if current_cs:
+                if stack:
+                    stack[-1]['content'].append(current_cs)
+                else:
+                    structured.append(current_cs)
+                current_cs = None
+
+            # regular table
+    table_block = {'type': 'table', 'rows': rows}
+    if stack:
+                stack[-1]['content'].append(table_block)
+    else:
+                structured.append(table_block)
+
+    # final flush of case study
+    if current_cs:
+        if stack:
+            stack[-1]['content'].append(current_cs)
         else:
-            structured_questions.append(current_case_study)
+            structured.append(current_cs)
 
-    return structured_questions
+    return structured
+
 
 #***********************************END OF *****************************************************************************************************
 

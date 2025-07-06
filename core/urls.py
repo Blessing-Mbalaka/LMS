@@ -28,14 +28,14 @@ from core.views import (
     user_management,
     toggle_user_status,
     update_user_qualification,
-    update_user_role,
+    update_user_role, review_saved_selector,
     custom_login, custom_logout,
-edit_assessment_centre,
+edit_assessment_centre, new_databank_view,
 delete_assessment_centre, auto_fix_blocks,
 qualification_management_view, register,
 default_page, student_results, beta_paper_extractor, #Beta_paper extractor might delete if it does not work...
 assessment_progress_tracker, save_blocks,
-etqa_dashboard, assessment_center_view, submit_to_center,
+etqa_dashboard, assessment_center_view, submit_to_center, load_saved_paper_view,
 approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results
 
 
@@ -46,11 +46,19 @@ urlpatterns = [
     path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
 
     #paper extraction views still in development
+      path("new-databank/", new_databank_view, name="new_databank"),
      path('papers/<int:paper_pk>/save-blocks/', save_blocks, name='save-blocks'),
     path('administrator/auto-fix-blocks/', auto_fix_blocks, name='auto_fix_blocks'),
     path('administrator/auto-classify-blocks/', auto_classify_blocks, name='auto_classify_blocks'),
-    #Paper Extraction 
-   
+    #Paper Extraction  logic end
+
+   #Load saved Paper
+    path("administrator/review-paper/<int:paper_pk>/", paper_as_is_view, name="review_paper"),
+    path("administrator/review-paper/<int:paper_pk>/save-blocks/", save_blocks, name="save_blocks"),
+    path("administrator/load-saved/<int:paper_pk>/", load_saved_paper_view, name="load_saved_paper"),
+    path("administrator/review-saved/", review_saved_selector, name="review_saved_selector"),
+
+
     path(
         "administrator/review-paper/",
         paper_as_is_view,

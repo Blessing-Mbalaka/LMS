@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Select a Saved Paper</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-2">
+      <div class="col-sm-8">
+        <select name="paper_id" class="form-select">
+          <option value="">-- Choose a Paper --</option>
+          {% for paper in papers %}
+            <option value="{{ paper.pk }}">
+              {{ paper.name }} – {{ paper.qualification.code }} (ID: {{ paper.pk }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-4">
+        <button type="submit" class="btn btn-primary">Load Paper</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'core/js/block_hierarchy.js' %}"></script>
+{% endblock %}

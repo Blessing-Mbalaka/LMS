@@ -1644,6 +1644,9 @@ def paper_as_is_view(request, paper_pk=None):
         blocks    = extract_full_docx_structure(request.FILES["paper"])
         questions = _flatten_structure(blocks)
         ensure_ids(questions)
+#Terminal Print---Just to show save structure nje..
+        print("\n🟩 Extracted & Flattened Questions:")
+        print(json.dumps(questions, indent=2))
 
         # update total_marks
         paper.total_marks = sum(int(q.get("marks") or 0) for q in _walk(questions))
@@ -1670,7 +1673,8 @@ def _flatten_structure(qs):
     flattened = []
     for q in qs:
         flattened.append({
-            "id":       q.get("id"),              # make sure ensure_ids ran
+            "id":       q.get("id"), 
+                                      # make sure ensure_ids ran
             "type":     q.get("type", ""),
             "number":   q.get("number", ""),
             "marks":    q.get("marks", ""),
@@ -1690,9 +1694,8 @@ def _walk(nodes):
 @require_POST
 def save_blocks(request, paper_pk):
     print("SAVE BLOCKS TRIGGERED")
-    print(request.POST.get("nodes_json", ""))
-
     raw = request.POST.get("nodes_json", "")
+
     if not raw:
         messages.error(request, "Nothing to save – no data received.")
         return redirect("review_paper", paper_pk=paper_pk)
@@ -1703,14 +1706,13 @@ def save_blocks(request, paper_pk):
         messages.error(request, "Malformed data – cannot decode JSON.")
         return redirect("review_paper", paper_pk=paper_pk)
 
-    # Normalize and ensure all node IDs are valid strings
+    # Normalize IDs
     for n in nodes:
         if not n.get("id") or n["id"] in ["None", "", None]:
             n["id"] = uuid.uuid4().hex
         else:
             n["id"] = str(n["id"]).replace("-", "")[:32]
 
-        # Clean parent_id the same way
         if n.get("parent_id"):
             n["parent_id"] = str(n["parent_id"]).replace("-", "")[:32]
 
@@ -1719,21 +1721,55 @@ def save_blocks(request, paper_pk):
     with transaction.atomic():
         id_to_node = {}
 
-        # First: create/update each node without parent
         for n in nodes:
+            # Enrich inner content blocks (tables, figures, etc.)
+            content_blocks = n.get("content", [])
+            enriched_content = []
+            for block in content_blocks:
+                block_type = block.get("type")
+                if block_type == "figure":
+                    enriched_content.append({
+                        "type": "figure",
+                        "data_uri": block.get("data_uri", "")
+                    })
+                elif block_type == "table":
+                    enriched_content.append({
+                        "type": "table",
+                        "rows": block.get("rows", [])
+                    })
+                elif block_type == "question_text":
+                    enriched_content.append({
+                        "type": "question_text",
+                        "text": block.get("text", "")
+                    })
+                elif block_type == "case_study":
+                    enriched_content.append({
+                        "type": "case_study",
+                        "text": block.get("text", "")
+                    })
+                else:
+                    enriched_content.append(block)
+
+            # Build payload with enriched blocks
+            payload = {
+                "text": n.get("text", ""),
+                "data_uri": n.get("data_uri", ""),
+                "content": enriched_content
+            }
+
             node, _ = ExamNode.objects.update_or_create(
                 id=n["id"],
                 defaults={
+                    "paper":     paper,
                     "number":    n.get("number", ""),
                     "marks":     n.get("marks", ""),
                     "node_type": n.get("type", ""),
-                    "payload":   n,
-                    
-                },
+                    "payload":   payload
+                }
             )
             id_to_node[n["id"]] = node
 
-        # Second: assign parent-child relationships
+        # Parent-child linking
         for n in nodes:
             parent_id = n.get("parent_id")
             if parent_id and parent_id in id_to_node:
@@ -1746,7 +1782,10 @@ def save_blocks(request, paper_pk):
     return redirect("review_paper", paper_pk=paper_pk)
 
 
+#<-----------------------------end------------------------------------>
 
+
+#Below is old logic for potential...
 
 import json
 from django.http import JsonResponse
@@ -1823,7 +1862,7 @@ def auto_place_marks(request):
 
 
 
-# core/views.py
+# core/views.py  This is a future feature for editing not important now....
 import json
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
@@ -1846,3 +1885,112 @@ def auto_classify_blocks(request, paper_pk):
     #     n["marks"] = my_classifier.predict(n["text"])
 
     return JsonResponse(nodes, safe=False)
+
+
+
+#<--------------------------------------------------------------------------------------------->
+#<--------------------------------------------------------------------------------------------->
+#<--------------------------------------------------------------------------------------------->
+from django.shortcuts import render
+from .models import ExamNode
+
+def new_databank_view(request):
+    # Only pull nodes that are "question"
+    question_nodes = ExamNode.objects.filter(node_type='question')
+
+    extracted_questions = []
+    for node in question_nodes:
+        payload = node.payload or {}
+        extracted_questions.append({
+            "number": node.number or payload.get("number", ""),
+            "marks": node.marks or payload.get("marks", ""),
+            "text": payload.get("text", ""),  
+            "content": payload.get("content", []),  # display structured blocks (tables, images, etc.)
+        })
+
+    return render(request, "core/new_databank.html", {"questions": extracted_questions})
+
+#<---------------------------------Start of load saved paper--------------------------------------------------------->
+from django.shortcuts import get_object_or_404, redirect
+from .models import ExamNode, Paper
+
+def load_saved_paper_view(request, paper_pk):
+    paper = get_object_or_404(Paper, pk=paper_pk)
+    all_nodes = ExamNode.objects.filter(paper=paper).select_related("parent")
+
+    def enrich_content(blocks):
+        enriched = []
+        for block in blocks:
+            block_type = block.get("type")
+            if block_type == "figure":
+                enriched.append({
+                    "type": "figure",
+                    "data_uri": block.get("data_uri", "")
+                })
+            elif block_type == "table":
+                enriched.append({
+                    "type": "table",
+                    "rows": block.get("rows", [])
+                })
+            elif block_type == "question_text":
+                enriched.append({
+                    "type": "question_text",
+                    "text": block.get("text", "")
+                })
+            elif block_type == "case_study":
+                enriched.append({
+                    "type": "case_study",
+                    "text": block.get("text", "")
+                })
+            else:
+                enriched.append(block)
+        return enriched
+
+    # Flattened list → node ID map
+    node_map = {}
+    for n in all_nodes:
+        payload = n.payload or {}
+        node_map[n.id] = {
+            "id": str(n.id),
+            "type": n.node_type,
+            "number": n.number,
+            "marks": n.marks,
+            "text": payload.get("text", ""),
+            "content": enrich_content(payload.get("content", [])),
+            "data_uri": payload.get("data_uri", ""),
+            "parent_id": str(n.parent_id) if n.parent_id else None,
+            "children": []
+        }
+
+    # Rebuild tree structure
+    root_nodes = []
+    for node in node_map.values():
+        parent_id = node.get("parent_id")
+        if parent_id and parent_id in node_map:
+            node_map[parent_id]["children"].append(node)
+        else:
+            root_nodes.append(node)
+
+    # Store in session just like before
+    request.session[f"paper_{paper_pk}_questions"] = root_nodes
+
+    return render(request, "core/administrator/review_paper.html", {
+        "questions": root_nodes,
+        "paper": paper
+    })
+
+
+#View here works with the one above, so that it display the pre-saved questions in the DB.
+
+from django.shortcuts import render, redirect
+from .models import Paper
+
+def review_saved_selector(request):
+    papers = Paper.objects.order_by("-id")
+    if request.method == "POST":
+        selected_id = request.POST.get("paper_id")
+        if selected_id:
+            return redirect("load_saved_paper", paper_pk=selected_id)
+    return render(request, "core/administrator/review_saved_selector.html", {"papers": papers,})
+
+# <--------------------------end of load saved paper----------------------------------------------------------->

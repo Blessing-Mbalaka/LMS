@@ -361,12 +361,18 @@ from django.db.models import JSONField
 
 class ExamNode(models.Model):
     id         = models.CharField(primary_key=True, max_length=32)  # the UUID hex
+    paper = models.ForeignKey(Paper, on_delete=models.CASCADE, null=True, blank=True)
+                                                                                        #The Paper we love!!The paper we Need!!!!!
     parent     = models.ForeignKey(
                     'self', null=True, blank=True,
                     on_delete=models.CASCADE, related_name='children')
     node_type  = models.CharField(max_length=50)     # "question", "table", ...
     number     = models.CharField(max_length=20, blank=True)
     marks      = models.CharField(max_length=10,  blank=True)
+    text      = models.TextField(blank=True)
+    content   = models.JSONField(default=list, blank=True)
+    data_uri  = models.TextField(blank=True)  # for figures
+
     payload    = JSONField()                         # raw dict for convenience
     updated_at = models.DateTimeField(auto_now=True)
 

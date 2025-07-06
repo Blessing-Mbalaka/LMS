@@ -1,6 +1,6 @@
+{# core/templates/core/administrator/partials/question_block.html #}
 {% load uuid_extras %}
 
-{# this file renders a single “block” node #}
 <div class="block mb-4 p-3 border rounded"
      data-id="{% if q.id %}{{ q.id }}{% else %}{% generate_uuid %}{% endif %}"
      data-qn="{{ q.number }}"
@@ -8,32 +8,46 @@
      data-marks="{{ q.marks|default:'' }}">
 
   {% if q.type == 'figure' %}
-    <div class="text-center mb-4">
+    <div class="text-center mb-4 block-content">
       <img src="{{ q.data_uri }}" class="img-fluid" alt="Figure">
     </div>
+
+  {% elif q.type == 'table' %}
+    <div class="table-responsive mb-2 block-content">
+      <table class="table table-bordered">
+        {% for row in q.rows %}
+          <tr>
+            {% for cell in row %}
+              <td>{{ cell }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+
   {% else %}
     <div class="d-flex justify-content-between mb-2">
       <strong>Question {{ q.number }}</strong>
       <span>Marks: {{ q.marks|default:"0" }}</span>
     </div>
-    <div class="mb-2">
+    <div class="mb-2 block-text">
       <strong>{{ q.text }}</strong>
     </div>
 
     {% if q.content %}
       {% for block in q.content %}
         {% if block.type == "question_text" %}
-          <p>{{ block.text }}</p>
+          <p class="block-content">{{ block.text }}</p>
         {% elif block.type == "case_study" %}
-          <div class="border p-2 bg-light mb-2">
+          <div class="border p-2 bg-light mb-2 block-content">
             <em>Case Study:</em><br>{{ block.text }}
           </div>
         {% elif block.type == "figure" %}
-          <div class="text-center mb-2">
+          <div class="text-center mb-2 block-content">
             <img src="{{ block.data_uri }}" class="img-fluid" alt="Figure">
           </div>
         {% elif block.type == "table" %}
-          <div class="table-responsive mb-2">
+          <div class="table-responsive mb-2 block-content">
             <table class="table table-bordered">
               {% for row in block.rows %}
                 <tr>
@@ -47,5 +61,13 @@
         {% endif %}
       {% endfor %}
     {% endif %}
+  {% endif %}
+
+  {% if q.children %}
+    <div class="children ms-4 mt-2">
+      {% for child in q.children %}
+        {% include "core/administrator/partials/question_block.html" with q=child %}
+      {% endfor %}
+    </div>
   {% endif %}
 </div>
