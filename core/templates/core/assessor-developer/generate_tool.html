@@ -137,6 +137,13 @@
     <div class="content p-4">
       <h2>Generate EISA Assessment Tool</h2>
 
+<div class="welcome-box mb-3">
+  Welcome, {{ user.get_full_name|default:user.username }}<br>
+      Qualification: <strong>{{ request.user.qualification.name|default:"Not Assigned" }}</strong>
+</div>
+
+
+
       <ul class="nav nav-tabs mt-4" id="toolTabs" role="tablist">
         <li class="nav-item" role="presentation">
           <button class="nav-link active" id="tab-random-btn" data-bs-toggle="tab" data-bs-target="#tab-random" type="button" role="tab">Compile from Question Bank</button>
@@ -167,11 +174,13 @@
               <input type="hidden" name="action" value="compile_from_bank">
               <label>Qualification:</label>
               <select name="qualification" required>
-                <option value="">-- Select Qualification --</option>
-                {% for q in qualifications %}
-                <option value="{{ q.code }}" {% if selected_qualification == q.code %}selected{% endif %}>{{ q.name }}</option>
-                {% endfor %}
-              </select>
+  <option value="">-- Select Qualification --</option>
+  {% for q in qualifications %}
+    {% if q.id == request.user.qualification.id %}
+      <option value="{{ q.code }}" selected>{{ q.name }}</option>
+    {% endif %}
+  {% endfor %}
+</select>
               <label>Mark Target:</label>
               <input type="number" name="mark_target" value="100" required>
               <label>Number of Questions:</label>

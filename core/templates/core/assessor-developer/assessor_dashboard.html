@@ -111,8 +111,9 @@
         <!-- Right: Welcome Card -->
         <div class="welcome-box flex-fill">
           <h1 style="font-size: 1.2rem; margin-bottom: 5px;">
-            Welcome, Assessor (Developer)
-          </h1>
+             Welcome, {{ user.get_full_name|default:user.username }}<br>
+  Qualification: <strong>{{ qualification.name }}</strong>
+          </h1>
           <div class="date mb-3">
             Below is an overview of submitted assessments and their current moderation status.
           </div>

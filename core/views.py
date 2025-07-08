@@ -906,10 +906,15 @@ def assessment_archive(request):
 # -----------------------------
 # 8) Assessor Dashboard (list)
 # -----------------------------
+@login_required
 def assessor_dashboard(request):
-    assessments = Assessment.objects.all()
+    user=request.user
+    qualification=user.qualification
+    assessments = Assessment.objects.filter(qualification=qualification).order_by('-created_at')
     return render(request, 'core/assessor-developer/assessor_dashboard.html', {
-        'assessments': assessments
+        'assessments': assessments,
+        'qualification':qualification,
+        'user':user,
     })
 
 
@@ -957,7 +962,7 @@ def view_assessment(request, eisa_id):
     if request.method == 'POST':
         notes = request.POST.get('moderator_notes', '').strip()
         assessment.moderator_notes = notes
-        assessment.status = 'Submitted to ETQA'
+        assessment.status = 'Submitted to Moderator'
         assessment.save()
         return redirect('assessor_dashboard')
 
@@ -1234,6 +1239,7 @@ def qcto_view_assessment(request, eisa_id):
 @require_http_methods(["GET"])
 def qcto_latest_assessment_detail(request):
     latest = Assessment.objects.filter(status="Approved by ETQA").order_by("-created_at").first()
+
     questions = GeneratedQuestion.objects.filter(assessment=latest)
 
     return render(request, "core/qcto/qcto_view_assessment.html", {
