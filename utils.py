@@ -714,3 +714,40 @@ def serialize_node(obj):
 
     raise TypeError("Unsupported object type")
 #<---------------Critical for paper reconstruction and preserving formating------------------->
+
+
+
+
+#--------Start of saving Serialized nodes to DB----------------------------------------------->
+from core.models import ExamNode
+import uuid
+
+def save_nodes_to_db(nodes, paper, parent=None):
+    """
+    Save extracted nodes (and children) into ExamNode table.
+    """
+    for node in nodes:
+        node_id = node.get("id") or uuid.uuid4().hex
+        payload = {
+            "text": node.get("text", ""),
+            "data_uri": node.get("data_uri", ""),
+            "content": node.get("content", []),
+        }
+
+        db_node = ExamNode.objects.create(
+            id=node_id[:32],
+            paper=paper,
+            parent=parent,
+            node_type=node.get("type", ""),
+            number=node.get("number", ""),
+            marks=node.get("marks", ""),
+            text=node.get("text", ""),
+            content=node.get("content", []),
+            data_uri=node.get("data_uri", ""),
+            payload=payload,
+        )
+
+        # Recursively save children
+        for child in node.get("children", []):
+            save_nodes_to_db([child], paper, parent=db_node)
+#-------------------------------------end----------------------------------------------------------------}

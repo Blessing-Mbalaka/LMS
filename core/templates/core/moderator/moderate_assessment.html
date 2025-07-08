@@ -40,17 +40,24 @@
     </nav>
 
     <div class="content">
-      <h1>Moderate Assessment {{ assessment.eisa_id }}</h1>
+  <h1>Moderate Assessment {{ assessment.eisa_id }}</h1>
 
-      {% if assessment.file %}
-        <p>
-          <a href="{{ assessment.file.url }}" target="_blank" class="btn btn-outline-secondary btn-sm mb-3">
-            <i class="fas fa-file-pdf"></i> View Paper
-          </a>
-        </p>
-      {% else %}
-        <p class="text-muted">No paper PDF was uploaded for this assessment.</p>
-      {% endif %}
+  {% if assessment.paper_link %}
+    <p>
+      <a href="{% url 'load_saved_paper' assessment.paper_link.pk %}" class="btn btn-outline-primary btn-sm mb-3">
+        <i class="fas fa-eye"></i> View Extracted Paper
+      </a>
+    </p>
+  {% elif assessment.file %}
+    <p>
+      <a href="{{ assessment.file.url }}" target="_blank" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="fas fa-file-pdf"></i> View Uploaded PDF
+      </a>
+    </p>
+  {% else %}
+    <p class="text-muted">No paper is linked or uploaded for this assessment.</p>
+  {% endif %}
+
 
       <form method="post">
         {% csrf_token %}

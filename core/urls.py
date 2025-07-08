@@ -35,7 +35,7 @@ delete_assessment_centre, auto_fix_blocks,
 qualification_management_view, register,
 default_page, student_results, beta_paper_extractor, #Beta_paper extractor might delete if it does not work...
 assessment_progress_tracker, save_blocks,
-etqa_dashboard, assessment_center_view, submit_to_center, load_saved_paper_view,
+etqa_dashboard, assessment_center_view, submit_to_center, load_saved_paper_view, view_paper_as_doc_layout,
 approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results
 
 
@@ -57,6 +57,8 @@ urlpatterns = [
     path("administrator/review-paper/<int:paper_pk>/save-blocks/", save_blocks, name="save_blocks"),
     path("administrator/load-saved/<int:paper_pk>/", load_saved_paper_view, name="load_saved_paper"),
     path("administrator/review-saved/", review_saved_selector, name="review_saved_selector"),
+    
+
 
 
     path(
@@ -80,14 +82,17 @@ urlpatterns = [
     ),
 
 
+    path('view-paper-as-word/<int:paper_id>/', view_paper_as_doc_layout, name='view_paper_as_word'),
 
 
     path("administrator/beta-paper-tables/", beta_paper_tables_view, name="beta_paper_tables"),
     path('administrator/beta-paper/', beta_paper_extractor, name='beta_paper'),
-     path("api/clean-questions/", clean_questions, name="clean_questions"),
+    path("api/clean-questions/", clean_questions, name="clean_questions"),
     path('administrator/save-extracted/', save_extracted_questions, name='save_extracted_questions'),
 #___________________________________________________________________________________________________________
     path('awaiting-activation/', default_page, name='default'),
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     path('assessor/dashboard/', assessor_dashboard, name='assessor_dashboard'),
     path('assessor/assessment/<str:eisa_id>/', view_assessment, name='view_assessment'),
     path('upload_assessment/', upload_assessment, name='upload_assessment'),
@@ -96,13 +101,16 @@ urlpatterns = [
     path('generate-paper/', generate_tool_page, name='generate_tool_page'),
     path('api/generate-paper/', generate_tool, name='generate_tool'),
     path("submit-generated-paper/", submit_generated_paper, name="submit_generated_paper"),
-    path('add-question/', add_question, name='add_question'), 
+    path('add-question/', add_question, name='add_question'), #Add Paper is the new name forthcoming
     path('add-case-study/', add_case_study, name='add_case_study'),
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     path("moderator/", moderator_developer_dashboard, name="moderator_developer"),
     path("moderator/<str:eisa_id>/moderate/", moderate_assessment, name="moderate_assessment"),
     path("moderator/<str:eisa_id>/feedback/add/", add_feedback, name="add_feedback"),
     path( "moderator/checklist/<int:item_id>/toggle/", toggle_checklist_item,name="toggle_checklist_item"),
     path( "moderator/checklist/stats/", checklist_stats,name="checklist_stats"),
+
+    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     path('qcto/dashboard/', qcto_dashboard, name='qcto_dashboard'),
     #_____________________________________________________________
     path('etqa/dashboard/', etqa_dashboard, name='etqa_dashboard'),
@@ -142,7 +150,7 @@ urlpatterns = [
     path('submit-to-center/<int:batch_id>/', submit_to_center, name='submit_to_center'),
 
 
-     path('etqa/approve/<int:assessment_id>/', approve_by_etqa, name='approve_by_etqa'),
+    path('etqa/approve/<int:assessment_id>/', approve_by_etqa, name='approve_by_etqa'),
     path('etqa/reject/<int:assessment_id>/', reject_by_etqa, name='reject_by_etqa'),
 
 

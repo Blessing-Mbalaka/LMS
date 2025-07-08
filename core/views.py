@@ -2,7 +2,6 @@ import os
 import traceback
 from django.contrib import messages
 from rest_framework.parsers import MultiPartParser, JSONParser
-from .forms import QualificationForm
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion, Batch, AssessmentCentre
@@ -36,7 +35,7 @@ from django.utils.timezone  import now
 from django.contrib.admin.views.decorators import staff_member_required
 import random, string
 from django.contrib.auth.decorators import login_required
-from .models import Qualification, CustomUser
+from .models import Qualification, CustomUser, Paper
 
 
 from .forms import CustomUserForm
@@ -44,12 +43,12 @@ from django.contrib import admin
 from django.conf import settings
 from django.contrib.auth.admin import UserAdmin
 from .models import AssessmentCentre
-from .forms import AssessmentCentreForm, QualificationForm
+from .forms import AssessmentCentreForm
 from .models import (
     QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion,
     Qualification, CustomUser, AssessmentCentre, Feedback
 )
-from .forms import QualificationForm, AssessmentCentreForm, CustomUserForm
+from .forms import AssessmentCentreForm, CustomUserForm
 from .question_bank import QUESTION_BANK
 from utils import extract_text
 from google import genai
@@ -80,11 +79,11 @@ def redirect_user_by_role(user ):
         return redirect('moderator_developer')
     elif role == 'internal_mod':
         return redirect('internal_moderator_dashboard')
-    elif role in 'assessor_dev':
+    elif role == 'assessor_dev':
         return redirect('assessor_dashboard')
-    elif role in 'qcto':
+    elif role == 'qcto':
         return redirect('qcto_dashboard')
-    elif role in 'etqa':
+    elif role == 'etqa':
         return redirect('etqa_dashboard')
     elif role == 'learner':
         return redirect('student_dashboard')
@@ -296,32 +295,53 @@ def delete_assessment_centre(request, centre_id):
     return redirect('assessment_centres')
 
 @login_required
-# @staff_member_required
 def admin_dashboard(request):
-    
     if request.method == "POST":
         q_id      = request.POST.get("qualification")
-        paper     = request.POST.get("paper_number", "").strip()
+        paper_num = request.POST.get("paper_number", "").strip()
         saqa      = request.POST.get("saqa_id", "").strip()
         file_obj  = request.FILES.get("file_input")
         memo_obj  = request.FILES.get("memo_file")
 
         qual = get_object_or_404(Qualification, pk=q_id)
-        Assessment.objects.create(
+
+        # ✅ Create Paper object or get existing
+        paper_obj, _ = Paper.objects.get_or_create(
+            name=paper_num,
+            qualification=qual,
+            defaults={"total_marks": 0}
+        )
+
+        # ✅ Create Assessment linked to paper
+        assessment = Assessment.objects.create(
             eisa_id=f"EISA-{uuid.uuid4().hex[:8].upper()}",
             qualification=qual,
-            paper=paper,
+            paper=paper_num,
             saqa_id=saqa,
             file=file_obj,
             memo=memo_obj,
-            created_by=request.user,     
+            created_by=request.user,
+            paper_link=paper_obj,
         )
-        messages.success(request, "Assessment uploaded successfully.")
+
+        # ✅ Extract DOCX paper if applicable
+        if file_obj and file_obj.name.endswith(".docx"):
+            try:
+                blocks = extract_full_docx_structure(file_obj)
+                flat_questions = _flatten_structure(blocks)
+                ensure_ids(flat_questions)
+                save_nodes_to_db(flat_questions, paper_obj)
+
+                paper_obj.total_marks = sum(int(q.get("marks") or 0) for q in flat_questions)
+                paper_obj.save()
+            except Exception as e:
+                messages.error(request, f"Error processing paper: {e}")
+
+        messages.success(request, "Assessment uploaded and extracted successfully.")
         return redirect("admin_dashboard")
 
     # GET: show the dashboard
-    tools       = Assessment.objects.select_related("qualification","created_by")\
-                                     .order_by("-created_at")
+    tools       = Assessment.objects.select_related("qualification", "created_by").order_by("-created_at")
     total_users = CustomUser.objects.filter(is_superuser=False).count()
     quals       = Qualification.objects.all()
 
@@ -330,6 +350,7 @@ def admin_dashboard(request):
         "total_users":     total_users,
         "qualifications":  quals,
     })
+
 
 #_____________________________________________________________________________________________________
 
@@ -564,6 +585,7 @@ def generate_tool_page(request):
                 qualification=qualification,
                 paper="AutoGen",
                 comment="Generated and saved via tool",
+                status="pending"
             )
 
             for line in question_block.split("\n"):
@@ -595,41 +617,74 @@ def generate_tool_page(request):
 
 
 #**********************************************************************************************************
+from django.views.decorators.http import require_http_methods
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from core.models import Assessment, Qualification, Paper
+from utils import (
+    extract_full_docx_structure,
+    save_nodes_to_db,
+)
+import uuid
 @require_http_methods(["GET", "POST"])
 def upload_assessment(request):
     qualifications = Qualification.objects.all()
-    submissions    = Assessment.objects.all().order_by("-created_at")
+    submissions = Assessment.objects.all().order_by("-created_at")
 
     if request.method == "POST":
         eisa_id = f"EISA-{uuid.uuid4().hex[:8].upper()}"
-        qual_id  = request.POST.get("qualification")
+        qual_id = request.POST.get("qualification")
         qualification_obj = get_object_or_404(Qualification, pk=qual_id)
-        paper    = request.POST["paper_number"].strip()
-        saqa     = request.POST["saqa_id"].strip()
-        file     = request.FILES.get("file_input")
-        memo     = request.FILES.get("memo_file")
-        comment  = request.POST.get("comment_box","").strip()
-        forward  = request.POST.get("forward_to_moderator") == "on"
 
-        Assessment.objects.create(
+        paper_number = request.POST["paper_number"].strip()
+        saqa = request.POST["saqa_id"].strip()
+        file = request.FILES.get("file_input")
+        memo = request.FILES.get("memo_file")
+        comment = request.POST.get("comment_box", "").strip()
+        forward = request.POST.get("forward_to_moderator") == "on"
+
+        paper_obj, _ = Paper.objects.get_or_create(
+            name=paper_number,
+            qualification=qualification_obj,
+            defaults={"total_marks": 0}
+        )
+
+        assessment_obj = Assessment.objects.create(
             eisa_id=eisa_id,
             qualification=qualification_obj,
-            paper=paper,
+            paper=paper_number,
             saqa_id=saqa,
             file=file,
             memo=memo,
             comment=comment,
             forward_to_moderator=forward,
-            created_by=request.user, 
+            created_by=request.user,
+            paper_link=paper_obj,
+            status="Submitted to Moderator" if forward else "Pending",
+
         )
 
-        messages.success(request, "Assessment uploaded successfully.")
-        return redirect("upload_assessment")
+        if file and file.name.endswith(".docx"):
+            try:
+                blocks = extract_full_docx_structure(file)
+                flat_questions = _flatten_structure(blocks)
+                ensure_ids(flat_questions)
+                save_nodes_to_db(flat_questions, paper_obj)
+
+                paper_obj.total_marks = sum(int(q.get("marks") or 0) for q in flat_questions)
+                paper_obj.save()
+            except Exception as e:
+                messages.error(request, f"Error processing paper: {e}")
+
+        messages.success(request, "Assessment uploaded and paper extracted.")
+        return redirect("load_saved_paper", paper_obj.pk)
 
     return render(request, "core/assessor-developer/upload_assessment.html", {
-        "submissions":    submissions,
+        "submissions": submissions,
         "qualifications": qualifications,
     })
+
+
 
 
 # ---------------------------------------
@@ -878,7 +933,8 @@ def submit_generated_paper(request):
             file=None,
             memo=None,
             forward_to_moderator=True,
-            moderator_notes=content
+            moderator_notes=content,
+            status="Submitted to Moderator"
         )
 
         return JsonResponse({"status": "success", "message": "Paper submitted to moderator."})
@@ -919,11 +975,13 @@ def view_assessment(request, eisa_id):
 # @staff_member_required
 def moderator_developer_dashboard(request):
     pending = Assessment.objects.filter(
-        status__in=["Pending", "Submitted to Moderator"]
+        status__in=["Pending", "Submitted to Moderator"],
+        paper__isnull=False  #  exclude assessments with no paper
     ).order_by("-created_at")
 
     forwarded = Assessment.objects.filter(
-        status="Submitted to ETQA"
+        status="Submitted to ETQA",
+        paper__isnull=False  #  also filter here
     ).order_by("-created_at")
 
     recent_fb = Feedback.objects.select_related("assessment") \
@@ -934,6 +992,7 @@ def moderator_developer_dashboard(request):
         "forwarded_assessments": forwarded,
         "recent_feedback":       recent_fb,
     })
+
 
 
 def moderate_assessment(request, eisa_id):
@@ -1005,7 +1064,7 @@ def checklist_stats(request):
         "completed": done,
         "pending": pending
     })
-
+# 1) QCTO Dashboard: list assessments submitted to ETQA
 # QCTO Dashboard: list assessments submitted to ETQA
 @require_http_methods(["GET"])
 def qcto_dashboard(request):
@@ -1022,51 +1081,8 @@ def qcto_dashboard(request):
         {"pending_assessments": pending_assessments}
     )
 
-#@require_http_methods(["GET", "POST"])
-def qcto_moderate_assessment(request, eisa_id):
-    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
 
-    # Ensure QCTO only handles "Submitted to QCTO"
-    if assessment.status != "Submitted to QCTO":
-        messages.error(request, "This assessment is not pending QCTO review.")
-        return redirect("qcto_dashboard")
 
-    if request.method == "POST":
-        notes = request.POST.get("qcto_notes", "").strip()
-        decision = request.POST.get("decision")  # 'approve' or 'reject'
-
-        if decision == "approve":
-            assessment.status = "Approved by QCTO"
-            messages.success(request, f"{assessment.eisa_id} has been approved by QCTO.")
-        elif decision == "reject":
-            assessment.status = "Rejected"
-            messages.success(request, f"{assessment.eisa_id} has been rejected.")
-        else:
-            messages.error(request, "Invalid decision.")
-            return redirect("qcto_moderate_assessment", eisa_id=eisa_id)
-
-        assessment.qcto_notes = notes
-        assessment.save()
-        return redirect("qcto_dashboard")
-
-    # On GET, offer approve/reject choices
-    return render(
-        request,
-        "core/qcto/qcto_moderate_assessment.html",
-        {
-            "assessment": assessment,
-            "decision_choices": [
-                ("approve", "Approve"),
-                ("reject", "Reject"),
-            ],
-        }
-    )
-
-    # 1) QCTO Dashboard: list assessments submitted to ETQA
-@require_http_methods(["GET"])
-def qcto_dashboard(request):
-    pending = Assessment.objects.filter(status="Submitted to ETQA").order_by("-created_at")
-    return render(request, "core/qcto/qcto_dashboard.html", {"pending_assessments": pending})
 
 # 2) QCTO Moderate Assessment: view + update status and notes
 from django.views.decorators.http import require_http_methods
@@ -1080,6 +1096,7 @@ def qcto_moderate_assessment(request, eisa_id):
     assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
 
     if assessment.status != "Submitted to QCTO":
+
         messages.error(request, "This assessment is not pending QCTO review.")
         return redirect("qcto_dashboard")
 
@@ -1120,19 +1137,80 @@ def qcto_reports(request):
     return render(request, "core/qcto/qcto_reports.html", {"stats": stats})
 
 # 4) QCTO Compliance & Reports: overview all assessments
-@require_http_methods(["GET"])
+from django.views.decorators.http import require_http_methods
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import Assessment
+from django.views.decorators.http import require_http_methods
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import Assessment
+
+@require_http_methods(["GET", "POST"])
 def qcto_compliance(request):
-    assessments = Assessment.objects.all().order_by('-created_at')
-    return render(request, "core/qcto/qcto_compliance.html", {"assessments": assessments})
+    if request.method == "POST":
+        eisa_id = request.POST.get("eisa_id")
+        assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+
+        # read the notes and decision from the form
+        notes = request.POST.get("qcto_notes", "").strip()
+        decision = request.POST.get("decision")
+
+        # update status and save
+        if decision == "approve":
+            assessment.status = "Submitted to QCTO"   # ✅ this is key
+            messages.success(request, f"{eisa_id} sent to QCTO Final Review.")
+        elif decision == "reject":
+            assessment.status = "Non-compliant"
+            messages.success(request, f"{eisa_id} marked non-compliant.")
+        else:
+            messages.error(request, "Invalid decision.")
+            return redirect("qcto_compliance")
+
+        assessment.qcto_notes = notes
+        assessment.save()
+
+        # ✅ redirect to refresh the page so it's removed from the list
+        return redirect("qcto_compliance")
+
+    # GET: show only those not yet reviewed
+    assessments = Assessment.objects.exclude(status__in=["Submitted to QCTO", "Submitted to ETQA", "Approved by ETQA", "Non-compliant", "Rejected"]).order_by('-created_at')
+
+    return render(request, "core/qcto/qcto_compliance.html", {
+        "assessments": assessments
+    })
+
 
 # 5) QCTO Final Assessment Review: list for QCTO decision
 @login_required
 # @staff_member_required
+@require_http_methods(["GET", "POST"])
 def qcto_assessment_review(request):
-    assessments = Assessment.objects.filter(status='Submitted to QCTO')
-    return render(request,
-                  'core/qcto/assessment_review.html',   # <-- properly quoted
-                  {'assessments': assessments})
+    if request.method == "POST":
+        eisa_id = request.POST.get("eisa_id")
+        assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+
+        notes    = request.POST.get("qcto_notes", "").strip()
+        decision = request.POST.get("decision")
+
+        if decision == "approve":
+            assessment.status = "Submitted to ETQA"
+            messages.success(request, f"{eisa_id} approved and forwarded to ETQA.")
+        elif decision == "reject":
+            assessment.status = "Rejected"
+            messages.success(request, f"{eisa_id} has been rejected.")
+        else:
+            messages.error(request, "Invalid decision.")
+
+        assessment.qcto_notes = notes
+        assessment.save()
+        return redirect("qcto_assessment_review")
+
+    # GET: only show those pending QCTO
+    assessments = Assessment.objects.filter(status="Submitted to QCTO").order_by("-created_at")
+    return render(request, "core/qcto/assessment_review.html", {
+        "assessments": assessments
+    })
 
 
 
@@ -1888,57 +1966,28 @@ def auto_classify_blocks(request, paper_pk):
 
 
 
-#<--------------------------------------------------------------------------------------------->
-#<--------------------------------------------------------------------------------------------->
-#<--------------------------------------------------------------------------------------------->
-from django.shortcuts import render
-from .models import ExamNode
+from django.shortcuts import render, get_object_or_404
+from core.models import Paper, ExamNode
 
-def new_databank_view(request):
-    # Only pull nodes that are "question"
-    question_nodes = ExamNode.objects.filter(node_type='question')
+def view_paper_as_doc_layout(request, paper_id):
+    paper = get_object_or_404(Paper, pk=paper_id)
 
-    extracted_questions = []
-    for node in question_nodes:
-        payload = node.payload or {}
-        extracted_questions.append({
-            "number": node.number or payload.get("number", ""),
-            "marks": node.marks or payload.get("marks", ""),
-            "text": payload.get("text", ""),  
-            "content": payload.get("content", []),  # display structured blocks (tables, images, etc.)
-        })
+    # Fetch top-level questions (you can use your serialize_node if needed)
+    root_nodes = ExamNode.objects.filter(paper=paper, parent__isnull=True).order_by("number")
 
-    return render(request, "core/new_databank.html", {"questions": extracted_questions})
-
-#<---------------------------------Start of load saved paper--------------------------------------------------------->
-from django.shortcuts import get_object_or_404, redirect
-from .models import ExamNode, Paper
-# --- Updated load & serialize to preserve nested content blocks exactly ---
-from utils import serialize_node  # ensure you import this
-
-def load_saved_paper_view(request, paper_pk):
-    """
-    Load a previously saved paper either from session or from DB,
-    and always serialize to a consistent structure for the template.
-    """
-    paper = get_object_or_404(Paper, pk=paper_pk)
-
-    session_data = request.session.get(f"paper_{paper_pk}_questions", [])
-
-    if session_data:
-        # Always serialize session data to normalize the structure
-        questions = [serialize_node(q) for q in session_data]
-    else:
-        # Fallback to DB if session is cleared
-        roots = ExamNode.objects.filter(paper=paper, parent__isnull=True).order_by('number')
-        questions = [serialize_node(n) for n in roots]
-
-    return render(request, "core/administrator/review_paper.html", {
-        "questions": questions,
-        "paper": paper
+    return render(request, "core/view_paper_as_word.html", {
+        "paper": paper,
+        "questions": root_nodes,
     })
 
-# --- Selector view unchanged ---
+
+    path("administrator/review-saved/<int:paper_pk>/", views.load_saved_paper_view, name="load_saved_paper")
+
+
+
+from django.shortcuts import render, redirect
+from .models import Paper
+
 def review_saved_selector(request):
     papers = Paper.objects.order_by("-id")
     if request.method == "POST":
@@ -1946,3 +1995,55 @@ def review_saved_selector(request):
         if sel:
             return redirect("load_saved_paper", paper_pk=sel)
     return render(request, "core/administrator/review_saved_selector.html", {"papers": papers})
+
+
+from django.shortcuts import render
+from core.models import ExamNode
+
+def new_databank_view(request):
+    """
+    View to display all ExamNodes of type 'question' for databank purposes.
+    This is useful for reviewing all questions extracted and saved to the DB.
+    """
+    question_nodes = ExamNode.objects.filter(node_type='question').order_by('number')
+
+    extracted_questions = []
+    for node in question_nodes:
+        payload = node.payload or {}
+        extracted_questions.append({
+            "number": node.number or payload.get("number", ""),
+            "marks": node.marks or payload.get("marks", ""),
+            "text": payload.get("text", ""),
+            "content": payload.get("content", []),  # Could include tables/figures/etc.
+        })
+
+    return render(request, "core/administrator/new_databank.html", {
+        "questions": extracted_questions
+    })
+
+
+from django.shortcuts import get_object_or_404, render
+from core.models import Paper, ExamNode
+from utils import serialize_node  # make sure this exists
+
+def load_saved_paper_view(request, paper_pk):
+    """
+    View a previously saved paper's serialized structure.
+    If session data exists, it will be used; otherwise, fallback to database.
+    """
+    paper = get_object_or_404(Paper, pk=paper_pk)
+
+    session_data = request.session.get(f"paper_{paper_pk}_questions", [])
+
+    if session_data:
+        # Use session-stored structure and ensure it's re-serialized
+        questions = [serialize_node(q) for q in session_data]
+    else:
+        # Fallback to top-level DB structure
+        roots = ExamNode.objects.filter(paper=paper, parent__isnull=True).order_by('number')
+        questions = [serialize_node(n) for n in roots]
+
+    return render(request, "core/administrator/review_paper.html", {
+        "paper": paper,
+        "questions": questions,
+    })

@@ -1,0 +1,29 @@
+<!-- reusable_paper_tile.html -->
+{% if paper %}
+<div class="card mb-3 shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">Paper {{ paper.name }}</h5>
+    <p class="card-text">
+      <strong>Qualification:</strong> {{ paper.qualification.name }}<br>
+      {% if paper.qualification and paper.qualification.saqa_id %}
+        <strong>SAQA ID:</strong> {{ paper.qualification.saqa_id }}<br>
+      {% endif %}
+      <strong>Total Marks:</strong> {{ paper.total_marks|default:"Not Set" }}<br>
+      <strong>Status:</strong> {{ paper.status|title|default:"Pending" }}
+    </p>
+    <div class="d-flex gap-2">
+      {% if paper.pk %}
+        <a href="{% url 'load_saved_paper' paper.pk %}" class="btn btn-outline-primary btn-sm">
+          <i class="fa fa-eye"></i> View
+        </a>
+      {% else %}
+        <button class="btn btn-outline-secondary btn-sm" disabled>
+          <i class="fa fa-eye-slash"></i> Not Saved
+        </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% else %}
+  <p class="text-muted">No paper information available.</p>
+{% endif %}

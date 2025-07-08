@@ -50,6 +50,7 @@ class Qualification(models.Model):
         return self.qualification_type in self.QUALIFICATION_SAQA_MAPPING.keys()
 
 # User creation
+from django.contrib.auth.models import UserManager
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('default', 'Awaiting Activation'),                  
@@ -73,6 +74,7 @@ class CustomUser(AbstractUser):
         related_name='users'
     )
     email = models.EmailField(unique=True)
+    objects = UserManager()
 
     created_at = models.DateTimeField(auto_now_add=True)
     activated_at = models.DateTimeField(default=now)
@@ -103,6 +105,7 @@ class Assessment(models.Model):
     eisa_id = models.CharField(max_length=20, unique=True)
     qualification = models.ForeignKey(Qualification, on_delete=models.SET_NULL, null=True)
     paper = models.CharField(max_length=10)
+    paper_link = models.ForeignKey("Paper", null=True, blank=True, on_delete=models.SET_NULL, related_name="assessments")
     saqa_id = models.CharField(max_length=20, blank=True, null=True)
     moderator = models.CharField(max_length=100, blank=True)
     file = models.FileField(upload_to="assessments/", blank=True, null=True)

@@ -78,15 +78,19 @@
                 <td>{{ asmt.created_by.email }}</td>
                 <td>{{ asmt.created_at|date:"Y-m-d" }}</td>
                 <td><span class="status-badge status-{{ asmt.status|slugify }}">{{ asmt.status }}</span></td>
-                <td>
-                  {% if asmt.file %}
-                    <a href="{{ asmt.file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                      <i class="fas fa-file-pdf"></i>
-                    </a>
-                  {% else %}
-                    –
-                  {% endif %}
-                </td>
+   <td>
+  {% if asmt.paper_link %}
+    <a href="{% url 'load_saved_paper' asmt.paper_link.pk %}" class="btn btn-sm btn-outline-primary">
+      <i class="fas fa-eye"></i> View
+    </a>
+  {% else %}
+    <span class="text-muted">No extracted paper</span>
+  {% endif %}
+</td>
+
+
+
+
                 <td>
                   <a href="{% url 'moderate_assessment' asmt.eisa_id %}" class="btn btn-sm btn-gold">
                     <i class="fas fa-edit"></i>

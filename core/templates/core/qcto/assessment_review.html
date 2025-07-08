@@ -65,27 +65,47 @@
             <th>Assessment ID</th>
             <th>Qualification</th>
             <th>Questions</th>
-            <th>View PDF</th>
+            <th>View</th>
             <th>QCTO Notes</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {% for a in assessments %}
-            <tr>
-              <td>{{ a.eisa_id }}</td>
-              <td>{{ a.qualification.name }}</td>
-              <td>{% include 'core/includes/_question_list.html' with assessment=a %}</td>
-              <td>
-                {% if a.file %}<a href="{{ a.file.url }}" target="_blank" class="btn">View PDF</a>{% else %}-{% endif %}
-              </td>
-              <td>{{ a.qcto_notes|default:'-' }}</td>
-              <td><a href="{% url 'qcto_moderate_assessment' a.eisa_id %}" class="btn">Review</a></td>
-            </tr>
-          {% empty %}
-            <tr><td colspan="6" class="no-data">No assessments to review.</td></tr>
-          {% endfor %}
-        </tbody>
+  {% for a in assessments %}
+    <tr>
+  <td>{{ a.eisa_id }}</td>
+  <td>{{ a.qualification.name }}</td>
+  <td>{% include 'core/includes/_question_list.html' with assessment=a %}</td>
+
+  <!-- ✅ Only show structured extracted view -->
+  <td>
+    {% if a.paper_link %}
+      <a href="{% url 'load_saved_paper' a.paper_link.pk %}" class="btn">
+        <i class="fas fa-eye"></i> View Paper
+      </a>
+    {% else %}
+      <span class="text-muted">No extracted paper</span>
+    {% endif %}
+  </td>
+
+  <td>
+    <form method="post" action="{% url 'qcto_assessment_review' %}">
+      {% csrf_token %}
+      <input type="hidden" name="eisa_id" value="{{ a.eisa_id }}"/>
+      <textarea name="qcto_notes" rows="2" style="width:100%;">{{ a.qcto_notes }}</textarea>
+  </td>
+  <td>
+      <button type="submit" name="decision" value="approve" class="btn">Approve</button>
+      <button type="submit" name="decision" value="reject" class="btn">Reject</button>
+    </form>
+  </td>
+</tr>
+
+  {% empty %}
+    <tr><td colspan="6" class="no-data">No assessments to review.</td></tr>
+  {% endfor %}
+</tbody>
+
       </table>
     </div>
   </div>

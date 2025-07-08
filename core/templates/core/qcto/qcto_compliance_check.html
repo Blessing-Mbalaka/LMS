@@ -35,37 +35,27 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
-    .action-buttons a {
+    .action-buttons form {
       display: inline-block;
-      margin: 5px;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
+      margin: 4px 2px;
     }
-    .approve-btn { background-color: green; }
-    .reject-btn { background-color: red; }
-    .info-btn { background-color: orange; }
+    .approve-btn { background-color: green; color: white; padding: 6px 12px; border: none; border-radius: 6px; }
+    .reject-btn { background-color: red; color: white; padding: 6px 12px; border: none; border-radius: 6px; }
+    .info-btn    { background-color: orange; color: white; padding: 6px 12px; border: none; border-radius: 6px; }
 
     .sidebar ul {
-    list-style-type: none;
-    padding-left: 0;
-    /* removes default padding */
-  }
+      list-style-type: none;
+      padding-left: 0;
+    }
 
-  .sidebar li {
-    margin-bottom: 10px;
-    /* optional spacing between items */
-  }
+    .sidebar li {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <div class="dashboard-container">
     <div class="sidebar">
-      <!-- Add your sidebar content or include -->
       <a href="{% url 'logout' %}" class="fix">🚪 Log Out</a><br>
     </div>
     <div class="content">
@@ -83,18 +73,38 @@
         </thead>
         <tbody>
           {% for a in assessments %}
-          <tr>
-            <td>{{ a.eisa_id }}</td>
-            <td>{{ a.get_qualification_display }}</td>
-            <td>{{ a.paper|default:"-" }}</td>
-            <td>{{ a.comment|default:"-" }}</td>
-            <td><textarea placeholder="Enter comments..."></textarea></td>
-            <td class="action-buttons">
-              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}?action=approve" class="approve-btn">Approve</a>
-              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}?action=reject" class="reject-btn">Reject</a>
-              <a href="{% url 'qcto_moderate_assessment' a.eisa_id %}?action=request_info" class="info-btn">Request Info</a>
-            </td>
-          </tr>
+        <tr>
+  <td>{{ a.eisa_id }}</td>
+  <td>{{ a.get_qualification_display }}</td>
+  <td>
+    {% if a.paper_link %}
+      <a href="{% url 'load_saved_paper' a.paper_link.pk %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-eye"></i> View
+      </a>
+    {% else %}
+      <span class="text-muted">No extracted paper</span>
+    {% endif %}
+  </td>
+  <td>{{ a.comment|default:"-" }}</td>
+  <td colspan="2" class="action-buttons">
+    <form method="post" action="{% url 'qcto_moderate_assessment' a.eisa_id %}">
+      {% csrf_token %}
+      <textarea
+        name="qcto_notes"
+        placeholder="Enter comments…"
+        style="width:90%;padding:6px;border-radius:6px;border:1px solid #ccc;resize:vertical;"
+      >{{ a.qcto_notes }}</textarea>
+      <br/>
+      <button type="submit" name="decision" value="approve" class="approve-btn">
+        Approve
+      </button>
+      <button type="submit" name="decision" value="reject" class="reject-btn">
+        Reject
+      </button>
+    </form>
+  </td>
+</tr>
+
           {% empty %}
           <tr><td colspan="6">No assessments available.</td></tr>
           {% endfor %}
@@ -102,5 +112,6 @@
       </table>
     </div>
   </div>
+
 </body>
 </html>

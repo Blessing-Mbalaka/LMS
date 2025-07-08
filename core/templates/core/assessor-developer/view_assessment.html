@@ -120,7 +120,7 @@
       </div>
 
       <div class="card mb-4">
-        <h4>Questions</h4>
+        <h4>Individually Added Questions</h4>
         {% if questions %}
           {% for q in questions %}
             <div class="question-block">
@@ -130,9 +130,17 @@
             </div>
           {% endfor %}
         {% else %}
-          <p>No questions found for this assessment.</p>
+          <p>No individual questions found for this assessment.</p>
         {% endif %}
       </div>
+
+<!-- This is the reusable block with the paper -->
+ <div class="card mb-5">
+  <p>DEBUG: Paper Link = {{ assessment.paper_link }}</p>
+  {% include "core/components/paper_tile.html" with paper=assessment.paper_link %}
+</div>
+<!-- This is the end of the reusable block with the paper -->
+
 
       <form method="post" class="card mb-4">
         {% csrf_token %}
