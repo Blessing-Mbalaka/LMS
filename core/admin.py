@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser, Qualification
 
 
-#Custom User
+#Custom User------
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
