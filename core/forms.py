@@ -59,3 +59,22 @@ class EmailRegistrationForm(UserCreationForm):
             user.save()
         return user
 
+class QualificationForm(forms.ModelForm):
+    class Meta:
+        model = Qualification
+        fields = ['name', 'qualification_type', 'saqa_id', 'code', 'description', 'level']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'qualification_type': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'qualificationType'  # 👈 JS will hook onto this
+            }),
+            'saqa_id': forms.TextInput(attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'id': 'saqaId'  # 👈 JS will update this
+            }),
+            'code': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'level': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}),
+         }

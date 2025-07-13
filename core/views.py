@@ -367,7 +367,7 @@ def qualification_management_view(request):
             messages.success(request, "Qualification added successfully.")
             return redirect('manage_qualifications')
         else:
-            print("Form errors:", form.errors)  # ✅ This helps you see why it failed
+            print("Form errors:", form.errors)  
             messages.error(request, "Please correct the errors below.")
 
     return render(request, 'core/administrator/qualifications.html', {
