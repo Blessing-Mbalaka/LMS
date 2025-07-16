@@ -16,6 +16,13 @@
         <a href="{% url 'load_saved_paper' paper.pk %}" class="btn btn-outline-primary btn-sm">
           <i class="fa fa-eye"></i> View
         </a>
+
+        <!-- NEW: Randomize ExamNode Top-Level Structure -->
+<a href="{% url 'randomize_paper_structure' paper.pk %}" class="btn btn-outline-warning btn-sm">
+  🎲 Randomize Top-Level Questions
+</a>
+
+
       {% else %}
         <button class="btn btn-outline-secondary btn-sm" disabled>
           <i class="fa fa-eye-slash"></i> Not Saved

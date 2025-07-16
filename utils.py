@@ -4,6 +4,7 @@ from PyPDF2 import PdfReader
 import docx
 from docx import Document
 
+print("✅ [CONFIRM] LOADED utils.py FROM:", __file__)
 
 def extract_text_from_pdf(f):
     reader = PdfReader(f)
@@ -278,10 +279,6 @@ def extract_questions_with_metadata(docx_file):
 
     return results
 
-
-
-
-
 def extract_generic_tables(docx_file):
     try:
         doc = Document(io.BytesIO(docx_file.read()))
@@ -312,6 +309,7 @@ def extract_generic_tables(docx_file):
 import io
 import re
 import json
+import base64
 from docx import Document
 from docx.text.paragraph import Paragraph
 from docx.table import Table
@@ -319,131 +317,83 @@ from zipfile import BadZipFile
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from google import genai
-import base64
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
+from docx.oxml.ns import qn
 
-# Namespaces for inline image extraction
-W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
-A_NS = 'http://schemas.openxmlformats.org/drawingml/2006/main'
-R_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
-V_NS = "urn:schemas-microsoft-com:vml"
-
-@require_POST
-@csrf_exempt
-def auto_classify_blocks(request):
-    """
-    Use Gemini API to classify text and figure blocks.
-    Returns {"types": [...]} aligned with input.
-    """
-    try:
-        payload = json.loads(request.body)
-        blocks  = payload.get('blocks', [])
-
-        system_prompt = """
-You are a classification assistant. You receive a JSON list of text/image blocks from an exam paper, in order.
-Produce {"types": [...]} matching each block. Valid: question_header, case_study, paragraph, table, instruction, rubric, diagram, figure.
-
-Rules:
-0. A hyphen-only block (>=5 '-') is 'instruction' boundary.
-1. FIRST block post-boundary starting '1.1' marks questions; pre-block: 'instruction'.
-2. Inline image blocks are 'figure'.
-3. 'Case Study' start & continuation => 'case_study'.
-4. Question headers => 'question_header'.
-5. Others post-question split by content; default 'paragraph'.
-Output only JSON.
-"""
-        resp = genai_client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=[system_prompt, json.dumps(blocks)]
-        )
-        data = json.loads((resp.text or '').strip())
-        types = data.get('types')
-        if not isinstance(types, list) or len(types) != len(blocks):
-            raise ValueError
-    except Exception:
-        types = ['paragraph'] * len(blocks)
-
-    return JsonResponse({'types': types})
-
-import io
-import re
-import base64
-from zipfile import BadZipFile
-from docx import Document
-from docx.text.paragraph import Paragraph
-from docx.table import Table
-
-# XML namespaces for different image formats
+# XML namespaces for images
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 A_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
 R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 V_NS = "urn:schemas-microsoft-com:vml"
 
+
 def extract_full_docx_structure(docx_file):
-    # Question‐header regex: supports "1", "1.1", "2.3.4", multiline text, optional marks
+    docx_file.seek(0)
+    try:
+        doc = Document(io.BytesIO(docx_file.read()))
+    except Exception:
+        return {'error': 'Invalid .docx'}
+
     qn_rx = re.compile(r'''
         ^\s*
-        (?:Question(?:\s+Header)?\s*[:\-–]?\s*)?
-        (?P<number>\d+(?:\.\d+)*)
-        (?:\s*[-\.)]\s*)?
-        (?P<text>.*?)
-        (?:\s*\(\s*(?P<marks>\d+)\s*marks?\s*\))?
+        (?:Question(?:\s+Header)?\s*[:\-\u2013]?\s*)?     # Optional "Question" prefix
+        (?P<number>\d+(?:\.\d+)*)                          # Match 1 or 1.1 or 1.1.1 etc.
+        (?:\s*[-\.)]\s*)?                                 # Optional trailing - or ) after number
+        (?P<text>.*?)                                        # Capture text after number
+        (?:\s*\(\s*(?P<marks>\d+)\s*marks?\s*\))?     # Optional (10 Marks)
         \s*$
     ''', re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
-    # Specific question‐type detectors
-    cr_rx  = re.compile(r'(?i)^Constructive Response\s*:?')
-    mcq_rx = re.compile(r'(?i)^Multiple Choice Questions?\s*:?')
-    cs_rx  = re.compile(r'(?i)^Case Study\s*:?')
-
-    # Standalone "(10 Marks)" paragraphs
+    cr_rx = re.compile(r'(?i)^Constructive Response\s*:?.*')
+    mcq_rx = re.compile(r'(?i)^Multiple Choice Questions?\s*:?.*')
+    cs_rx = re.compile(r'(?i)^Case Study\s*:?.*')
     marks_only_rx = re.compile(r'^\(?\s*(\d+)\s*marks?\)?$', re.IGNORECASE)
 
     def is_subquestion(child, parent):
         return child.startswith(parent + '.') and child.count('.') == parent.count('.') + 1
 
-    # Read document
-    docx_file.seek(0)
-    try:
-        doc = Document(io.BytesIO(docx_file.read()))
-    except BadZipFile:
-        return {'error': 'Invalid .docx'}
-
     structured = []
     stack = []
     current_cs = None
+    last_question_map = {}
+    seen_questions = set()
+
+    def create_question_block(num, rest, mark, subtype):
+        return {
+            'type': 'question',
+            'subtype': subtype,
+            'number': num,
+            'text': rest,
+            'marks': mark,
+            'content': [],
+            'children': []
+        }
 
     for el in doc.element.body:
-        # --- Paragraphs ---
         if el.tag.endswith('}p'):
-            # handle images first
-            handled_image = False
-            for drawing in el.iter(f'{{{W_NS}}}drawing'):
-                for blip in drawing.iter(f'{{{A_NS}}}blip'):
-                    rid = blip.get(f'{{{R_NS}}}embed')
-                    if not rid: continue
+            # --- Handle embedded images (figures) ---
+            found_figure = False
+            try:
+                for drawing in el.iter(f'{{{W_NS}}}drawing'):
+                    for blip in drawing.iter(f'{{{A_NS}}}blip'):
+                        rid = blip.get(f'{{{R_NS}}}embed')
+                        part = doc.part.related_parts.get(rid)
+                        if part and hasattr(part, 'blob'):
+                            uri = "data:{};base64,{}".format(part.content_type, base64.b64encode(part.blob).decode())
+                            fig_block = {'type': 'figure', 'data_uri': uri}
+                            (stack[-1]['content'] if stack else structured).append(fig_block)
+                            found_figure = True
+                for shape in el.iter(f'{{{V_NS}}}imagedata'):
+                    rid = shape.get(f'{{{R_NS}}}id')
                     part = doc.part.related_parts.get(rid)
-                    if not part: continue
-                    uri = ("data:" + part.content_type +
-                           ";base64," + base64.b64encode(part.blob).decode())
-                    block = {'type': 'figure', 'data_uri': uri}
-                    if stack: stack[-1]['content'].append(block)
-                    else:    structured.append(block)
-                    handled_image = True
-            for shape in el.iter(f'{{{V_NS}}}imagedata'):
-                rid = shape.get(f'{{{R_NS}}}id')
-                if not rid: continue
-                part = doc.part.related_parts.get(rid)
-                if not part: continue
-                uri = ("data:" + part.content_type +
-                       ";base64," + base64.b64encode(part.blob).decode())
-                block = {'type': 'figure', 'data_uri': uri}
-                if stack: stack[-1]['content'].append(block)
-                else:    structured.append(block)
-                handled_image = True
-
-            if handled_image:
-                current_cs = None
+                    if part and hasattr(part, 'blob'):
+                        uri = "data:{};base64,{}".format(part.content_type, base64.b64encode(part.blob).decode())
+                        fig_block = {'type': 'figure', 'data_uri': uri}
+                        (stack[-1]['content'] if stack else structured).append(fig_block)
+                        found_figure = True
+            except Exception as e:
+                print(f"⚠️ Figure extraction failed: {e}")
+            if found_figure:
                 continue
 
             para = Paragraph(el, doc)
@@ -451,7 +401,6 @@ def extract_full_docx_structure(docx_file):
             if not text:
                 continue
 
-            # standalone marks
             m_mark = marks_only_rx.match(text)
             if m_mark:
                 for q in reversed(stack):
@@ -460,12 +409,11 @@ def extract_full_docx_structure(docx_file):
                         break
                 continue
 
-            # question header?
             m_q = qn_rx.match(text)
             if m_q:
-                num   = m_q.group('number')
-                rest  = m_q.group('text').strip()
-                mark  = m_q.group('marks') or ''
+                num = m_q.group('number')
+                rest = m_q.group('text').strip()
+                mark = m_q.group('marks') or ''
                 subtype = 'other'
                 if cr_rx.match(rest):
                     subtype = 'constructive_response'
@@ -474,16 +422,10 @@ def extract_full_docx_structure(docx_file):
                 elif cs_rx.match(rest):
                     subtype = 'case_study'
 
-                new_q = {
-                    'type':    'question',
-                    'subtype': subtype,
-                    'number':  num,
-                    'text':    rest,
-                    'marks':   mark,
-                    'content': [],
-                    'children': []
-                }
-                # pop until parent fits
+                if num in seen_questions:
+                    continue
+
+                new_q = create_question_block(num, rest, mark, subtype)
                 while stack and not is_subquestion(num, stack[-1]['number']):
                     stack.pop()
                 if stack:
@@ -491,41 +433,33 @@ def extract_full_docx_structure(docx_file):
                 else:
                     structured.append(new_q)
                 stack.append(new_q)
-                current_cs = None
+                last_question_map[num] = new_q
+                seen_questions.add(num)
                 continue
 
-            # case study continuation?
-            if cs_rx.match(text):
-                current_cs = {'type': 'case_study', 'text': cs_rx.sub('', text).strip()}
-                continue
-            if current_cs:
-                current_cs['text'] += '\n' + text
+            if cr_rx.match(text) or text.lower().startswith('constructive respond'):
+                if stack:
+                    block = {'type': 'question_text', 'text': text}
+                    stack[-1]['content'].append(block)
                 continue
 
-            # normal question text
             block = {'type': 'question_text', 'text': text}
             if stack:
                 stack[-1]['content'].append(block)
             else:
                 structured.append(block)
 
-        # -- Tables --
         elif el.tag.endswith('}tbl'):
             tbl = Table(el, doc)
-            rows = [
-                [cell.text.strip() for cell in row.cells]
-                for row in tbl.rows
-            ]
+            rows = [[cell.text.strip() for cell in row.cells] for row in tbl.rows]
             rows = [r for r in rows if any(r)]
-            
-            # —— ANY TABLE whose first cell is a header becomes a question ——
+
             if rows:
                 m0 = qn_rx.match(rows[0][0])
                 if m0:
-                    num   = m0.group('number')
-                    rest  = m0.group('text').strip()
-                    mark  = m0.group('marks') or ''
-                    # detect subtype
+                    num = m0.group('number')
+                    rest = m0.group('text').strip()
+                    mark = m0.group('marks') or ''
                     subtype = 'other'
                     if mcq_rx.match(rest):
                         subtype = 'multiple_choice'
@@ -534,15 +468,10 @@ def extract_full_docx_structure(docx_file):
                     elif cs_rx.match(rest):
                         subtype = 'case_study'
 
-                    new_q = {
-                        'type':     'question',
-                        'subtype':  subtype,
-                        'number':   num,
-                        'text':     rest,
-                        'marks':    mark,
-                        'content':  [],
-                        'children': []
-                    }
+                    if num in seen_questions:
+                        continue
+
+                    new_q = create_question_block(num, rest, mark, subtype)
                     while stack and not is_subquestion(num, stack[-1]['number']):
                         stack.pop()
                     if stack:
@@ -550,137 +479,68 @@ def extract_full_docx_structure(docx_file):
                     else:
                         structured.append(new_q)
                     stack.append(new_q)
-                    current_case_study = None
-
-                    # everything after the header‐row becomes .content
+                    last_question_map[num] = new_q
                     if len(rows) > 1:
-                        new_q['content'].append({
-                            'type': 'table',
-                            'rows': rows[1:]
-                        })
+                        new_q['content'].append({'type': 'table', 'rows': rows[1:]})
+                    seen_questions.add(num)
                     continue
 
-            # —— FALL BACK TO A “PURE” TABLE BLOCK ——
-            if rows:
-                table_block = {'type': 'table', 'rows': rows}
-                if stack:
-                    stack[-1]['content'].append(table_block)
-                else:
-                    structured.append(table_block)
-            continue
-
-
-            # flush open case study
-        if current_cs:
-                if stack:
-                    stack[-1]['content'].append(current_cs)
-                else:
-                    structured.append(current_cs)
-                current_cs = None
-
-            # regular table
-    table_block = {'type': 'table', 'rows': rows}
-    if stack:
+            table_block = {'type': 'table', 'rows': rows}
+            if stack:
                 stack[-1]['content'].append(table_block)
-    else:
+            else:
                 structured.append(table_block)
 
-    # final flush of case study
-    if current_cs:
-        if stack:
-            stack[-1]['content'].append(current_cs)
-        else:
-            structured.append(current_cs)
-
+    debug_preview = json.dumps(structured[:5], indent=2) + ("\n... [truncated]" if len(structured) > 5 else "")
+    print("\n📦 [STRUCTURED PREVIEW]:\n" + debug_preview)
     return structured
 
 
+
+def _flatten_structure(structure, parent=None):
+    """
+    Flatten the nested structure extracted from DOCX into a list.
+    Preserves parent-child relationship using 'parent' field.
+    """
+    flat = []
+
+    for block in structure:
+        base = {
+            "type": block.get("type"),
+            "subtype": block.get("subtype", ""),
+            "number": block.get("number", ""),
+            "text": block.get("text", ""),
+            "marks": block.get("marks", ""),
+            "parent": parent,
+            "children": []  # Only used temporarily for visual rebuilds
+        }
+
+        # Attach embedded content (figures, tables, paragraphs)
+        if "content" in block:
+            base["content"] = []
+            for c in block["content"]:
+                base["content"].append({
+                    "type": c.get("type"),
+                    "text": c.get("text", ""),
+                    "rows": c.get("rows", []),
+                    "data_uri": c.get("data_uri", "")
+                })
+
+        flat.append(base)
+
+        # Recurse through children
+        for child in block.get("children", []):
+            flat += _flatten_structure([child], parent=block.get("number"))
+
+    return flat
+
+
+
+
+#We need to add a filtering layer that utilises AI to classify the final Structure to guaratee the final output,
+#The intent is to give a better structured output so we can see a better paper extraction.
 #***********************************END OF *****************************************************************************************************
-
-import io
-import re
-import json
-import base64
-from docx import Document
-from docx.text.paragraph import Paragraph
-from docx.table import Table
-from zipfile import BadZipFile
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from google import genai
-
-# Namespaces for inline image extraction
-W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
-A_NS = 'http://schemas.openxmlformats.org/drawingml/2006/main'
-R_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
-
-@require_POST
-@csrf_exempt
-def auto_classify_blocks(request):
-    """
-    Calls Gemini to classify each block into one of eight types
-    (question_header, case_study, paragraph, table, instruction,
-     rubric, diagram, figure) aligned with input.
-    """
-    try:
-        payload = json.loads(request.body)
-        blocks  = payload.get('blocks', [])
-
-        # Pre-classify based on simple patterns
-        types = []
-        for b in blocks:
-            text = (b.get('text') or '').strip()
-            # Question headers like '1.1', '2.3.4', etc.
-            if re.match(r'^\d+(?:\.\d+)+', text):
-                types.append('question_header')
-                continue
-            # Case study markers
-            if text.lower().startswith('case study'):
-                types.append('case_study')
-                continue
-            # Inline images
-            if b.get('data_uri'):
-                types.append('figure')
-                continue
-            # Tables
-            if b.get('rows') is not None:
-                types.append('table')
-                continue
-            # Hyphen separator
-            if re.fullmatch(r'-{5,}', text):
-                types.append('instruction')
-                continue
-            # Fallback placeholder, will refine via AI
-            types.append(None)
-
-        # Build system prompt for remaining unknowns
-        system_prompt = ("""
-You are a classification assistant. For any block where I haven't pre-assigned a type,
-classify it into one of: paragraph, instruction, rubric, diagram.
-Use the context of the content. Do NOT reclassify ones already pre-labeled.
-Output JSON only: {"types": [...]} matching each input block.
-""")
-
-        # Send blocks and partial-types to Gemini
-        resp = genai_client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=[system_prompt, json.dumps({'blocks': blocks, 'partial_types': types})]
-        )
-        data = json.loads((resp.text or '').strip())
-        ai_types = data.get('types', [])
-
-        # Merge: use pre-classified if present, else AI result
-        final_types = []
-        for pre, ai in zip(types, ai_types):
-            final_types.append(pre or ai)
-
-    except Exception:
-        # On error, default to paragraph
-        final_types = ['paragraph'] * len(blocks)
-
-    return JsonResponse({'types': final_types})
-#----------------------------------------------------------------------------------------------
+#----------------------------------------------
 
 #<---------------Serializer Node-----[used to preserve paper structure]----------------------->
 def serialize_node(obj):
@@ -722,32 +582,272 @@ def serialize_node(obj):
 from core.models import ExamNode
 import uuid
 
-def save_nodes_to_db(nodes, paper, parent=None):
+def save_nodes_to_db(nodes, paper):
     """
-    Save extracted nodes (and children) into ExamNode table.
+    nodes: a flat list of dicts each with at least 'number', 'text', 'type', etc.
+    paper: the Paper instance to attach them to
     """
-    for node in nodes:
-        node_id = node.get("id") or uuid.uuid4().hex
-        payload = {
-            "text": node.get("text", ""),
-            "data_uri": node.get("data_uri", ""),
-            "content": node.get("content", []),
-        }
+    # 1. sort by how many dots in the number (parents first)
+    nodes_sorted = sorted(nodes, key=lambda n: n['number'].count('.'))
+    # 2. map from number -> saved ExamNode
+    number_map = {}
 
+    for node in nodes_sorted:
+        num = node['number']
+        # find parent by stripping last segment (e.g. '1.1.2' -> '1.1')
+        parent = None
+        if '.' in num:
+            parent_num = num.rsplit('.', 1)[0]
+            parent = number_map.get(parent_num)
+
+        # create the node
         db_node = ExamNode.objects.create(
-            id=node_id[:32],
+            id=(node.get("id") or uuid.uuid4().hex)[:32],
             paper=paper,
             parent=parent,
             node_type=node.get("type", ""),
-            number=node.get("number", ""),
+            number=num,
             marks=node.get("marks", ""),
             text=node.get("text", ""),
             content=node.get("content", []),
             data_uri=node.get("data_uri", ""),
-            payload=payload,
+            payload={
+                "text":    node.get("text", ""),
+                "content": node.get("content", []),
+                "data_uri": node.get("data_uri", "")
+            },
         )
 
-        # Recursively save children
-        for child in node.get("children", []):
-            save_nodes_to_db([child], paper, parent=db_node)
-#-------------------------------------end----------------------------------------------------------------}
+        # remember it for its children
+        number_map[num] = db_node
+
+
+
+
+
+
+
+
+
+
+
+import json
+import re
+import google.generativeai as genai
+
+def auto_classify_blocks_with_gemini(blocks):
+    print("🔥 [DEBUG] Using UPDATED Gemini classification function")
+        #  Defensive type check to prevent calling .get() on strings
+    if not isinstance(blocks, list) or not all(isinstance(b, dict) for b in blocks):
+        raise TypeError("❌ Expected list of dicts, but got invalid structure.")
+
+    # Step 1: Basic pre-labeling
+    types = []
+    for b in blocks:
+        text = (b.get('text') or '').strip()
+        if re.match(r'^\d+(?:\.\d+)+', text):
+            types.append('question_header')
+        elif text.lower().startswith('case study'):
+            types.append('case_study')
+        elif b.get('data_uri'):
+            types.append('figure')
+        elif b.get('rows') is not None:
+            types.append('table')
+        elif re.fullmatch(r'-{5,}', text):
+            types.append('instruction')
+        else:
+            types.append(None)
+
+    print("🧠 [LOG] Pre-assigned types:", types)
+
+    # Step 2: System prompt
+    system_prompt = """
+You are a classification assistant. You will be given a list of blocks extracted from a question paper.
+
+Some blocks have already been pre-classified as one of: question_header, case_study, table, or figure — leave those untouched.
+
+Your job is to classify the remaining untyped blocks using ONLY one of the following labels:
+- "paragraph": General text that doesn’t give specific instructions, often background or descriptive.
+- "instruction": Any directive to the student (e.g. "Answer all questions", "Use only the booklet", "Show all working").
+- "rubric": General rules or formatting notes that apply to the exam, typically near the top of the paper.
+- "diagram": Describes a visual element without being a full figure block.
+
+🛑 DO NOT classify any non-question text as "question_header".
+
+---
+**Examples of proper classification:**
+- "1.1 Define the term ‘quality assurance’. (5 Marks)" → question_header
+- "Use only the supplied EISA booklets." → instruction
+- "All questions are compulsory." → instruction
+- "The purpose of quality assurance is to ensure..." → paragraph
+- "Diagrams must be labelled clearly." → rubric
+
+---
+Your output should ONLY be this JSON format:
+
+{
+  "types": ["paragraph", "instruction", "rubric", ...]
+}
+""".strip()
+
+    try:
+
+        for i in range(4):
+            print(f"🔁 [LOOP] Running classification pass {i+1}/4")
+        # Step 3: Gemini request
+            model = genai.GenerativeModel('gemini-1.5-flash')  # or 'gemini-1.5-pro' if preferred
+            response = model.generate_content([
+            system_prompt,
+            json.dumps({'blocks': blocks, 'partial_types': types})
+        ])
+
+        # Step 4: Log and clean response
+        raw_text = (response.text or '').strip()
+        print("📨 [LOG] Gemini raw response:", raw_text[:300], "..." if len(raw_text) > 300 else "")
+
+        # Remove Markdown-style triple backticks if they exist
+        cleaned_text = re.sub(r'^```(?:json)?|```$', '', raw_text, flags=re.IGNORECASE | re.MULTILINE).strip()
+
+        parsed = json.loads(cleaned_text)
+        ai_types = parsed.get('types', [])
+
+        if not isinstance(ai_types, list):
+            raise ValueError("Gemini response does not contain a valid 'types' list")
+
+        # Step 5: Final merge
+        final = [pre or ai for pre, ai in zip(types, ai_types)]
+        print("✅ [LOG] Final merged types:", final)
+        return final
+
+    except Exception as e:
+        print("❌ [ERROR] Gemini classification failed:", str(e))
+        #add print payload so we can see th tree...
+        return ['paragraph'] * len(blocks)
+    
+    
+
+
+
+#----------------------------------------------end----------------------------------------------------------------
+#responsible for AI filtering not classification only.
+import os
+import json
+import re
+import logging
+
+
+# Configure Gemini
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+
+# --- Gemini Classification Logic ---
+
+def is_structural_noise(text):
+    text = text.strip().lower()
+    noise_patterns = [
+        r'^students are only allowed',
+        r'^question paper',
+        r'^instructions',
+        r'^section [a-z]',
+        r'^answer all questions',
+        r'^eisa rules',
+        r'^quality controller',
+        r'^page \d+',
+        r'^external integrated summative assessment',
+        r'^this question paper consists of',
+    ]
+    return any(re.match(pattern, text) for pattern in noise_patterns)
+
+def classify_block_type(text_blocks):
+    """
+    Accepts a list of text strings and returns a list of predicted block types:
+    e.g., ['question', 'rubric', 'case_study', 'table', ...]
+    """
+    if not GEMINI_API_KEY:
+        return ["other"] * len(text_blocks)
+
+    prompt = f"""
+You are a document examiner for exam papers.
+
+Classify each of the following blocks into one of the following types:
+
+- 'question': a numbered question (e.g. '1.1 Define...')
+- 'case_study': if it contains context or scenario
+- 'instruction': if it tells the learner what to do
+- 'rubric': if it describes how marks are allocated
+- 'table': if the block is a table or looks like one
+- 'heading': if it is a heading like 'SECTION A'
+- 'noise': if it is unrelated or structural like 'Page 1', or 'EISA Rules'
+- 'other': if unsure
+
+Return a JSON list in the same order as input.
+
+INPUT:
+{json.dumps(text_blocks[:40], indent=2)}
+
+Respond with only the JSON list.
+    """.strip()
+
+    try:
+        model = genai.GenerativeModel("gemini-pro")
+        response = model.generate_content(prompt)
+        raw = response.text.strip()
+
+        logging.info("📨 Gemini raw response: \n%s", raw)
+
+        parsed = json.loads(raw)
+        return parsed
+
+    except Exception as e:
+        logging.error("❌ Gemini classification failed: %s", e)
+        return ["other"] * len(text_blocks)
+
+
+#Rebuild a tree structure  for ensuring the tree instead of flattened is stored in DB
+def rebuild_tree(flat_nodes):
+    """
+    Given a flat list of blocks with `number` and `parent_id`,
+    reconstruct a nested tree.
+    """
+    id_map = {n['id']: {**n, 'children': []} for n in flat_nodes}
+
+    root_nodes = []
+    for node in id_map.values():
+        parent_id = node.get('parent_id')
+        if parent_id and parent_id in id_map:
+            id_map[parent_id]['children'].append(node)
+        else:
+            root_nodes.append(node)
+
+    return root_nodes
+
+#<----------------------------------------------------------------------------------------------------------------------------->
+
+
+#<----------------------------------------------------------------------------------------------------------------------------->
+
+def rebuild_nested_structure(flat_nodes):
+    """
+    Rebuilds a nested structure: parents like '1.1' will include their children like '1.1.1', '1.1.2' in a `children` list.
+    Assumes each node has: id, number, parent_id (optional), and content fields.
+    """
+    id_to_node = {}
+    root_nodes = []
+
+    # Step 1: Prepare nodes and mapping
+    for node in flat_nodes:
+        node_copy = {**node, "children": []}
+        id_to_node[node["id"]] = node_copy
+
+    # Step 2: Assign children to parents
+    for node in flat_nodes:
+        parent_id = node.get("parent_id")
+        if parent_id and parent_id in id_to_node:
+            id_to_node[parent_id]["children"].append(id_to_node[node["id"]])
+        else:
+            root_nodes.append(id_to_node[node["id"]])  # no parent → top-level
+
+    # Step 3: Optional — sort top-level by number (1.1, 1.2, ...)
+    root_nodes.sort(key=lambda n: n.get("number", ""))
+    return root_nodes

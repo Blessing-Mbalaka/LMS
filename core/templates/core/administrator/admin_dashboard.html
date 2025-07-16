@@ -118,43 +118,50 @@
           </div>
         </div>
 
-        <!-- ========= Upload Assessment Form ========= -->
-        <div class="card mb-4">
-          <div class="card-header">Upload New Assessment</div>
-          <div class="card-body">
-            <form method="post" enctype="multipart/form-data" class="row g-3">
-              {% csrf_token %}
-              <div class="col-md-4">
-                <label for="qual" class="form-label">Qualification</label>
-                <select id="qual" name="qualification" class="form-select form-select-sm" required>
-                  <option value="">— Select —</option>
-                  {% for q in qualifications %}
-                  <option value="{{ q.id }}">{{ q.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-md-2">
-                <label for="paper" class="form-label">Paper #</label>
-                <input type="text" id="paper" name="paper_number" class="form-control form-control-sm" required>
-              </div>
-              <div class="col-md-2">
-                <label for="saqa" class="form-label">SAQA ID</label>
-                <input type="text" id="saqa" name="saqa_id" class="form-control form-control-sm">
-              </div>
-              <div class="col-md-2">
-                <label for="file" class="form-label">Assessment File</label>
-                <input type="file" id="file" name="file_input" class="form-control form-control-sm">
-              </div>
-              <div class="col-md-2">
-                <label for="memo" class="form-label">Memo (opt.)</label>
-                <input type="file" id="memo" name="memo_file" class="form-control form-control-sm">
-              </div>
-              <div class="col-12 text-end">
-                <button type="submit" class="btn btn-primary btn-sm">Upload Assessment</button>
-              </div>
-            </form>
-          </div>
-        </div>
+<!-- ========= Upload Assessment Form ========= -->
+<div class="card mb-4">
+  <div class="card-header">Upload New Assessment</div>
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data" class="row g-3">
+      {% csrf_token %}
+      
+      <div class="col-md-4">
+        <label for="qual" class="form-label">Qualification</label>
+        <select id="qual" name="qualification_id" class="form-select form-select-sm" required>
+          <option value="">— Select Qualification —</option>
+          {% for q in qualifications %}
+            <option value="{{ q.id }}">{{ q.name }} ({{ q.code }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label for="paper" class="form-label">Paper #</label>
+        <input type="text" id="paper" name="paper_number" class="form-control form-control-sm" placeholder="e.g. 1A" required>
+      </div>
+
+      <div class="col-md-2">
+        <label for="saqa" class="form-label">SAQA ID</label>
+        <input type="text" id="saqa" name="saqa_id" class="form-control form-control-sm" placeholder="e.g. 123456">
+      </div>
+
+      <div class="col-md-2">
+        <label for="file" class="form-label">Assessment File</label>
+        <input type="file" id="file" name="file_input" class="form-control form-control-sm" accept=".docx" required>
+      </div>
+
+      <div class="col-md-2">
+        <label for="memo" class="form-label">Memo (optional)</label>
+        <input type="file" id="memo" name="memo_file" class="form-control form-control-sm" accept=".docx,.pdf">
+      </div>
+
+      <div class="col-12 text-end">
+        <button type="submit" class="btn btn-primary btn-sm">Upload Assessment</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 
         <!-- ========= List of Uploaded Assessments ========= -->
         <div class="card mb-4">

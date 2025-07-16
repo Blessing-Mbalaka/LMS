@@ -38,6 +38,14 @@ from django.contrib.auth.decorators import login_required
 from .models import Qualification, CustomUser, Paper
 
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import QuestionBankEntry, Assessment
+import random
+from .forms import QualificationForm
+from django.db.models import Sum
+
+
 from .forms import CustomUserForm
 from django.contrib import admin
 from django.conf import settings
@@ -294,6 +302,7 @@ def delete_assessment_centre(request, centre_id):
     messages.success(request, 'Assessment centre removed successfully!')
     return redirect('assessment_centres')
 
+
 @login_required
 def admin_dashboard(request):
     if request.method == "POST":
@@ -303,52 +312,64 @@ def admin_dashboard(request):
         file_obj  = request.FILES.get("file_input")
         memo_obj  = request.FILES.get("memo_file")
 
+        if not q_id or not paper_num or not file_obj:
+            messages.error(request, "Please fill all required fields.")
+            return redirect("admin_dashboard")
+
+        # ✅ Lookup qualification strictly
         qual = get_object_or_404(Qualification, pk=q_id)
 
-        # ✅ Create Paper object or get existing
+        # ✅ Create or get paper
         paper_obj, _ = Paper.objects.get_or_create(
             name=paper_num,
             qualification=qual,
-            defaults={"total_marks": 0}
+            defaults={"total_marks": 0, "status": "approved"}  # <-- set approved status
         )
 
-        # ✅ Create Assessment linked to paper
+        # If the paper already existed, still ensure it's approved
+        if paper_obj.status != "approved":
+            paper_obj.status = "approved"
+            paper_obj.save()
+
+        # ✅ Create new assessment record
         assessment = Assessment.objects.create(
-            eisa_id=f"EISA-{uuid.uuid4().hex[:8].upper()}",
-            qualification=qual,
-            paper=paper_num,
-            saqa_id=saqa,
-            file=file_obj,
-            memo=memo_obj,
-            created_by=request.user,
-            paper_link=paper_obj,
+            eisa_id      = f"EISA-{uuid.uuid4().hex[:8].upper()}",
+            qualification = qual,
+            paper         = paper_num,
+            saqa_id       = saqa,
+            file          = file_obj,
+            memo          = memo_obj,
+            created_by    = request.user,
+            paper_link    = paper_obj,
+            status        = "uploaded"
         )
 
-        # ✅ Extract DOCX paper if applicable
-        if file_obj and file_obj.name.endswith(".docx"):
+        # ✅ Extract if it's a DOCX paper
+        if file_obj.name.endswith(".docx"):
             try:
-                blocks = extract_full_docx_structure(file_obj)
+                blocks         = extract_full_docx_structure(file_obj)
                 flat_questions = _flatten_structure(blocks)
                 ensure_ids(flat_questions)
                 save_nodes_to_db(flat_questions, paper_obj)
 
                 paper_obj.total_marks = sum(int(q.get("marks") or 0) for q in flat_questions)
                 paper_obj.save()
-            except Exception as e:
-                messages.error(request, f"Error processing paper: {e}")
 
-        messages.success(request, "Assessment uploaded and extracted successfully.")
+            except Exception as e:
+                messages.error(request, f"❌ Extraction failed: {str(e)}")
+
+        messages.success(request, "✅ Assessment uploaded and extracted successfully.")
         return redirect("admin_dashboard")
 
-    # GET: show the dashboard
+    # GET: Show dashboard
     tools       = Assessment.objects.select_related("qualification", "created_by").order_by("-created_at")
     total_users = CustomUser.objects.filter(is_superuser=False).count()
     quals       = Qualification.objects.all()
 
     return render(request, "core/administrator/admin_dashboard.html", {
-        "tools":           tools,
-        "total_users":     total_users,
-        "qualifications":  quals,
+        "tools": tools,
+        "total_users": total_users,
+        "qualifications": quals,
     })
 
 
@@ -1697,7 +1718,7 @@ from django.contrib    import messages
 from django.db         import transaction
 from django.views.decorators.http import require_POST
 from .models           import Qualification, Paper, ExamNode
-from utils             import extract_full_docx_structure
+from utils             import extract_full_docx_structure, auto_classify_blocks_with_gemini
 from add_ids           import ensure_ids
 import uuid
 
@@ -1724,11 +1745,20 @@ def paper_as_is_view(request, paper_pk=None):
             total_marks   = 0,
         )
 
-        # parse the DOCX into a nested dict-list
+        # parsing the DOCX
         blocks    = extract_full_docx_structure(request.FILES["paper"])
+        types = auto_classify_blocks_with_gemini(blocks)
+        for b, t in zip(blocks, types):
+            b["type"] = t
+
+        #Tirikuisa ma blocks achiri JSON panapa.  Paper yirimmu session tirikuisa mu database tasati tai flattener.
+        request.session[f"paper_{paper.pk}_structured"] = blocks
+
+
+    
         questions = _flatten_structure(blocks)
         ensure_ids(questions)
-#Terminal Print---Just to show save structure nje..
+        #Terminal Print---Just to show save structure nje..
         print("\n🟩 Extracted & Flattened Questions:")
         print(json.dumps(questions, indent=2))
 
@@ -1736,23 +1766,26 @@ def paper_as_is_view(request, paper_pk=None):
         paper.total_marks = sum(int(q.get("marks") or 0) for q in _walk(questions))
         paper.save(update_fields=["total_marks"])
 
-        # stash the blocks in the session so that the GET can pick them up
+        # stash the blocks in the session so that the GET can pick them up also:::
+        # store flat version for frontend
         request.session[f"paper_{paper.pk}_questions"] = questions
 
         return redirect("review_paper", paper_pk=paper.pk)
 
     # — GET with paper_pk → pull questions from session (or re-parse from file if you saved it)
+    qualifications = Qualification.objects.all()
     questions = []
     paper     = None
     if paper_pk is not None:
         paper     = get_object_or_404(Paper, pk=paper_pk)
         questions = request.session.get(f"paper_{paper_pk}_questions", [])
+        qualifications = Qualification.objects.all()
+
 
     return render(request,
                   "core/administrator/review_paper.html",
-                  {"questions": questions, "paper": paper})
-
-
+                  {"questions": questions, "paper": paper, "qualifications" : qualifications})
+#Flatten is a problem at the moment, might remove if non-distructive to the UI.
 def _flatten_structure(qs):
     flattened = []
     for q in qs:
@@ -1778,7 +1811,11 @@ def _walk(nodes):
 @require_POST
 def save_blocks(request, paper_pk):
     print("SAVE BLOCKS TRIGGERED")
+    
     raw = request.POST.get("nodes_json", "")
+
+
+
 
     if not raw:
         messages.error(request, "Nothing to save – no data received.")
@@ -1789,6 +1826,18 @@ def save_blocks(request, paper_pk):
     except json.JSONDecodeError:
         messages.error(request, "Malformed data – cannot decode JSON.")
         return redirect("review_paper", paper_pk=paper_pk)
+    
+
+        # ✅ Print the full structure in terminal
+    print(f"📄 Paper ID: {paper_pk}")
+    print("🧱 Nodes JSON content:")
+    print(json.dumps(nodes, indent=2))
+
+    # ✅ Also save to file for debugging (in project root)
+    with open(f"saved_blocks_paper_{paper_pk}.txt", "w", encoding="utf-8") as f:
+        f.write(json.dumps(nodes, indent=2))
+    print(f"✅ Saved nodes to: saved_blocks_paper_{paper_pk}.txt\n")
+
 
     # Normalize IDs
     for n in nodes:
@@ -1841,6 +1890,9 @@ def save_blocks(request, paper_pk):
                 "content": enriched_content
             }
 
+            is_top = not n.get("parent_id")
+            order_index = nodes.index(n)  # optional but helpful
+
             node, _ = ExamNode.objects.update_or_create(
                 id=n["id"],
                 defaults={
@@ -1848,7 +1900,9 @@ def save_blocks(request, paper_pk):
                     "number":    n.get("number", ""),
                     "marks":     n.get("marks", ""),
                     "node_type": n.get("type", ""),
-                    "payload":   payload
+                    "payload":   payload,
+                    "is_top_level": is_top,
+                    "order_index":  order_index
                 }
             )
             id_to_node[n["id"]] = node
@@ -1861,6 +1915,13 @@ def save_blocks(request, paper_pk):
                 parent = id_to_node[parent_id]
                 node.parent = parent
                 node.save(update_fields=["parent"])
+
+        from utils import rebuild_nested_structure  # Tirikushedza nested structure...
+        structured = rebuild_nested_structure(nodes)     # nodes must include parent_id
+        paper.structure_json = structured
+        paper.save(update_fields=["structure_json"])
+        print(f"✅ [SAVE COMPLETE] Saved {len(nodes)} blocks to ExamNode model for Paper ID: {paper.pk}")
+
 
     messages.success(request, "Manual edits saved.")
     return redirect("review_paper", paper_pk=paper_pk)
@@ -1950,27 +2011,9 @@ def auto_place_marks(request):
 import json
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
+from utils import auto_classify_blocks_with_gemini #  Import the classifier
 
-@require_POST
-def auto_classify_blocks(request, paper_pk):
-    """
-    AJAX helper – receives the current blocks as JSON, runs your AI classifier,
-    returns the enriched blocks back to the browser.
-
-    For now we just echo the payload so the route exists and Django can import it.
-    """
-    try:
-        nodes = json.loads(request.body)
-    except (TypeError, json.JSONDecodeError):
-        return HttpResponseBadRequest("Invalid JSON")
-
-    # ───── TODO: call your ML model here and mutate `nodes` as needed ─────
-    # for n in nodes:
-    #     n["marks"] = my_classifier.predict(n["text"])
-
-    return JsonResponse(nodes, safe=False)
-
-
+#Here I was thinking of loading it as a full editable word documement but its unnecccesary, let the feature sleep.
 
 from django.shortcuts import render, get_object_or_404
 from core.models import Paper, ExamNode
@@ -1987,20 +2030,17 @@ def view_paper_as_doc_layout(request, paper_id):
     })
 
 
-    path("administrator/review-saved/<int:paper_pk>/", views.load_saved_paper_view, name="load_saved_paper")
-
-
-
 from django.shortcuts import render, redirect
 from .models import Paper
 
 def review_saved_selector(request):
     papers = Paper.objects.order_by("-id")
+    qualifications = Qualification.objects.all()
     if request.method == "POST":
         sel = request.POST.get("paper_id")
         if sel:
             return redirect("load_saved_paper", paper_pk=sel)
-    return render(request, "core/administrator/review_saved_selector.html", {"papers": papers})
+    return render(request, "core/administrator/review_saved_selector.html", {"papers": papers, "qualification" :qualifications})
 
 
 from django.shortcuts import render
@@ -2031,25 +2071,133 @@ def new_databank_view(request):
 from django.shortcuts import get_object_or_404, render
 from core.models import Paper, ExamNode
 from utils import serialize_node  # make sure this exists
+from django.shortcuts import render, get_object_or_404
+from .models import Paper, ExamNode
+from utils import serialize_node  # make sure serialize_node is defined
 
 def load_saved_paper_view(request, paper_pk):
     """
-    View a previously saved paper's serialized structure.
-    If session data exists, it will be used; otherwise, fallback to database.
+    Load a previously saved paper’s structure:
+    - Uses session data if available
+    - Falls back to serialized ExamNode DB structure otherwise
     """
     paper = get_object_or_404(Paper, pk=paper_pk)
 
-    session_data = request.session.get(f"paper_{paper_pk}_questions", [])
+    session_data = request.session.get(f"paper_{paper_pk}_questions")
 
     if session_data:
-        # Use session-stored structure and ensure it's re-serialized
+        # Re-serialize session-stored JSON blocks
         questions = [serialize_node(q) for q in session_data]
     else:
-        # Fallback to top-level DB structure
-        roots = ExamNode.objects.filter(paper=paper, parent__isnull=True).order_by('number')
+        # Fallback: get top-level ExamNode (parent=None), preserve order
+        roots = ExamNode.objects.filter(paper=paper, parent__isnull=True).order_by("order_index")
         questions = [serialize_node(n) for n in roots]
 
     return render(request, "core/administrator/review_paper.html", {
         "paper": paper,
         "questions": questions,
     })
+
+
+
+#<-------------End of Save questions to the ancient, yet updated QuestionBankEntry model-------------------------->
+#   #<------------------------------------------------------------------------------------------------>             
+
+# views.py
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_POST
+import json
+from utils import auto_classify_blocks_with_gemini  
+
+@require_POST
+def auto_classify_blocks(request, paper_pk):
+    try:
+        payload = json.loads(request.body)
+        blocks = payload.get("blocks", [])
+        print(f"📥 [VIEW] Received {len(blocks)} blocks for paper {paper_pk}")
+    except (TypeError, json.JSONDecodeError) as e:
+        print(f"❌ [VIEW] Invalid JSON: {e}")
+        return HttpResponseBadRequest("Invalid JSON")
+
+    try:
+        types = auto_classify_blocks_with_gemini(blocks)
+        print("✅ [VIEW] Classification successful.")
+        return JsonResponse({'types': types})
+    except Exception as e:
+        print(f"❌ [VIEW] AI classification error: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+#---------------------------------------------------------------------------------------------------------->
+from django.views.decorators.http import require_GET
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.http import JsonResponse
+import random
+import uuid
+from .models import Paper, ExamNode, Assessment
+
+@login_required
+@require_GET
+def randomize_paper_structure_view(request, paper_pk):
+    paper = get_object_or_404(Paper, pk=paper_pk)
+
+    # ✅: fetch assessment correctly
+    assessment = Assessment.objects.filter(paper_link=paper).first()
+    if not assessment:
+        print("❌ No assessment linked to this paper.")
+        return redirect("admin_dashboard")
+
+    print(f"📄 Randomizing paper ID: {paper_pk} | Name: {paper.name} | Assessment Status: {assessment.status}")
+
+    if assessment.status not in ["uploaded", "approved"]:
+        print("❌ Assessment not eligible for randomization (must be 'uploaded' or 'approved').")
+        return redirect("admin_dashboard")
+
+    # Get top-level nodes
+    top_nodes = list(ExamNode.objects.filter(paper=paper, is_top_level=True).order_by("order_index"))
+    print(f"🔢 Found {len(top_nodes)} top-level nodes for randomization")
+
+    if not top_nodes:
+        print("⚠️ No top-level nodes found — skipping.")
+        return redirect("admin_dashboard")
+
+    # Shuffle
+    random.shuffle(top_nodes)
+    print("🔀 Top-level nodes shuffled")
+
+    # Create new randomized paper
+    new_paper_name = f"{paper.name}-RND-{uuid.uuid4().hex[:4].upper()}"
+    new_paper = Paper.objects.create(
+        name=new_paper_name,
+        qualification=paper.qualification,
+        total_marks=paper.total_marks
+    )
+    print(f"✅ New randomized paper created: {new_paper_name} (ID: {new_paper.pk})")
+
+    # Clone nodes
+    for idx, node in enumerate(top_nodes):
+        ExamNode.objects.create(
+            paper=new_paper,
+            number=node.number,
+            text=node.text,
+            type=node.type,
+            marks=node.marks,
+            order_index=idx,
+            is_top_level=True,
+            payload=node.payload,
+        )
+        print(f"🧩 Cloned node {node.number} to new paper (order_index={idx})")
+
+    # Create linked assessment
+    new_assessment = Assessment.objects.create(
+        eisa_id=f"GEN-{uuid.uuid4().hex[:6].upper()}",
+        qualification=new_paper.qualification,
+        paper=new_paper.name,
+        saqa_id=assessment.saqa_id,
+        created_by=request.user,
+        status="pending",  # ✅ status now set to pending
+        paper_link=new_paper,
+    )
+    print(f"📝 Linked new assessment created: {new_assessment.eisa_id}")
+
+    print("🎯 Redirecting to review page for new paper.")
+    return redirect("review_saved_selector", paper_pk=new_paper.pk)

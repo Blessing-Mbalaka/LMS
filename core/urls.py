@@ -32,26 +32,27 @@ from core.views import (
     custom_login, custom_logout,
 edit_assessment_centre, new_databank_view,
 delete_assessment_centre, auto_fix_blocks,
-qualification_management_view, register,
+qualification_management_view, register, 
 default_page, student_results, beta_paper_extractor, #Beta_paper extractor might delete if it does not work...
 assessment_progress_tracker, save_blocks,
 etqa_dashboard, assessment_center_view, submit_to_center, load_saved_paper_view, view_paper_as_doc_layout,
-approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results
-
+approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results, 
+ randomize_paper_structure_view
 
 
 )
 
 urlpatterns = [
     path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
-
     #paper extraction views still in development
-      path("new-databank/", new_databank_view, name="new_databank"),
-     path('papers/<int:paper_pk>/save-blocks/', save_blocks, name='save-blocks'),
-    path('administrator/auto-fix-blocks/', auto_fix_blocks, name='auto_fix_blocks'),
-    path('administrator/auto-classify-blocks/', auto_classify_blocks, name='auto_classify_blocks'),
-    #Paper Extraction  logic end
+    path("new-databank/", new_databank_view, name="new_databank"),
 
+    path('randomize/paper/<int:paper_pk>/', randomize_paper_structure_view, name='randomize_paper_structure'),
+    path('papers/<int:paper_pk>/save-blocks/', save_blocks, name='save-blocks'),
+    path('administrator/auto-fix-blocks/', auto_fix_blocks, name='auto_fix_blocks'),
+    path('administrator/review-paper/<int:paper_pk>/classify/', auto_classify_blocks, name='auto_classify_blocks'),
+    #Paper Extraction  logic end
+   
    #Load saved Paper
     path("administrator/review-paper/<int:paper_pk>/", paper_as_is_view, name="review_paper"),
     path("administrator/review-paper/<int:paper_pk>/save-blocks/", save_blocks, name="save_blocks"),
@@ -84,6 +85,9 @@ urlpatterns = [
 
     path('view-paper-as-word/<int:paper_id>/', view_paper_as_doc_layout, name='view_paper_as_word'),
 
+    path("randomize-paper/<int:paper_pk>/", randomize_paper_structure_view, name="randomize_paper_structure"),
+
+
 
     path("administrator/beta-paper-tables/", beta_paper_tables_view, name="beta_paper_tables"),
     path('administrator/beta-paper/', beta_paper_extractor, name='beta_paper'),
@@ -103,9 +107,11 @@ urlpatterns = [
     path("submit-generated-paper/", submit_generated_paper, name="submit_generated_paper"),
     path('add-question/', add_question, name='add_question'), #Add Paper is the new name forthcoming
     path('add-case-study/', add_case_study, name='add_case_study'),
+    
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     path("moderator/", moderator_developer_dashboard, name="moderator_developer"),
     path("moderator/<str:eisa_id>/moderate/", moderate_assessment, name="moderate_assessment"),
+
     path("moderator/<str:eisa_id>/feedback/add/", add_feedback, name="add_feedback"),
     path( "moderator/checklist/<int:item_id>/toggle/", toggle_checklist_item,name="toggle_checklist_item"),
     path( "moderator/checklist/stats/", checklist_stats,name="checklist_stats"),
@@ -132,6 +138,7 @@ urlpatterns = [
     path('update-user-qualification/<int:user_id>/',update_user_qualification, name='update_user_qualification'),
     path('toggle-user-status/<int:user_id>/', toggle_user_status, name='toggle_user_status'),
     path('administrator/qualifications/', qualification_management_view, name='manage_qualifications'),
+    
 
 #Login and logout path**********************************************************
      path('logout/', custom_logout, name='logout'),
@@ -144,7 +151,7 @@ urlpatterns = [
 # paths to create batch and view all the approved assessments______________________________________________
 
     # path('create-batch/', create_batch, name='create_batch'),
- path('assessment-center/', assessment_center_view, name='assessment_center'),   
+    path('assessment-center/', assessment_center_view, name='assessment_center'),   
 
 # paths to submit batch to assessment html page_______________________________________________________
     path('submit-to-center/<int:batch_id>/', submit_to_center, name='submit_to_center'),

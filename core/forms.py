@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from .models import Qualification, AssessmentCentre, CustomUser
+from .models import Qualification, AssessmentCentre, CustomUser, QuestionBankEntry, Assessment
+from django.contrib.auth import get_user_model
+
 
 User = get_user_model()
 
@@ -25,9 +27,6 @@ class AssessmentCentreForm(forms.ModelForm):
         fields = ['name', 'location', 'qualification_assigned']
 
 
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -78,3 +77,25 @@ class QualificationForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'level': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}),
          }
+
+# ----------------------------------------
+# 🔁 Manual Question Entry Form for Builder
+# ----------------------------------------
+class QuestionBankEntryForm(forms.ModelForm):
+    class Meta:
+        model = QuestionBankEntry
+        fields = ['qualification', 'question_type', 'text', 'marks', 'case_study']
+        widgets = {
+            'qualification': forms.Select(attrs={'class': 'form-control'}),
+            'question_type': forms.Select(attrs={'class': 'form-control'}),
+            'text': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'marks': forms.NumberInput(attrs={'class': 'form-control'}),
+            'case_study': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+
+class AddQuestionToAssessmentForm(forms.Form):
+    assessment = forms.ModelChoiceField(queryset=Assessment.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
+    question = forms.ModelChoiceField(queryset=QuestionBankEntry.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
+    order = forms.IntegerField(min_value=1, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    marks = forms.IntegerField(min_value=0, widget=forms.NumberInput(attrs={'class': 'form-control'}))
