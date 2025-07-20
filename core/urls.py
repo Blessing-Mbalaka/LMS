@@ -3,7 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 from core.views import (
-    generate_tool_page,
+    generate_tool_page, no_permission,
     generate_tool, save_extracted_questions, beta_paper_tables_view,
     assessor_dashboard,
     view_assessment,
@@ -12,7 +12,7 @@ from core.views import (
     assessor_reports,
     submit_generated_paper,
     add_question, auto_classify_blocks,
-    add_case_study,
+    add_case_study, randomize_single_paper_view,
     add_feedback,
     moderator_developer_dashboard,
     moderate_assessment, paper_as_is_view,
@@ -23,7 +23,7 @@ from core.views import (
     qcto_view_assessment,
     qcto_latest_assessment_detail,
     databank_view, clean_questions,
-    admin_dashboard,
+    admin_dashboard, paper_pool_view,
     assessment_centres_view,
     user_management,
     toggle_user_status,
@@ -37,7 +37,7 @@ default_page, student_results, beta_paper_extractor, #Beta_paper extractor might
 assessment_progress_tracker, save_blocks,
 etqa_dashboard, assessment_center_view, submit_to_center, load_saved_paper_view, view_paper_as_doc_layout,
 approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results, 
- randomize_paper_structure_view
+ randomize_paper_structure_view, load_randomized_papers, randomize_qualification_papers,randomize_qualification_papers
 
 
 )
@@ -58,10 +58,6 @@ urlpatterns = [
     path("administrator/review-paper/<int:paper_pk>/save-blocks/", save_blocks, name="save_blocks"),
     path("administrator/load-saved/<int:paper_pk>/", load_saved_paper_view, name="load_saved_paper"),
     path("administrator/review-saved/", review_saved_selector, name="review_saved_selector"),
-    
-
-
-
     path(
         "administrator/review-paper/",
         paper_as_is_view,
@@ -79,16 +75,14 @@ urlpatterns = [
     path(
         "administrator/review-paper/<int:paper_pk>/save-blocks/",
         save_blocks,
-        name="save_blocks",
-    ),
+        name="save_blocks"),
+
+    path('randomized-papers/', load_randomized_papers, name='load_randomized_papers'),
+    path('administrator/randomize-paper/<int:paper_id>/', randomize_single_paper_view, name='randomize_paper'),
 
 
     path('view-paper-as-word/<int:paper_id>/', view_paper_as_doc_layout, name='view_paper_as_word'),
-
     path("randomize-paper/<int:paper_pk>/", randomize_paper_structure_view, name="randomize_paper_structure"),
-
-
-
     path("administrator/beta-paper-tables/", beta_paper_tables_view, name="beta_paper_tables"),
     path('administrator/beta-paper/', beta_paper_extractor, name='beta_paper'),
     path("api/clean-questions/", clean_questions, name="clean_questions"),
@@ -111,7 +105,6 @@ urlpatterns = [
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     path("moderator/", moderator_developer_dashboard, name="moderator_developer"),
     path("moderator/<str:eisa_id>/moderate/", moderate_assessment, name="moderate_assessment"),
-
     path("moderator/<str:eisa_id>/feedback/add/", add_feedback, name="add_feedback"),
     path( "moderator/checklist/<int:item_id>/toggle/", toggle_checklist_item,name="toggle_checklist_item"),
     path( "moderator/checklist/stats/", checklist_stats,name="checklist_stats"),
@@ -160,6 +153,9 @@ urlpatterns = [
     path('etqa/approve/<int:assessment_id>/', approve_by_etqa, name='approve_by_etqa'),
     path('etqa/reject/<int:assessment_id>/', reject_by_etqa, name='reject_by_etqa'),
 
+     path('administrator/paper-pool/', paper_pool_view, name='paper_pool'),
+    path('administrator/randomize/<int:qualification_id>/', randomize_qualification_papers, name='randomize_qualification'),
+
 
 
      # Student-facing URLs
@@ -187,7 +183,7 @@ urlpatterns = [
     # 4) Viewing past results
     path('student/results/', student_results, name='student_results'),
 
-
+    path('no-permission/', no_permission, name='no_permission'),
     
 ]
 

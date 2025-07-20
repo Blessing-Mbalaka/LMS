@@ -851,3 +851,47 @@ def rebuild_nested_structure(flat_nodes):
     # Step 3: Optional — sort top-level by number (1.1, 1.2, ...)
     root_nodes.sort(key=lambda n: n.get("number", ""))
     return root_nodes
+#-------------------------------------------------------------------------------------------------->>>>>>>>>
+import uuid
+from core.models import ExamNode
+
+def populate_examnodes_from_structure_json(paper):
+    """
+    Populate ExamNode entries from the structure_json field of a given paper.
+    Preserves parent-child hierarchy and sets is_top_level and order_index.
+    """
+
+    structure = paper.structure_json or []
+    created_nodes = {}  # Map block id -> ExamNode instance
+
+    def _create_node(block, parent=None, index=0):
+        node_id = uuid.uuid4().hex
+
+        node = ExamNode.objects.create(
+            id=node_id,
+            paper=paper,
+            parent=parent,
+            node_type=block.get("type", ""),
+            number=block.get("number", ""),
+            marks=block.get("marks", ""),
+            text=block.get("text", "") if not block.get("content") else "",
+            content=block.get("content", []),
+            data_uri=block.get("data_uri", ""),
+            payload=block,
+            is_top_level=(parent is None),
+            order_index=index
+        )
+
+        created_nodes[node_id] = node
+
+        for i, child in enumerate(block.get("children", [])):
+            _create_node(child, parent=node, index=i)
+
+    # Wipe existing ExamNodes for this paper (optional: safeguard if needed)
+    ExamNode.objects.filter(paper=paper).delete()
+
+    for idx, block in enumerate(structure):
+        _create_node(block, index=idx)
+
+    print(f"✅ Populated {len(created_nodes)} ExamNodes for paper ID {paper.id} ({paper.name})")
+    return created_nodes

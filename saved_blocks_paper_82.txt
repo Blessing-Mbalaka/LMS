@@ -1,0 +1,1550 @@
+[
+  {
+    "id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "number": "1.1",
+    "type": "paragraph",
+    "marks": "10",
+    "parent_id": null,
+    "text": "",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Complete a quality inspection checklist for input, inline and endline for product or service"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      },
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      },
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      },
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      },
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      }
+    ]
+  },
+  {
+    "id": "ca9422a39e3e4ce39e2dfa50448daa47",
+    "number": "1.1.1",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Case Study\nAllocate ten mark each for number 1 \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      }
+    ]
+  },
+  {
+    "id": "23064b15edbd4b96bb9c597bc7a89bad",
+    "number": "1.1.1",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Case Study\nAllocate ten mark each for number 1 \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      }
+    ]
+  },
+  {
+    "id": "9531c2cf85ee42bb971ea533619d9020",
+    "number": "1.1.2",
+    "type": "question",
+    "marks": "",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Constructive Response \nAllocate ten marks \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      }
+    ]
+  },
+  {
+    "id": "b74f11f4b7544c618c2b9e30595bb24e",
+    "number": "1.1.2",
+    "type": "question",
+    "marks": "",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Constructive Response \nAllocate ten marks \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      }
+    ]
+  },
+  {
+    "id": "5920e4ce993c4adbbb367e0732d6878b",
+    "number": "1.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Complete a testing checklist for a product or service across all processes (input, inline and endline)",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      }
+    ]
+  },
+  {
+    "id": "f92fe9669b4b4b98b10bbbaf895548a5",
+    "number": "1.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Complete a testing checklist for a product or service across all processes (input, inline and endline)",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      }
+    ]
+  },
+  {
+    "id": "7684b335d44d42fb81cd5c00948b41f0",
+    "number": "1.1.4",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      }
+    ]
+  },
+  {
+    "id": "dcb0b5df84804516b857e577cb1bded4",
+    "number": "1.1.4",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      }
+    ]
+  },
+  {
+    "id": "dd3b8d902f7242ee86a36aaeec8d786f",
+    "number": "1.1.5",
+    "type": "question",
+    "marks": "",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Constructive Response \nAllocate 10 marks for number 1",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      }
+    ]
+  },
+  {
+    "id": "68d5afc3ef43434494b6330878dfb072",
+    "number": "1.1.5",
+    "type": "question",
+    "marks": "",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Constructive Response \nAllocate 10 marks for number 1",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      }
+    ]
+  },
+  {
+    "id": "ca9422a39e3e4ce39e2dfa50448daa47",
+    "number": "1.1.1",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Case Study\nAllocate ten mark each for number 1 \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      }
+    ]
+  },
+  {
+    "id": "23064b15edbd4b96bb9c597bc7a89bad",
+    "number": "1.1.1",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Case Study\nAllocate ten mark each for number 1 \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using 2. Brief description of the inspection method used 3. Quality Inspection activities of each Method. Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      }
+    ]
+  },
+  {
+    "id": "9531c2cf85ee42bb971ea533619d9020",
+    "number": "1.1.2",
+    "type": "question",
+    "marks": "",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Constructive Response \nAllocate ten marks \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      }
+    ]
+  },
+  {
+    "id": "b74f11f4b7544c618c2b9e30595bb24e",
+    "number": "1.1.2",
+    "type": "question",
+    "marks": "",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Constructive Response \nAllocate ten marks \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Quality\u00a0parameter\u00a0refer to the size characterizing the\u00a0quality\u00a0level of the final product/service, the\u00a0quality\u00a0of final goods or services can be described using some of the following dimensions below:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered. Total 10"
+      }
+    ]
+  },
+  {
+    "id": "5920e4ce993c4adbbb367e0732d6878b",
+    "number": "1.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Complete a testing checklist for a product or service across all processes (input, inline and endline)",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      }
+    ]
+  },
+  {
+    "id": "f92fe9669b4b4b98b10bbbaf895548a5",
+    "number": "1.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Complete a testing checklist for a product or service across all processes (input, inline and endline)",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+      },
+      {
+        "type": "question_text",
+        "text": "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using 2. Brief description of the test method used 3. Quality test activities of each Method. Total 10"
+      }
+    ]
+  },
+  {
+    "id": "7684b335d44d42fb81cd5c00948b41f0",
+    "number": "1.1.4",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      }
+    ]
+  },
+  {
+    "id": "dcb0b5df84804516b857e577cb1bded4",
+    "number": "1.1.4",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Question and Answer Mark 1 Discuss the evaluation process in detail and provide industry example which is applicable in your work environment. 10 2 Discuss test monitoring and what it involves. 5 Total Total 15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      }
+    ]
+  },
+  {
+    "id": "dd3b8d902f7242ee86a36aaeec8d786f",
+    "number": "1.1.5",
+    "type": "question",
+    "marks": "",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Constructive Response \nAllocate 10 marks for number 1",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      }
+    ]
+  },
+  {
+    "id": "68d5afc3ef43434494b6330878dfb072",
+    "number": "1.1.5",
+    "type": "question",
+    "marks": "",
+    "parent_id": "c3c2a1d6b2c947a4be20d06dc57627c5",
+    "text": "Constructive Response \nAllocate 10 marks for number 1",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. List and discuss the 5 p\u2019s of GMP 10 Total Total 10"
+      }
+    ]
+  },
+  {
+    "id": "11357b7f86ab43ac9f75fc171b725b31",
+    "number": "1.2",
+    "type": "paragraph",
+    "marks": "10",
+    "parent_id": null,
+    "text": "",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Identify the components of the quality policy with regards to the safety, environment and legal compliance of product/service"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      }
+    ]
+  },
+  {
+    "id": "f305a61751714658904dfefee9ac4194",
+    "number": "1.2.1",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "True or False \nAllocate one mark  for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      }
+    ]
+  },
+  {
+    "id": "9f12544018af4939ae4266a788070d41",
+    "number": "1.2.1",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "True or False \nAllocate one mark  for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      }
+    ]
+  },
+  {
+    "id": "ce92e8bf021341c9add2fd6d96803449",
+    "number": "1.2.2",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "Constructive Response \nAllocate two marks for number 1 to 7 and six marks for number 8\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      }
+    ]
+  },
+  {
+    "id": "d1c3eeb567204cf08f6f15fafec8113e",
+    "number": "1.2.2",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "Constructive Response \nAllocate two marks for number 1 to 7 and six marks for number 8\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      }
+    ]
+  },
+  {
+    "id": "db0133ed9ab84eb1a696e7d5cc70dcf9",
+    "number": "1.2.3",
+    "type": "question",
+    "marks": "",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "Case study \nAllocate twelve marks for number 1, eight marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      }
+    ]
+  },
+  {
+    "id": "946163e41e784b9ea6c60c2df72a20cc",
+    "number": "1.2.3",
+    "type": "question",
+    "marks": "",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "Case study \nAllocate twelve marks for number 1, eight marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      }
+    ]
+  },
+  {
+    "id": "f305a61751714658904dfefee9ac4194",
+    "number": "1.2.1",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "True or False \nAllocate one mark  for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      }
+    ]
+  },
+  {
+    "id": "9f12544018af4939ae4266a788070d41",
+    "number": "1.2.1",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "True or False \nAllocate one mark  for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number Statement True/False Marks 1 Deep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded. 1 2 Compliance refers to the products or services meeting legal requirements as stipulated by the law. 1 3 The disposal of samples does not takes into consideration on the effect on the environment. 1 4 Different industries and professions have compliance regulatory organizations supported by legislation. 1 5 Measuring instruments must be taken care of in order to maintain high level of accuracy and reliability. 1 6 Records and samples must be retained for a certain period of time after which they must not be disposed. 1 7 Most industries in the country are not forced to function within the ambit of the law. 1 8 To achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet. 1 9 It is important that testing resources are always kept in good condition before starting any testing process. 1 10 samples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness. 1 Total Total Total 10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      }
+    ]
+  },
+  {
+    "id": "ce92e8bf021341c9add2fd6d96803449",
+    "number": "1.2.2",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "Constructive Response \nAllocate two marks for number 1 to 7 and six marks for number 8\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      }
+    ]
+  },
+  {
+    "id": "d1c3eeb567204cf08f6f15fafec8113e",
+    "number": "1.2.2",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "Constructive Response \nAllocate two marks for number 1 to 7 and six marks for number 8\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Corporate Compliance: 2 2 Regulatory Compliance: 2 3. Legal Impact: 2 4. Financial Impact: 2 5. Reputational Impact: 2 6. Business Impact: 2 7. Non-compliance: 2 8. Discuss in detail why are non-conformances important in an organisation: 6 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      }
+    ]
+  },
+  {
+    "id": "db0133ed9ab84eb1a696e7d5cc70dcf9",
+    "number": "1.2.3",
+    "type": "question",
+    "marks": "",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "Case study \nAllocate twelve marks for number 1, eight marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      }
+    ]
+  },
+  {
+    "id": "946163e41e784b9ea6c60c2df72a20cc",
+    "number": "1.2.3",
+    "type": "question",
+    "marks": "",
+    "parent_id": "11357b7f86ab43ac9f75fc171b725b31",
+    "text": "Case study \nAllocate twelve marks for number 1, eight marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number Questions and Answers Marks 1 Discuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution: 12 2 As soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services: 8 Total Total 20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question Marks Allocated Marks 1.1.1 15 1.1.2 15 1.1.3 10 1.1.4 10 Total Question 1.1 50 2.1.1 10 2.1.2 20 2.1.3 20 Total Question 2.1 50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname Registration Number Signature Date"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname Registration Number Signature Date"
+      }
+    ]
+  }
+]

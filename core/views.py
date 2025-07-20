@@ -323,10 +323,10 @@ def admin_dashboard(request):
         paper_obj, _ = Paper.objects.get_or_create(
             name=paper_num,
             qualification=qual,
-            defaults={"total_marks": 0, "status": "approved"}  # <-- set approved status
+            defaults={"total_marks": 0, "status": "approved"}
         )
 
-        # If the paper already existed, still ensure it's approved
+        # Ensure paper status is 'approved'
         if paper_obj.status != "approved":
             paper_obj.status = "approved"
             paper_obj.save()
@@ -344,16 +344,17 @@ def admin_dashboard(request):
             status        = "uploaded"
         )
 
-        # ✅ Extract if it's a DOCX paper
+        # ✅ Extract and populate structure if DOCX
         if file_obj.name.endswith(".docx"):
             try:
-                blocks         = extract_full_docx_structure(file_obj)
-                flat_questions = _flatten_structure(blocks)
-                ensure_ids(flat_questions)
-                save_nodes_to_db(flat_questions, paper_obj)
+                blocks = extract_full_docx_structure(file_obj)
+                ensure_ids(blocks)
 
-                paper_obj.total_marks = sum(int(q.get("marks") or 0) for q in flat_questions)
+                paper_obj.structure_json = blocks
+                paper_obj.total_marks = sum(int(q.get("marks") or 0) for q in blocks if isinstance(q, dict))
                 paper_obj.save()
+
+                populate_examnodes_from_structure_json(paper_obj)
 
             except Exception as e:
                 messages.error(request, f"❌ Extraction failed: {str(e)}")
@@ -687,13 +688,11 @@ def upload_assessment(request):
 
         if file and file.name.endswith(".docx"):
             try:
-                blocks = extract_full_docx_structure(file)
-                flat_questions = _flatten_structure(blocks)
-                ensure_ids(flat_questions)
-                save_nodes_to_db(flat_questions, paper_obj)
+               blocks = extract_full_docx_structure(file)
+               ensure_ids(blocks)
+               paper_obj.structure_json = blocks
+               paper_obj.save()
 
-                paper_obj.total_marks = sum(int(q.get("marks") or 0) for q in flat_questions)
-                paper_obj.save()
             except Exception as e:
                 messages.error(request, f"Error processing paper: {e}")
 
@@ -1922,6 +1921,8 @@ def save_blocks(request, paper_pk):
         paper.save(update_fields=["structure_json"])
         print(f"✅ [SAVE COMPLETE] Saved {len(nodes)} blocks to ExamNode model for Paper ID: {paper.pk}")
 
+    from utils import populate_examnodes_from_structure_json
+    populate_examnodes_from_structure_json(paper)
 
     messages.success(request, "Manual edits saved.")
     return redirect("review_paper", paper_pk=paper_pk)
@@ -2034,13 +2035,25 @@ from django.shortcuts import render, redirect
 from .models import Paper
 
 def review_saved_selector(request):
-    papers = Paper.objects.order_by("-id")
+    filter_type = request.GET.get("type", "")
+
+    all_papers = Paper.objects.order_by("-id")
+    original_papers = all_papers.filter(is_randomized=False)
+    randomized_papers = all_papers.filter(is_randomized=True)
     qualifications = Qualification.objects.all()
+
     if request.method == "POST":
         sel = request.POST.get("paper_id")
         if sel:
             return redirect("load_saved_paper", paper_pk=sel)
-    return render(request, "core/administrator/review_saved_selector.html", {"papers": papers, "qualification" :qualifications})
+
+    return render(request, "core/administrator/review_saved_selector.html", {
+        "original_papers": original_papers,
+        "randomized_papers": randomized_papers,
+        "papers": all_papers,  # still used for dropdown
+        "qualification": qualifications,
+        "filter_type": filter_type,
+    })
 
 
 from django.shortcuts import render
@@ -2075,31 +2088,26 @@ from django.shortcuts import render, get_object_or_404
 from .models import Paper, ExamNode
 from utils import serialize_node  # make sure serialize_node is defined
 
-def load_saved_paper_view(request, paper_pk):
-    """
-    Load a previously saved paper’s structure:
-    - Uses session data if available
-    - Falls back to serialized ExamNode DB structure otherwise
-    """
-    paper = get_object_or_404(Paper, pk=paper_pk)
+from utils import serialize_node, rebuild_nested_structure
 
+def load_saved_paper_view(request, paper_pk):
+    paper = get_object_or_404(Paper, pk=paper_pk)
     session_data = request.session.get(f"paper_{paper_pk}_questions")
 
     if session_data:
-        # Re-serialize session-stored JSON blocks
+        print(f"📦 Using session-stored structure for Paper ID: {paper_pk}")
         questions = [serialize_node(q) for q in session_data]
     else:
-        # Fallback: get top-level ExamNode (parent=None), preserve order
-        roots = ExamNode.objects.filter(paper=paper, parent__isnull=True).order_by("order_index")
-        questions = [serialize_node(n) for n in roots]
+        print(f"🛠️ Rebuilding structure from ExamNode DB for Paper ID: {paper_pk}")
+        all_nodes = ExamNode.objects.filter(paper=paper).order_by("order_index")
+        serialized = [serialize_node(n) for n in all_nodes]
+        questions = rebuild_nested_structure(serialized)
+        print(f"✅ Reconstructed {len(questions)} top-level nodes from DB.")
 
     return render(request, "core/administrator/review_paper.html", {
         "paper": paper,
         "questions": questions,
     })
-
-
-
 #<-------------End of Save questions to the ancient, yet updated QuestionBankEntry model-------------------------->
 #   #<------------------------------------------------------------------------------------------------>             
 
@@ -2201,3 +2209,108 @@ def randomize_paper_structure_view(request, paper_pk):
 
     print("🎯 Redirecting to review page for new paper.")
     return redirect("review_saved_selector", paper_pk=new_paper.pk)
+
+#------------------------------------------------------------------------------------------------------->
+#------------------------------------------------------------------------------------------------------->
+@login_required
+def load_randomized_papers(request):
+    if request.user.role != 'assessor_dev':
+        return redirect('no_permission')
+
+    papers = Paper.objects.filter(is_randomized=True)
+
+    return render(request, 'papers/randomized_list.html', {
+        'papers': papers
+    })
+
+
+#No permission page...
+def no_permission(request):
+    return render(request, 'errors/no_permission.html')
+
+
+@login_required
+def paper_pool_view(request):
+    papers_by_qualification = {}
+    all_papers = Paper.objects.filter(structure_json__isnull=False)
+
+    for paper in all_papers:
+        key = paper.qualification.name if paper.qualification else "Unassigned"
+        papers_by_qualification.setdefault(key, []).append(paper)
+
+    return render(request, "core/administrator/paper_pool.html", {
+        "papers_by_qualification": papers_by_qualification
+    })
+
+
+@login_required
+def randomize_qualification_papers(request, qualification_id):
+    qualification = get_object_or_404(Qualification, id=qualification_id)
+    source_papers = Paper.objects.filter(qualification=qualification, structure_json__isnull=False)
+
+    print(f"🌀 Randomizing all papers for qualification: {qualification.name} | Count: {source_papers.count()}")
+
+    if source_papers.count() < 2:
+        print("❌ Not enough papers to randomize from.")
+        return redirect("paper_pool")
+
+    # Build prefix map across all papers
+    prefix_map = {}
+    for paper in source_papers:
+        for block in paper.structure_json or []:
+            prefix = block.get("number")
+            if not prefix:
+                print(f"⚠️ Block without number in paper ID {paper.id}, skipping")
+                continue
+            prefix_map.setdefault(prefix, []).append(block)
+
+    for source in source_papers:
+        randomized_blocks = []
+        total_marks = 0
+        for block in source.structure_json or []:
+            prefix = block.get("number")
+            candidates = prefix_map.get(prefix)
+            if candidates:
+                chosen = random.choice(candidates)
+                randomized_blocks.append(chosen)
+                total_marks += int(chosen.get("marks") or 0)
+                print(f"✅ Replaced {prefix} from paper {source.id}.")
+            else:
+                randomized_blocks.append(block)
+                print(f"⚠️ No match for {prefix}, kept original.")
+
+        new_paper = Paper.objects.create(
+            name=f"{source.name} [Randomized {now().strftime('%Y%m%d%H%M%S')}]",
+            qualification=qualification,
+            structure_json=randomized_blocks,
+            total_marks=total_marks
+        )
+
+        output_path = Path(f"new_paper_{new_paper.id}.txt")
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(randomized_blocks, f, indent=2)
+        print(f"📝 Saved: {output_path.resolve()}")
+
+    return redirect("paper_pool")
+
+
+from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404
+from core.models import Paper
+from core.randomizer import randomize_paper_via_structure_json_debug
+
+@login_required
+def randomize_single_paper_view(request, paper_id):
+    try:
+        original = get_object_or_404(Paper, id=paper_id)
+        print(f"🔁 Randomizing paper: {original.name} (ID: {original.id})")
+
+        new_paper = randomize_paper_via_structure_json_debug(original.id)
+
+        messages.success(request, f"✅ Randomized paper created: {new_paper.name} (ID: {new_paper.id})")
+        return redirect("load_saved_paper", paper_pk=new_paper.id)
+
+    except Exception as e:
+        print(f"❌ Randomization failed for Paper ID {paper_id}: {e}")
+        messages.error(request, f"❌ Failed to randomize paper: {str(e)}")
+        return redirect("review_saved_selector")

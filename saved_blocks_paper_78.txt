@@ -1,0 +1,554 @@
+[
+  {
+    "id": "d5c29d298c9a44cb9b35fae321edafba",
+    "number": "1.1",
+    "type": "paragraph",
+    "marks": "15",
+    "parent_id": null,
+    "text": "",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Identify deviations, non-conformance (internal) and risks (internal and external stakeholders)"
+      },
+      {
+        "type": "question_text",
+        "text": "A quality problem is defined as any instance where the desired quality characteristic is not present or not up to the intended level. In other words, it is an instance of failure to conform to standards or specifications. It can also be considered as the \u201cQuality Gap\u201d"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tThe quality of the final product /service is determined by the characteristics of the input (material/data), In-processing (material/data), output (product/ service) and the resources functioning. Discuss how the characteristics of quality can be affected and ended up causing quality deviation, non-conformance and risks by the following: Input: In-processing: Outputs (products/services): Resources functioning: Machines:\t15\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Analytical thinking is a method for analyzing a problem and finding a solution. This is a way for processing and breaking down complex information. Analytical thinking is helpful in identifying cause and effect relationships and making connections between two factors. For instance, someone may use analytical thinking to understand the relationship between sunflowers and humidity. To do this, they may ask, \"Why do sunflowers have trouble growing when there's humidity in the air?\""
+      },
+      {
+        "type": "question_text",
+        "text": "Your company is responsible for farming (production) and selling (service) sunflowers to the market and there has been a concern that most of the grown sunflowers are not meeting customer requirements."
+      },
+      {
+        "type": "question_text",
+        "text": "Using the problem solving process, discuss how you will ensure that grown sunflowers are not deviating from the standards by investigating the root cause of non-conformance for both internal and external stakeholders."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tIdentify Problem: Determine causes of the problem: Find alternative solution: Select appropriate changes: Re-examine problem:\t15\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tOnce a problem has been found, alternative solution must be found. The best way will be to develop best alternative solutions for identified deviations and non-conformances. Note that there are many alternative solutions that may be found to solve a particular problem, but the best solution must be identified according to their degree of effectiveness. How will you ensure that best alternative solutions are formulated: Discuss how to best evaluate possible alternative solutions: Discuss the 3 factors to consider when choosing the best alternative solution:\t10\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tDuring monitoring and evaluation, deviations will be found, when that occurs there must be corrective measures taken to bring the deviation under control. Use the following general process to identify and resolve quality problems. Identify the problem or symptoms: Identify root causes: Determine alternative solution: Select the best solution: Implementation: Monitoring and evaluation:\t10\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "A quality problem is defined as any instance where the desired quality characteristic is not present or not up to the intended level. In other words, it is an instance of failure to conform to standards or specifications. It can also be considered as the \u201cQuality Gap\u201d"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tThe quality of the final product /service is determined by the characteristics of the input (material/data), In-processing (material/data), output (product/ service) and the resources functioning. Discuss how the characteristics of quality can be affected and ended up causing quality deviation, non-conformance and risks by the following: Input: In-processing: Outputs (products/services): Resources functioning: Machines:\t15\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Analytical thinking is a method for analyzing a problem and finding a solution. This is a way for processing and breaking down complex information. Analytical thinking is helpful in identifying cause and effect relationships and making connections between two factors. For instance, someone may use analytical thinking to understand the relationship between sunflowers and humidity. To do this, they may ask, \"Why do sunflowers have trouble growing when there's humidity in the air?\""
+      },
+      {
+        "type": "question_text",
+        "text": "Your company is responsible for farming (production) and selling (service) sunflowers to the market and there has been a concern that most of the grown sunflowers are not meeting customer requirements."
+      },
+      {
+        "type": "question_text",
+        "text": "Using the problem solving process, discuss how you will ensure that grown sunflowers are not deviating from the standards by investigating the root cause of non-conformance for both internal and external stakeholders."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tIdentify Problem: Determine causes of the problem: Find alternative solution: Select appropriate changes: Re-examine problem:\t15\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tOnce a problem has been found, alternative solution must be found. The best way will be to develop best alternative solutions for identified deviations and non-conformances. Note that there are many alternative solutions that may be found to solve a particular problem, but the best solution must be identified according to their degree of effectiveness. How will you ensure that best alternative solutions are formulated: Discuss how to best evaluate possible alternative solutions: Discuss the 3 factors to consider when choosing the best alternative solution:\t10\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tDuring monitoring and evaluation, deviations will be found, when that occurs there must be corrective measures taken to bring the deviation under control. Use the following general process to identify and resolve quality problems. Identify the problem or symptoms: Identify root causes: Determine alternative solution: Select the best solution: Implementation: Monitoring and evaluation:\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "ae04e695096444e08abc98614923fdb7",
+    "number": "1.1.1",
+    "type": "question",
+    "marks": "",
+    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "text": "Case Study \nAllocate fifteen marks for number 1 \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "A quality problem is defined as any instance where the desired quality characteristic is not present or not up to the intended level. In other words, it is an instance of failure to conform to standards or specifications. It can also be considered as the \u201cQuality Gap\u201d"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tThe quality of the final product /service is determined by the characteristics of the input (material/data), In-processing (material/data), output (product/ service) and the resources functioning. Discuss how the characteristics of quality can be affected and ended up causing quality deviation, non-conformance and risks by the following: Input: In-processing: Outputs (products/services): Resources functioning: Machines:\t15\nTotal\tTotal\t15"
+      }
+    ]
+  },
+  {
+    "id": "154ef875b9634df0afa9fd0e183a8d69",
+    "number": "1.1.2",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "text": "Investigate the root cause of the deviation, non-conformance (internal) and risks (internal and external stakeholders) using a relevant technique e.g. fishbone diagram, 5 why\u2019s root cause analysis",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Analytical thinking is a method for analyzing a problem and finding a solution. This is a way for processing and breaking down complex information. Analytical thinking is helpful in identifying cause and effect relationships and making connections between two factors. For instance, someone may use analytical thinking to understand the relationship between sunflowers and humidity. To do this, they may ask, \"Why do sunflowers have trouble growing when there's humidity in the air?\""
+      },
+      {
+        "type": "question_text",
+        "text": "Your company is responsible for farming (production) and selling (service) sunflowers to the market and there has been a concern that most of the grown sunflowers are not meeting customer requirements."
+      },
+      {
+        "type": "question_text",
+        "text": "Using the problem solving process, discuss how you will ensure that grown sunflowers are not deviating from the standards by investigating the root cause of non-conformance for both internal and external stakeholders."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tIdentify Problem: Determine causes of the problem: Find alternative solution: Select appropriate changes: Re-examine problem:\t15\nTotal\tTotal\t15"
+      }
+    ]
+  },
+  {
+    "id": "ce6d4dee325049d3b400a84268e520f9",
+    "number": "1.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "text": "Develop alternative solutions (recommendations) for identified deviations and non-conformances",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tOnce a problem has been found, alternative solution must be found. The best way will be to develop best alternative solutions for identified deviations and non-conformances. Note that there are many alternative solutions that may be found to solve a particular problem, but the best solution must be identified according to their degree of effectiveness. How will you ensure that best alternative solutions are formulated: Discuss how to best evaluate possible alternative solutions: Discuss the 3 factors to consider when choosing the best alternative solution:\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "2bde9a9dda2f41e0b5a6d387fb817c90",
+    "number": "1.1.4",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "text": "Implement corrective actions to address deviations and non-conformances",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tDuring monitoring and evaluation, deviations will be found, when that occurs there must be corrective measures taken to bring the deviation under control. Use the following general process to identify and resolve quality problems. Identify the problem or symptoms: Identify root causes: Determine alternative solution: Select the best solution: Implementation: Monitoring and evaluation:\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "fcf56a59b1234c768f7d32f1fabe3212",
+    "number": "1.1.1",
+    "type": "question",
+    "marks": "",
+    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "text": "Case Study \nAllocate fifteen marks for number 1 \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "A quality problem is defined as any instance where the desired quality characteristic is not present or not up to the intended level. In other words, it is an instance of failure to conform to standards or specifications. It can also be considered as the \u201cQuality Gap\u201d"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tThe quality of the final product /service is determined by the characteristics of the input (material/data), In-processing (material/data), output (product/ service) and the resources functioning. Discuss how the characteristics of quality can be affected and ended up causing quality deviation, non-conformance and risks by the following: Input: In-processing: Outputs (products/services): Resources functioning: Machines:\t15\nTotal\tTotal\t15"
+      }
+    ]
+  },
+  {
+    "id": "8bed3115a09e4b629b56eac0bb34340d",
+    "number": "1.1.2",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "text": "Investigate the root cause of the deviation, non-conformance (internal) and risks (internal and external stakeholders) using a relevant technique e.g. fishbone diagram, 5 why\u2019s root cause analysis",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Analytical thinking is a method for analyzing a problem and finding a solution. This is a way for processing and breaking down complex information. Analytical thinking is helpful in identifying cause and effect relationships and making connections between two factors. For instance, someone may use analytical thinking to understand the relationship between sunflowers and humidity. To do this, they may ask, \"Why do sunflowers have trouble growing when there's humidity in the air?\""
+      },
+      {
+        "type": "question_text",
+        "text": "Your company is responsible for farming (production) and selling (service) sunflowers to the market and there has been a concern that most of the grown sunflowers are not meeting customer requirements."
+      },
+      {
+        "type": "question_text",
+        "text": "Using the problem solving process, discuss how you will ensure that grown sunflowers are not deviating from the standards by investigating the root cause of non-conformance for both internal and external stakeholders."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tIdentify Problem: Determine causes of the problem: Find alternative solution: Select appropriate changes: Re-examine problem:\t15\nTotal\tTotal\t15"
+      }
+    ]
+  },
+  {
+    "id": "b2acebf225c54d6889fed25b5a0e2675",
+    "number": "1.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "text": "Develop alternative solutions (recommendations) for identified deviations and non-conformances",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tOnce a problem has been found, alternative solution must be found. The best way will be to develop best alternative solutions for identified deviations and non-conformances. Note that there are many alternative solutions that may be found to solve a particular problem, but the best solution must be identified according to their degree of effectiveness. How will you ensure that best alternative solutions are formulated: Discuss how to best evaluate possible alternative solutions: Discuss the 3 factors to consider when choosing the best alternative solution:\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "2d3707bd90aa423fab814f54d72a498f",
+    "number": "1.1.4",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "text": "Implement corrective actions to address deviations and non-conformances",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tDuring monitoring and evaluation, deviations will be found, when that occurs there must be corrective measures taken to bring the deviation under control. Use the following general process to identify and resolve quality problems. Identify the problem or symptoms: Identify root causes: Determine alternative solution: Select the best solution: Implementation: Monitoring and evaluation:\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "number": "1.2",
+    "type": "paragraph",
+    "marks": "10",
+    "parent_id": null,
+    "text": "",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Identify the components of the quality policy with regards to the safety, environment and legal compliance of product/service"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tStatement\tTrue/False\tMarks\n1\tDeep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded.\t\t1\n2\tCompliance refers to the products or services meeting legal requirements as stipulated by the law.\t\t1\n3\tThe disposal of samples does not takes into consideration on the effect on the environment.\t\t1\n4\tDifferent industries and professions have compliance regulatory organizations supported by legislation.\t\t1\n5\tMeasuring instruments must be taken care of in order to maintain high level of accuracy and reliability.\t\t1\n6\tRecords and samples must be retained for a certain period of time after which they must not be disposed.\t\t1\n7\tMost industries in the country are not forced to function within the ambit of the law.\t\t1\n8\tTo achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet.\t\t1\n9\tIt is important that testing resources are always kept in good condition before starting any testing process.\t\t1\n10\tsamples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tCorporate Compliance:\t2\n2\tRegulatory Compliance:\t2\n3.\tLegal Impact:\t2\n4.\tFinancial Impact:\t2\n5.\tReputational Impact:\t2\n6.\tBusiness Impact:\t2\n7.\tNon-compliance:\t2\n8.\tDiscuss in detail why are non-conformances important in an organisation:\t6\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution:\t12\n2\tAs soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services:\t8\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t15\t\n1.1.2\t15\t\n1.1.3\t10\t\n1.1.4\t10\t\nTotal Question 1.1\t50\t\n2.1.1\t10\t\n2.1.2\t20\t\n2.1.3\t20\t\nTotal Question 2.1\t50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tStatement\tTrue/False\tMarks\n1\tDeep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded.\t\t1\n2\tCompliance refers to the products or services meeting legal requirements as stipulated by the law.\t\t1\n3\tThe disposal of samples does not takes into consideration on the effect on the environment.\t\t1\n4\tDifferent industries and professions have compliance regulatory organizations supported by legislation.\t\t1\n5\tMeasuring instruments must be taken care of in order to maintain high level of accuracy and reliability.\t\t1\n6\tRecords and samples must be retained for a certain period of time after which they must not be disposed.\t\t1\n7\tMost industries in the country are not forced to function within the ambit of the law.\t\t1\n8\tTo achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet.\t\t1\n9\tIt is important that testing resources are always kept in good condition before starting any testing process.\t\t1\n10\tsamples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tCorporate Compliance:\t2\n2\tRegulatory Compliance:\t2\n3.\tLegal Impact:\t2\n4.\tFinancial Impact:\t2\n5.\tReputational Impact:\t2\n6.\tBusiness Impact:\t2\n7.\tNon-compliance:\t2\n8.\tDiscuss in detail why are non-conformances important in an organisation:\t6\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution:\t12\n2\tAs soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services:\t8\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t15\t\n1.1.2\t15\t\n1.1.3\t10\t\n1.1.4\t10\t\nTotal Question 1.1\t50\t\n2.1.1\t10\t\n2.1.2\t20\t\n2.1.3\t20\t\nTotal Question 2.1\t50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  },
+  {
+    "id": "be6f1471a67c480892a964b4e24e5ab3",
+    "number": "1.2.1",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "text": "True or False \nAllocate one mark  for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tStatement\tTrue/False\tMarks\n1\tDeep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded.\t\t1\n2\tCompliance refers to the products or services meeting legal requirements as stipulated by the law.\t\t1\n3\tThe disposal of samples does not takes into consideration on the effect on the environment.\t\t1\n4\tDifferent industries and professions have compliance regulatory organizations supported by legislation.\t\t1\n5\tMeasuring instruments must be taken care of in order to maintain high level of accuracy and reliability.\t\t1\n6\tRecords and samples must be retained for a certain period of time after which they must not be disposed.\t\t1\n7\tMost industries in the country are not forced to function within the ambit of the law.\t\t1\n8\tTo achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet.\t\t1\n9\tIt is important that testing resources are always kept in good condition before starting any testing process.\t\t1\n10\tsamples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      }
+    ]
+  },
+  {
+    "id": "35e9157cd7b2456e92435596549a98db",
+    "number": "1.2.2",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "text": "Constructive Response \nAllocate two marks for number 1 to 7 and six marks for number 8\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tCorporate Compliance:\t2\n2\tRegulatory Compliance:\t2\n3.\tLegal Impact:\t2\n4.\tFinancial Impact:\t2\n5.\tReputational Impact:\t2\n6.\tBusiness Impact:\t2\n7.\tNon-compliance:\t2\n8.\tDiscuss in detail why are non-conformances important in an organisation:\t6\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      }
+    ]
+  },
+  {
+    "id": "9dfa389927a440e8af3dd2318b681497",
+    "number": "1.2.3",
+    "type": "question",
+    "marks": "",
+    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "text": "Case study \nAllocate twelve marks for number 1, eight marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution:\t12\n2\tAs soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services:\t8\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t15\t\n1.1.2\t15\t\n1.1.3\t10\t\n1.1.4\t10\t\nTotal Question 1.1\t50\t\n2.1.1\t10\t\n2.1.2\t20\t\n2.1.3\t20\t\nTotal Question 2.1\t50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  },
+  {
+    "id": "048cdc46f8ed4bc083e72ce48576ecf1",
+    "number": "1.2.1",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "text": "True or False \nAllocate one mark  for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tStatement\tTrue/False\tMarks\n1\tDeep storage of records includes deeds, wills, financial and medical records by law must be retained for few years and be discarded.\t\t1\n2\tCompliance refers to the products or services meeting legal requirements as stipulated by the law.\t\t1\n3\tThe disposal of samples does not takes into consideration on the effect on the environment.\t\t1\n4\tDifferent industries and professions have compliance regulatory organizations supported by legislation.\t\t1\n5\tMeasuring instruments must be taken care of in order to maintain high level of accuracy and reliability.\t\t1\n6\tRecords and samples must be retained for a certain period of time after which they must not be disposed.\t\t1\n7\tMost industries in the country are not forced to function within the ambit of the law.\t\t1\n8\tTo achieve the lowest level of risk, flammable liquids should always be stored in a flammable liquids\u2019 storage cabinet.\t\t1\n9\tIt is important that testing resources are always kept in good condition before starting any testing process.\t\t1\n10\tsamples must be stored under conditions in such a way that they will lose their stability, integrity, and effectiveness.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      }
+    ]
+  },
+  {
+    "id": "d4620ff7462e4a75b41f99817e63bf30",
+    "number": "1.2.2",
+    "type": "question",
+    "marks": "20",
+    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "text": "Constructive Response \nAllocate two marks for number 1 to 7 and six marks for number 8\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Compliance is the state of being in accordance with established guidelines or specifications, or the process of becoming so. Software, for example, may be developed in compliance with specifications created by a standards body, and then deployed by user organizations in compliance with a vendor's licensing agreement. The definition of\u00a0compliance\u00a0can also encompass efforts to ensure that organizations are abiding by both industry regulations and government legislation."
+      },
+      {
+        "type": "question_text",
+        "text": "Discuss the following terms associated with compliance"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tCorporate Compliance:\t2\n2\tRegulatory Compliance:\t2\n3.\tLegal Impact:\t2\n4.\tFinancial Impact:\t2\n5.\tReputational Impact:\t2\n6.\tBusiness Impact:\t2\n7.\tNon-compliance:\t2\n8.\tDiscuss in detail why are non-conformances important in an organisation:\t6\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      }
+    ]
+  },
+  {
+    "id": "87c68b60eb1644f1a90324e867f08086",
+    "number": "1.2.3",
+    "type": "question",
+    "marks": "",
+    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "text": "Case study \nAllocate twelve marks for number 1, eight marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Risk analysis is a useful tool to use in the decision-making process. It allows identification of potential benefits and detriments of each option, evaluate the likelihood of problems occurring and decide whether to proceed considering such risks. Once potential risks have been identified a decision can be made how to mitigate them and develop a comprehensive preventative plan."
+      },
+      {
+        "type": "question_text",
+        "text": "Your team is tasked in developing a new system which for a specific customer and your main focus is to mitigate potential risks which might later cause the deviation (non-conformance) in the whole process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss six steps to be followed when analysing risks regarding the above scenario: Identify risks: Define the level of uncertainty: Estimate the impact of the uncertainty: Complete the risk analysis Model: Analyse the results: Implement the solution:\t12\n2\tAs soon as nonconforming outputs are detected within the organization, they must be identified, recorded, controlled and most importantly they must be treated. The objective is to prevent the release, delivery, or use of nonconforming products or services by the customers. Discuss issues to be expected when planning the process for handling nonconforming products/services:\t8\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t15\t\n1.1.2\t15\t\n1.1.3\t10\t\n1.1.4\t10\t\nTotal Question 1.1\t50\t\n2.1.1\t10\t\n2.1.2\t20\t\n2.1.3\t20\t\nTotal Question 2.1\t50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  }
+]

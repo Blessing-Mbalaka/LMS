@@ -346,6 +346,8 @@ class Paper(models.Model):          #  ✅ only one “(models.Model)”, colon 
 
     created_at    = models.DateTimeField(auto_now_add=True)
     structure_json = models.JSONField(blank=True, null=True)
+    is_randomized = models.BooleanField(default=False)
+
 
 
     def __str__(self):
