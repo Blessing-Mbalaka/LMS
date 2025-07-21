@@ -854,6 +854,8 @@ def rebuild_nested_structure(flat_nodes):
 #-------------------------------------------------------------------------------------------------->>>>>>>>>
 import uuid
 from core.models import ExamNode
+import uuid
+from core.models import ExamNode  # or wherever ExamNode is defined
 
 def populate_examnodes_from_structure_json(paper):
     """
@@ -867,6 +869,20 @@ def populate_examnodes_from_structure_json(paper):
     def _create_node(block, parent=None, index=0):
         node_id = uuid.uuid4().hex
 
+        # Prepare payload
+        payload = {
+            "content": block.get("content", []),
+            "data_uri": block.get("data_uri", ""),
+            "children": block.get("children", []),  # Optional: preserve full structure
+        }
+
+        # Preserve top-level text only if not inside content
+        text = block.get("text", "")
+        if block.get("type") in ["paragraph", "question", "question_header"]:
+            payload["text"] = text
+        else:
+            text = ""  # avoid duplicate if it will be displayed from content
+
         node = ExamNode.objects.create(
             id=node_id,
             paper=paper,
@@ -874,24 +890,91 @@ def populate_examnodes_from_structure_json(paper):
             node_type=block.get("type", ""),
             number=block.get("number", ""),
             marks=block.get("marks", ""),
-            text=block.get("text", "") if not block.get("content") else "",
+            text=text,
             content=block.get("content", []),
             data_uri=block.get("data_uri", ""),
-            payload=block,
+            payload=payload,
             is_top_level=(parent is None),
             order_index=index
         )
 
         created_nodes[node_id] = node
 
+        # Recurse for children
         for i, child in enumerate(block.get("children", [])):
             _create_node(child, parent=node, index=i)
 
-    # Wipe existing ExamNodes for this paper (optional: safeguard if needed)
+    # Clear old nodes for this paper
     ExamNode.objects.filter(paper=paper).delete()
 
+    # Save new ones from structure_json
     for idx, block in enumerate(structure):
         _create_node(block, index=idx)
 
     print(f"✅ Populated {len(created_nodes)} ExamNodes for paper ID {paper.id} ({paper.name})")
     return created_nodes
+
+#Job is to store in Relational DB as an addition...
+
+from core.models import QuestionParent, QuestionChild, QuestionContent
+
+def save_parent_child_tables_from_structure_json(paper, structure_json):
+    """
+    Separately store parent and child questions (and their content) into relational tables
+    QuestionParent, QuestionChild, and QuestionContent.
+    """
+    # Step 1: Clear existing entries
+    QuestionParent.objects.filter(paper=paper).delete()
+
+    id_to_parent = {}
+
+    for block in structure_json:
+        block_id = block.get("id")
+        parent_id = block.get("parent_id")
+        number = block.get("number", "")
+        marks = block.get("marks", "")
+        text = block.get("text", "")
+        block_type = block.get("type", "")
+        content = block.get("content", [])
+
+        # Step 2: Save as QuestionParent if top-level question
+        if parent_id is None and block_type == "question":
+            parent = QuestionParent.objects.create(
+                paper=paper,
+                block_id=block_id,
+                number=number,
+                marks=marks,
+                text=text,
+            )
+            id_to_parent[block_id] = parent
+
+            for i, c in enumerate(content):
+                QuestionContent.objects.create(
+                    parent_block=parent,
+                    block_type=c.get("type", ""),
+                    text=c.get("text", ""),
+                    rows=c.get("rows", None),
+                    data_uri=c.get("data_uri", ""),
+                    order=i
+                )
+
+        # Step 3: Save as QuestionChild if it belongs to a parent
+        elif parent_id in id_to_parent:
+            parent = id_to_parent[parent_id]
+            child = QuestionChild.objects.create(
+                parent=parent,
+                block_id=block_id,
+                number=number,
+                marks=marks,
+                text=text,
+                order=len(parent.children.all())
+            )
+            for i, c in enumerate(content):
+                QuestionContent.objects.create(
+                    child_block=child,
+                    block_type=c.get("type", ""),
+                    text=c.get("text", ""),
+                    rows=c.get("rows", None),
+                    data_uri=c.get("data_uri", ""),
+                    order=i
+                )

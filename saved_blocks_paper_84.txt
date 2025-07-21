@@ -1,0 +1,968 @@
+[
+  {
+    "id": "e72b53dcbe204b648be23adf37680e45",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "",
+    "content": []
+  },
+  {
+    "id": "76aad3be88e3476e97ac0fdc6b8b0815",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "",
+    "content": []
+  },
+  {
+    "id": "281172305288486d9632807870f6d6ad",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "EXTERNAL INTEGRATED SUMMATIVE ASSESSMENT",
+    "content": []
+  },
+  {
+    "id": "c58520cf85ac4ff58702cd838078e530",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "QUALITY CONTROLLER",
+    "content": []
+  },
+  {
+    "id": "b3b80f35125649d7bd2072d282733cfd",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "QUESTION PAPER 1A",
+    "content": []
+  },
+  {
+    "id": "acec8ce929e34c62ad16f771e8ed9b17",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "GENERAL EISA RULES",
+    "content": []
+  },
+  {
+    "id": "d1cd8fa711cb4bb6b7c9dfdbcbe3123a",
+    "number": "1",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students are only allowed to use the supplied EISA booklets.",
+    "content": []
+  },
+  {
+    "id": "cf1e170680654d1b90445df351549c72",
+    "number": "2",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students are only allowed to use a black pen for their answers.",
+    "content": []
+  },
+  {
+    "id": "cb4daeffdb7c4227a1479638f225194f",
+    "number": "3",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students to ensure that their name, surname and EISA registration number appears on the front of your EISA booklet.",
+    "content": []
+  },
+  {
+    "id": "85928099f57048e89cf5867f93aed692",
+    "number": "4",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "This is a closed book examination; therefore, no other material or belongings are to be brought into the assessment centre.  Should you bring any other material or belongings into the assessment centre, you will be required to leave such at the front of the assessment centre examination room.  The assessment centre will not be held liable for any loss or damage to property brought into the assessment centre examination room.",
+    "content": []
+  },
+  {
+    "id": "7fabf64443cb4eb49d966655d72dfd5d",
+    "number": "5",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "All EISA booklets must be handed back to the invigilator intact.  No pages may be torn off from the EISA booklet.  The removal of EISA booklets from the examination room is prohibited.",
+    "content": []
+  },
+  {
+    "id": "9208bf00fce34d0daca8ad6beda8a8d8",
+    "number": "6",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students may make use of a calculator in this EISA.",
+    "content": []
+  },
+  {
+    "id": "2ac8416874c44c83bfccc91a332e75e8",
+    "number": "7",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Unless this is an online examination where access to a computer will be made available to you; the use of any communication devices, including smart watches, cell phones, tablets, iPads, headphones and laptops are prohibited.",
+    "content": []
+  },
+  {
+    "id": "b473657a185e44d59e1d6a7ef1c4c132",
+    "number": "8",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "All cell phones are to be switched off for the duration of the EISA.",
+    "content": []
+  },
+  {
+    "id": "691dd024ff9e4fe690523e3d82023a46",
+    "number": "9",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "The invigilator will not assist you with the explanation of questions related to the EISA.",
+    "content": []
+  },
+  {
+    "id": "830ed31dafc4499c8fa6298129bd9f40",
+    "number": "10",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students are prohibited from conversing in any manner with other students.",
+    "content": []
+  },
+  {
+    "id": "9da39923df7d47d48936d16bb361b598",
+    "number": "11",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students may not leave the examination venue within one hour of the start of the examination and in the last 10 minutes of the allotted examination period.",
+    "content": []
+  },
+  {
+    "id": "e6b6ee0f278e426f96d3522d089e78e9",
+    "number": "12",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students who are found to be disruptive and unruly in the assessment centre will be requested to leave the assessment centre by the invigilator.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "I HEREBY CONFIRM THAT I HAVE READ THE ABOVE EISA RULES AND DECLARE THAT I"
+      },
+      {
+        "type": "question_text",
+        "text": "UNDERSTAND AND ACCEPT THE RULES."
+      },
+      {
+        "type": "question_text",
+        "text": "________________________"
+      },
+      {
+        "type": "question_text",
+        "text": "SIGNATURE OF STUDENT"
+      },
+      {
+        "type": "question_text",
+        "text": "CANDIDATE INSTRUCTIONS"
+      },
+      {
+        "type": "question_text",
+        "text": "Candidate must complete all question s in the EISA"
+      },
+      {
+        "type": "question_text",
+        "text": "Candidates must ensure that they use only a black pen when completing this EISA."
+      },
+      {
+        "type": "question_text",
+        "text": "Should you require additional space to complete your answer, please request additional paper from your invigilator."
+      },
+      {
+        "type": "question_text",
+        "text": "Ensure that you indicate your name, surname and EISA registration number at the top of the additional paper."
+      },
+      {
+        "type": "question_text",
+        "text": "Also ensure that the question number is clearly marked on your additional paper."
+      },
+      {
+        "type": "question_text",
+        "text": "-----------------------------------------------------------------------------------------------------------------"
+      },
+      {
+        "type": "question_text",
+        "text": "ur Sayzwani Abd Suki;Elmi Abu Bakar ,Shahrul Kamaruddin/ A Case Study on Improvement of Outgoing Quality Control Works for Manufacturing"
+      },
+      {
+        "type": "question_text",
+        "text": "Products 4(1), pp. 12-21, 2015"
+      }
+    ]
+  },
+  {
+    "id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "number": "1.1",
+    "type": "paragraph",
+    "marks": "10",
+    "parent_id": null,
+    "text": "",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Complete a quality inspection checklist for input, inline and endline for product or service"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Company \u2018A\u2019 strives to be very competitive company, however low productivity is the main challenge which is due to high inspection time and high handling time."
+      },
+      {
+        "type": "question_text",
+        "text": "In order to overcome this challenge, a methodology for inspecting input, inline and endline for product/service need to be developed, then validated according to the guidelines."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuality Inspection Checklist\tCorrective Action\tMarks\n1\tSample delivered by\t\t1\n2\tDelivery date of samples\t\t1\n3\tQuantity / number of samples received\t\t1\n4\tName of sample\t\t1\n5\tSample batch number\t\t1\n6\tType of sample\t\t1\n7\tSample received by\t\t1\n8\tStorage condition of the sample\t\t1\n9\tStorage location inside the laboratory\t\t1\n10\tTesting date and comments\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      },
+      {
+        "type": "question_text",
+        "text": "Match column A with column B and write correct answer in the space provided."
+      },
+      {
+        "type": "question_text",
+        "text": "Column A\tColumn B\tAnswer\tMarks\nIncoming Inspection\tPlan is a statistical method of determining whether to accept or reject a batch of material that is being produced.\t\t1\nInspection Checklist\tTo ensure that the part, material, or component confirms the established standard.\t\t1\nQuality Parameter\tValidates the quality of purchased raw materials based on set acceptance criteria\t\t1\nSampling Plan\tTo determine if the process is approaching the specification limits\t\t1\nQuality Specification\tIs used by quality assurance personnel to validate the quality of purchased raw materials based on set acceptance criteria\t\t1\nThe need to inspect in an industry\tThe inspector walks around the workplace floor and checks machine to machine, samples of the work of various workers, and machines.\t\t1\nThe objective of a quality inspection\tIs used when inspection equipment and tools cannot on the workplace.be brought\t\t1\nThe purpose of Quality Inspection\tRefer to the size characterizing the\u00a0quality\u00a0level of the final product/service.\t\t1\nRevolving Inspection\tWould refer to the predetermined characteristics of a product as compared against reference standard\t\t1\nFixed Inspection\tTo collect information regarding the performance of the product with established standards for the use of engineering production, purchasing, and quality control, etc.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "A sample has been brought to the quality control department and as a quality controller, you are expected to perform test/s according to the guidelines. Before performing any test, you are expected to complete a checklist to test the effectiveness of the process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuality Inspection Checklist\tCorrective Action\tMarks\n1\tHumidity\t\t1\n2\tTemperature\t\t1\n3\tWeather\t\t1\n4\tPeople\t\t1\n5\tMethods\t\t1\n6\tProcess\t\t1\n7\tTesting Device\t\t1\n8\tMeasuring Resources\t\t1\n9\tTesting Resources\t\t1\n10\tProtective clothing\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "In manufacturing / service industry, quality means meeting requirements, meeting customer needs, which means a defect free product/service from both the producers and the customer\u2019s viewpoint. Quality performance plays an important role for many manufacturing/ service companies in gaining competitive advantage and business survival. In a manufacturing/service environment, quality improves reliability, increases productivity and customer satisfactions (Mohd N. et al., 2009)."
+      },
+      {
+        "type": "question_text",
+        "text": "Therefore, to have a good product/service, good quality products/ services are important to satisfy the customer needs and improve the productivity performance of companies."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMark\n1\tDefine the concept of conformance and non-conformances and how the cost of quality is derived. Conformance \u2013 Non conformance \u2013 Cost of performance \u2013 Prevention cost - Appraisal cost - Cost of non-conformance \u2013 Internal failure cost \u2013 External failure cost \u2013\t10\n2\tThe most effective strategy to use in implementation of remedial measures is the use of the Shewhart PDCA cycle. Draw and label the PDCA cycle\t5\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tIt is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. Discuss the 5 p\u2019s of GMP\t10\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Company \u2018A\u2019 strives to be very competitive company, however low productivity is the main challenge which is due to high inspection time and high handling time."
+      },
+      {
+        "type": "question_text",
+        "text": "In order to overcome this challenge, a methodology for inspecting input, inline and endline for product/service need to be developed, then validated according to the guidelines."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuality Inspection Checklist\tCorrective Action\tMarks\n1\tSample delivered by\t\t1\n2\tDelivery date of samples\t\t1\n3\tQuantity / number of samples received\t\t1\n4\tName of sample\t\t1\n5\tSample batch number\t\t1\n6\tType of sample\t\t1\n7\tSample received by\t\t1\n8\tStorage condition of the sample\t\t1\n9\tStorage location inside the laboratory\t\t1\n10\tTesting date and comments\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      },
+      {
+        "type": "question_text",
+        "text": "Match column A with column B and write correct answer in the space provided."
+      },
+      {
+        "type": "question_text",
+        "text": "Column A\tColumn B\tAnswer\tMarks\nIncoming Inspection\tPlan is a statistical method of determining whether to accept or reject a batch of material that is being produced.\t\t1\nInspection Checklist\tTo ensure that the part, material, or component confirms the established standard.\t\t1\nQuality Parameter\tValidates the quality of purchased raw materials based on set acceptance criteria\t\t1\nSampling Plan\tTo determine if the process is approaching the specification limits\t\t1\nQuality Specification\tIs used by quality assurance personnel to validate the quality of purchased raw materials based on set acceptance criteria\t\t1\nThe need to inspect in an industry\tThe inspector walks around the workplace floor and checks machine to machine, samples of the work of various workers, and machines.\t\t1\nThe objective of a quality inspection\tIs used when inspection equipment and tools cannot on the workplace.be brought\t\t1\nThe purpose of Quality Inspection\tRefer to the size characterizing the\u00a0quality\u00a0level of the final product/service.\t\t1\nRevolving Inspection\tWould refer to the predetermined characteristics of a product as compared against reference standard\t\t1\nFixed Inspection\tTo collect information regarding the performance of the product with established standards for the use of engineering production, purchasing, and quality control, etc.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "A sample has been brought to the quality control department and as a quality controller, you are expected to perform test/s according to the guidelines. Before performing any test, you are expected to complete a checklist to test the effectiveness of the process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuality Inspection Checklist\tCorrective Action\tMarks\n1\tHumidity\t\t1\n2\tTemperature\t\t1\n3\tWeather\t\t1\n4\tPeople\t\t1\n5\tMethods\t\t1\n6\tProcess\t\t1\n7\tTesting Device\t\t1\n8\tMeasuring Resources\t\t1\n9\tTesting Resources\t\t1\n10\tProtective clothing\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "In manufacturing / service industry, quality means meeting requirements, meeting customer needs, which means a defect free product/service from both the producers and the customer\u2019s viewpoint. Quality performance plays an important role for many manufacturing/ service companies in gaining competitive advantage and business survival. In a manufacturing/service environment, quality improves reliability, increases productivity and customer satisfactions (Mohd N. et al., 2009)."
+      },
+      {
+        "type": "question_text",
+        "text": "Therefore, to have a good product/service, good quality products/ services are important to satisfy the customer needs and improve the productivity performance of companies."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMark\n1\tDefine the concept of conformance and non-conformances and how the cost of quality is derived. Conformance \u2013 Non conformance \u2013 Cost of performance \u2013 Prevention cost - Appraisal cost - Cost of non-conformance \u2013 Internal failure cost \u2013 External failure cost \u2013\t10\n2\tThe most effective strategy to use in implementation of remedial measures is the use of the Shewhart PDCA cycle. Draw and label the PDCA cycle\t5\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tIt is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. Discuss the 5 p\u2019s of GMP\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "159672c96cc44c26ad709b0db1de357c",
+    "number": "1.1.1",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Case Study \nAllocate one mark each for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Company \u2018A\u2019 strives to be very competitive company, however low productivity is the main challenge which is due to high inspection time and high handling time."
+      },
+      {
+        "type": "question_text",
+        "text": "In order to overcome this challenge, a methodology for inspecting input, inline and endline for product/service need to be developed, then validated according to the guidelines."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuality Inspection Checklist\tCorrective Action\tMarks\n1\tSample delivered by\t\t1\n2\tDelivery date of samples\t\t1\n3\tQuantity / number of samples received\t\t1\n4\tName of sample\t\t1\n5\tSample batch number\t\t1\n6\tType of sample\t\t1\n7\tSample received by\t\t1\n8\tStorage condition of the sample\t\t1\n9\tStorage location inside the laboratory\t\t1\n10\tTesting date and comments\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      }
+    ]
+  },
+  {
+    "id": "b1f4b0bda50e4ffbaacd7e236d94d0f3",
+    "number": "1.1.2",
+    "type": "question",
+    "marks": "",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Constructive Response \nAllocate one mark each for number 1 to 10",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Match column A with column B and write correct answer in the space provided."
+      },
+      {
+        "type": "question_text",
+        "text": "Column A\tColumn B\tAnswer\tMarks\nIncoming Inspection\tPlan is a statistical method of determining whether to accept or reject a batch of material that is being produced.\t\t1\nInspection Checklist\tTo ensure that the part, material, or component confirms the established standard.\t\t1\nQuality Parameter\tValidates the quality of purchased raw materials based on set acceptance criteria\t\t1\nSampling Plan\tTo determine if the process is approaching the specification limits\t\t1\nQuality Specification\tIs used by quality assurance personnel to validate the quality of purchased raw materials based on set acceptance criteria\t\t1\nThe need to inspect in an industry\tThe inspector walks around the workplace floor and checks machine to machine, samples of the work of various workers, and machines.\t\t1\nThe objective of a quality inspection\tIs used when inspection equipment and tools cannot on the workplace.be brought\t\t1\nThe purpose of Quality Inspection\tRefer to the size characterizing the\u00a0quality\u00a0level of the final product/service.\t\t1\nRevolving Inspection\tWould refer to the predetermined characteristics of a product as compared against reference standard\t\t1\nFixed Inspection\tTo collect information regarding the performance of the product with established standards for the use of engineering production, purchasing, and quality control, etc.\t\t1\nTotal\tTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "bcb74c703ab34963a119624effbde9c5",
+    "number": "1.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Complete a testing checklist for a product or service across all processes (input, inline and endline)",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "A sample has been brought to the quality control department and as a quality controller, you are expected to perform test/s according to the guidelines. Before performing any test, you are expected to complete a checklist to test the effectiveness of the process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuality Inspection Checklist\tCorrective Action\tMarks\n1\tHumidity\t\t1\n2\tTemperature\t\t1\n3\tWeather\t\t1\n4\tPeople\t\t1\n5\tMethods\t\t1\n6\tProcess\t\t1\n7\tTesting Device\t\t1\n8\tMeasuring Resources\t\t1\n9\tTesting Resources\t\t1\n10\tProtective clothing\t\t1\nTotal\tTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "1a72c199351f48ed9b6093473899bd88",
+    "number": "1.1.4",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "In manufacturing / service industry, quality means meeting requirements, meeting customer needs, which means a defect free product/service from both the producers and the customer\u2019s viewpoint. Quality performance plays an important role for many manufacturing/ service companies in gaining competitive advantage and business survival. In a manufacturing/service environment, quality improves reliability, increases productivity and customer satisfactions (Mohd N. et al., 2009)."
+      },
+      {
+        "type": "question_text",
+        "text": "Therefore, to have a good product/service, good quality products/ services are important to satisfy the customer needs and improve the productivity performance of companies."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMark\n1\tDefine the concept of conformance and non-conformances and how the cost of quality is derived. Conformance \u2013 Non conformance \u2013 Cost of performance \u2013 Prevention cost - Appraisal cost - Cost of non-conformance \u2013 Internal failure cost \u2013 External failure cost \u2013\t10\n2\tThe most effective strategy to use in implementation of remedial measures is the use of the Shewhart PDCA cycle. Draw and label the PDCA cycle\t5\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      }
+    ]
+  },
+  {
+    "id": "055e23ead0ae4db8a3a3f04c5dd139e6",
+    "number": "1.1.5",
+    "type": "question",
+    "marks": "",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Constructive Response \nAllocate 10 marks for number 1",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tIt is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. Discuss the 5 p\u2019s of GMP\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "9245c31592e44791be76d0caf3bd7fa4",
+    "number": "1.1.1",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Case Study \nAllocate one mark each for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Company \u2018A\u2019 strives to be very competitive company, however low productivity is the main challenge which is due to high inspection time and high handling time."
+      },
+      {
+        "type": "question_text",
+        "text": "In order to overcome this challenge, a methodology for inspecting input, inline and endline for product/service need to be developed, then validated according to the guidelines."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuality Inspection Checklist\tCorrective Action\tMarks\n1\tSample delivered by\t\t1\n2\tDelivery date of samples\t\t1\n3\tQuantity / number of samples received\t\t1\n4\tName of sample\t\t1\n5\tSample batch number\t\t1\n6\tType of sample\t\t1\n7\tSample received by\t\t1\n8\tStorage condition of the sample\t\t1\n9\tStorage location inside the laboratory\t\t1\n10\tTesting date and comments\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+      }
+    ]
+  },
+  {
+    "id": "f45bd723782340538d4b89dd226db6fe",
+    "number": "1.1.2",
+    "type": "question",
+    "marks": "",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Constructive Response \nAllocate one mark each for number 1 to 10",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Match column A with column B and write correct answer in the space provided."
+      },
+      {
+        "type": "question_text",
+        "text": "Column A\tColumn B\tAnswer\tMarks\nIncoming Inspection\tPlan is a statistical method of determining whether to accept or reject a batch of material that is being produced.\t\t1\nInspection Checklist\tTo ensure that the part, material, or component confirms the established standard.\t\t1\nQuality Parameter\tValidates the quality of purchased raw materials based on set acceptance criteria\t\t1\nSampling Plan\tTo determine if the process is approaching the specification limits\t\t1\nQuality Specification\tIs used by quality assurance personnel to validate the quality of purchased raw materials based on set acceptance criteria\t\t1\nThe need to inspect in an industry\tThe inspector walks around the workplace floor and checks machine to machine, samples of the work of various workers, and machines.\t\t1\nThe objective of a quality inspection\tIs used when inspection equipment and tools cannot on the workplace.be brought\t\t1\nThe purpose of Quality Inspection\tRefer to the size characterizing the\u00a0quality\u00a0level of the final product/service.\t\t1\nRevolving Inspection\tWould refer to the predetermined characteristics of a product as compared against reference standard\t\t1\nFixed Inspection\tTo collect information regarding the performance of the product with established standards for the use of engineering production, purchasing, and quality control, etc.\t\t1\nTotal\tTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "d46bf55bc83e4c1ba808e68f4665027c",
+    "number": "1.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Complete a testing checklist for a product or service across all processes (input, inline and endline)",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "A sample has been brought to the quality control department and as a quality controller, you are expected to perform test/s according to the guidelines. Before performing any test, you are expected to complete a checklist to test the effectiveness of the process."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuality Inspection Checklist\tCorrective Action\tMarks\n1\tHumidity\t\t1\n2\tTemperature\t\t1\n3\tWeather\t\t1\n4\tPeople\t\t1\n5\tMethods\t\t1\n6\tProcess\t\t1\n7\tTesting Device\t\t1\n8\tMeasuring Resources\t\t1\n9\tTesting Resources\t\t1\n10\tProtective clothing\t\t1\nTotal\tTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "630209c4327241e48108f2d0b8151244",
+    "number": "1.1.4",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "In manufacturing / service industry, quality means meeting requirements, meeting customer needs, which means a defect free product/service from both the producers and the customer\u2019s viewpoint. Quality performance plays an important role for many manufacturing/ service companies in gaining competitive advantage and business survival. In a manufacturing/service environment, quality improves reliability, increases productivity and customer satisfactions (Mohd N. et al., 2009)."
+      },
+      {
+        "type": "question_text",
+        "text": "Therefore, to have a good product/service, good quality products/ services are important to satisfy the customer needs and improve the productivity performance of companies."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMark\n1\tDefine the concept of conformance and non-conformances and how the cost of quality is derived. Conformance \u2013 Non conformance \u2013 Cost of performance \u2013 Prevention cost - Appraisal cost - Cost of non-conformance \u2013 Internal failure cost \u2013 External failure cost \u2013\t10\n2\tThe most effective strategy to use in implementation of remedial measures is the use of the Shewhart PDCA cycle. Draw and label the PDCA cycle\t5\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+      }
+    ]
+  },
+  {
+    "id": "7f581e5716124334b4dbfa2f9e261431",
+    "number": "1.1.5",
+    "type": "question",
+    "marks": "",
+    "parent_id": "28d3edc124d94c048ced01f3ce26dd6e",
+    "text": "Constructive Response \nAllocate 10 marks for number 1",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tIt is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products. Discuss the 5 p\u2019s of GMP\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "88d8b5ccb1044561b312100052f40035",
+    "number": "1.16",
+    "type": "paragraph",
+    "marks": "10",
+    "parent_id": null,
+    "text": "Apply different testing methods for different characteristics to test for product/service quality applicable in their environment",
+    "content": []
+  },
+  {
+    "id": "b3d1d08c69dd4d8faf72be0b767669ad",
+    "number": "1.1.6",
+    "type": "paragraph",
+    "marks": "10",
+    "parent_id": null,
+    "text": "Case Study \nAllocate two marks each for number 1 to 5\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Testing methodologies are applied in different types of industries. The types of tests conducted depend on the products/services being produced, these tests are important for a company to grow and to be competitive."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1.1.6\tDiscuss the following test methodology and give industry example\t\n1\tIntegration testing \u2013\t2\n2\tUnit Testing \u2013\t2\n3\tSystem Testing \u2013\t2\n4\tPerformance testing \u2013\t2\n5\tStress Testing \u2013\t2\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply knowledge of testing procedures of a product or service."
+      }
+    ]
+  },
+  {
+    "id": "54d17cf2b6ef42e886bbe3382b2e08c6",
+    "number": "1.1.7",
+    "type": "paragraph",
+    "marks": "5",
+    "parent_id": null,
+    "text": "Constructive Response \nAllocate two marks each for number 1 to 3 and four marks for number 4\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "When completing the tests of controls, it is important note how evidence is collected for inspection. To be able to rely on evidence obtained, the\u00a0inspector must be ensuring that the evidence is sufficient, reliable and accurate. This can be accomplished by observing the audit report directly from the person responsible for compiling the report."
+      },
+      {
+        "type": "question_text",
+        "text": "Study the attached SOP template and answer questions that follows:"
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1.\tWhat is the purpose of an effective SOP in a work environment?\t2\n2.\tWhat information should be covered in the scope\t2\n3.\tGive two reasons why the SOP should have a review date\t2\n4\tWhich information will validate the effectiveness of an SOP? Name at least 4 and give a reason to support your answer\t4\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Test if product/service conforms to the required standard"
+      }
+    ]
+  },
+  {
+    "id": "9aba28721e664c5ba5cfcec36399179e",
+    "number": "1.1.8",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Multiple Choice Questions \nAllocate 1 mark each for number 1 to 5",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tMultiple Choice Questions\tAnswers\tMarks\n1.\tWhich of the following statement is true? Non-conformance is part of quality control issues Non-conformance does not affect customer relationship A non- conforming product does not incur cost of quality None of the above\t\t1\n2.\tThe poor service can be caused by the following: Overworked staff Unsatisfactory wages Poor management All of the above\t\t1\n3\tAdvantages of tracing non-conformance is to ensure that: Persons responsible for non-conformance may not reveal all information during the investigations The records on which tracing is based may be lot or biased. Ensure that preventative measures are always implemented Traceability may cause the organization reputational damage.\t\t1\n4\tA concession can be defined as Determining and finding mitigating strategies to reduce the impact of risks An agreement or settlement of a dispute that is reached by each side making compromise for an acceptance of a situation New raw material that has never been used before Finding the solution with the least amount of risk and implementing it\t\t1\n5\tProduct or service quality can be overlooked in terms of the following: Suitability from customer\u2019s viewpoint Degree to which it conforms to the product specifications Product design or planned quality All of the above\t\t1\nTotal\tTotal\tTotal\t5"
+      }
+    ]
+  },
+  {
+    "id": "910d5a17fcae47069265b2f3f751d093",
+    "number": "2.1",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tMultiple Choice Questions\tAnswers\tMarks\n1.\tSome of the main objectives of an organization\u2019s documented information is to Hide evidence that what planned has been done Not used as a tool for information sharing To disseminate and preserve the organization\u2019s experiences Keeping sensitive information secrete\t\t1\n2.\tDocumented information needs to be maintained by the organization to\u00a0establish The scope of the quality management system. The information which will not support the operation of processes. Measure to hide the quality policy and procedures. None of the above\t\t1\n3\tInformation maintained by the organization effectively may include: Tests and work instructions Documents for internal communications The list of suppliers All of the above\t\t1\n4\tThe documented information may be controlled as follows: When there are no safeguards in place to prevent employees\u00a0from incorrectly accessing and using obsolete information The controls for \u201cpreservation\u201d are very similar to the controls for \u201cprotection,\u201d described\u00a0above. The organization is not expected to specify where the documented information is located. Keeping the records which must be disposed off after the retention times have elapsed\t\t1\n5\tThe external documents that may require control include: Standards from industrial organizations applicable to the organization Evidence of fitness for the purpose of monitoring and measuring resources. Design and development records of inputs and outputs. Records of design and development controls.\t\t1\nTotal\tTotal\tTotal\t5"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "The diagram below shows the statistical process control chart which is used for gathering information."
+      },
+      {
+        "type": "question_text",
+        "text": "With the aid of the tool below, an organization will retain information in order to provide evidence for the records of the results achieved."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\t\tMarks\n1\tDiscuss the 10 records which an organization will need to provide evidence for collected data for the results achieved using SPC\t\t10\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answer\tMarks\n1\tBriefly discuss the 2 types of data collection methods and give relevant industry example Qualitative Data \u2013 Quantitative Data \u2013\t5\n2\tData Analysis is a process of inspecting, cleansing, transforming, and modelling data with the goal of discovering useful information, suggesting conclusions, and supporting decision-making. Discuss how you will analyse data collected by using any 5 of the 7 essential principle of data collection.\t5\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\t\tMarks\n1\tDiscuss the 8 principles of problem solving \u2018\t\t15\nTotal\tTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t10\t\n1.1.2\t10\t\n1.1.3\t10\t\n1.1.4\t15\t\n1.1.5\t10\t\n1.1.6\t10\t\n1.1.7\t10\t\n1.1.8\t5\t\nTotal Question 1.1\t80\t\n2.1.1\t5\t\n2.1.2\t10\t\n2.1.3\t10\t\n2.1.4\t15\t\nTotal Question 2.1\t40"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tMultiple Choice Questions\tAnswers\tMarks\n1.\tSome of the main objectives of an organization\u2019s documented information is to Hide evidence that what planned has been done Not used as a tool for information sharing To disseminate and preserve the organization\u2019s experiences Keeping sensitive information secrete\t\t1\n2.\tDocumented information needs to be maintained by the organization to\u00a0establish The scope of the quality management system. The information which will not support the operation of processes. Measure to hide the quality policy and procedures. None of the above\t\t1\n3\tInformation maintained by the organization effectively may include: Tests and work instructions Documents for internal communications The list of suppliers All of the above\t\t1\n4\tThe documented information may be controlled as follows: When there are no safeguards in place to prevent employees\u00a0from incorrectly accessing and using obsolete information The controls for \u201cpreservation\u201d are very similar to the controls for \u201cprotection,\u201d described\u00a0above. The organization is not expected to specify where the documented information is located. Keeping the records which must be disposed off after the retention times have elapsed\t\t1\n5\tThe external documents that may require control include: Standards from industrial organizations applicable to the organization Evidence of fitness for the purpose of monitoring and measuring resources. Design and development records of inputs and outputs. Records of design and development controls.\t\t1\nTotal\tTotal\tTotal\t5"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "The diagram below shows the statistical process control chart which is used for gathering information."
+      },
+      {
+        "type": "question_text",
+        "text": "With the aid of the tool below, an organization will retain information in order to provide evidence for the records of the results achieved."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\t\tMarks\n1\tDiscuss the 10 records which an organization will need to provide evidence for collected data for the results achieved using SPC\t\t10\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answer\tMarks\n1\tBriefly discuss the 2 types of data collection methods and give relevant industry example Qualitative Data \u2013 Quantitative Data \u2013\t5\n2\tData Analysis is a process of inspecting, cleansing, transforming, and modelling data with the goal of discovering useful information, suggesting conclusions, and supporting decision-making. Discuss how you will analyse data collected by using any 5 of the 7 essential principle of data collection.\t5\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\t\tMarks\n1\tDiscuss the 8 principles of problem solving \u2018\t\t15\nTotal\tTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t10\t\n1.1.2\t10\t\n1.1.3\t10\t\n1.1.4\t15\t\n1.1.5\t10\t\n1.1.6\t10\t\n1.1.7\t10\t\n1.1.8\t5\t\nTotal Question 1.1\t80\t\n2.1.1\t5\t\n2.1.2\t10\t\n2.1.3\t10\t\n2.1.4\t15\t\nTotal Question 2.1\t40"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  },
+  {
+    "id": "961b857d41dc4e06bada0b0aed9c48d7",
+    "number": "2.1.1",
+    "type": "question",
+    "marks": "5",
+    "parent_id": "910d5a17fcae47069265b2f3f751d093",
+    "text": "Identify tools (what) and method (how) to use in processing information during manufacturing and service rendering",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tMultiple Choice Questions\tAnswers\tMarks\n1.\tSome of the main objectives of an organization\u2019s documented information is to Hide evidence that what planned has been done Not used as a tool for information sharing To disseminate and preserve the organization\u2019s experiences Keeping sensitive information secrete\t\t1\n2.\tDocumented information needs to be maintained by the organization to\u00a0establish The scope of the quality management system. The information which will not support the operation of processes. Measure to hide the quality policy and procedures. None of the above\t\t1\n3\tInformation maintained by the organization effectively may include: Tests and work instructions Documents for internal communications The list of suppliers All of the above\t\t1\n4\tThe documented information may be controlled as follows: When there are no safeguards in place to prevent employees\u00a0from incorrectly accessing and using obsolete information The controls for \u201cpreservation\u201d are very similar to the controls for \u201cprotection,\u201d described\u00a0above. The organization is not expected to specify where the documented information is located. Keeping the records which must be disposed off after the retention times have elapsed\t\t1\n5\tThe external documents that may require control include: Standards from industrial organizations applicable to the organization Evidence of fitness for the purpose of monitoring and measuring resources. Design and development records of inputs and outputs. Records of design and development controls.\t\t1\nTotal\tTotal\tTotal\t5"
+      }
+    ]
+  },
+  {
+    "id": "b0008d4cddb14d998ed3aae15bfe96c6",
+    "number": "2.1.2",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "910d5a17fcae47069265b2f3f751d093",
+    "text": "Gather information using tools from samples taken and data from statistical process control (SPC)",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "The diagram below shows the statistical process control chart which is used for gathering information."
+      },
+      {
+        "type": "question_text",
+        "text": "With the aid of the tool below, an organization will retain information in order to provide evidence for the records of the results achieved."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\t\tMarks\n1\tDiscuss the 10 records which an organization will need to provide evidence for collected data for the results achieved using SPC\t\t10\nTotal\tTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "fd308a48f31943f0a311c17d59584945",
+    "number": "2.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "910d5a17fcae47069265b2f3f751d093",
+    "text": "Analyse sample results and data collected from service delivered or manufacturing process",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answer\tMarks\n1\tBriefly discuss the 2 types of data collection methods and give relevant industry example Qualitative Data \u2013 Quantitative Data \u2013\t5\n2\tData Analysis is a process of inspecting, cleansing, transforming, and modelling data with the goal of discovering useful information, suggesting conclusions, and supporting decision-making. Discuss how you will analyse data collected by using any 5 of the 7 essential principle of data collection.\t5\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "ddac86537ca140d5913e8a45baad1b76",
+    "number": "2.1.4",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "910d5a17fcae47069265b2f3f751d093",
+    "text": "Make recommendation for process improvements based on the analysis",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\t\tMarks\n1\tDiscuss the 8 principles of problem solving \u2018\t\t15\nTotal\tTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t10\t\n1.1.2\t10\t\n1.1.3\t10\t\n1.1.4\t15\t\n1.1.5\t10\t\n1.1.6\t10\t\n1.1.7\t10\t\n1.1.8\t5\t\nTotal Question 1.1\t80\t\n2.1.1\t5\t\n2.1.2\t10\t\n2.1.3\t10\t\n2.1.4\t15\t\nTotal Question 2.1\t40"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  },
+  {
+    "id": "1a53b338c62d4d6eb172f0ba909bf8e2",
+    "number": "2.1.1",
+    "type": "question",
+    "marks": "5",
+    "parent_id": "910d5a17fcae47069265b2f3f751d093",
+    "text": "Identify tools (what) and method (how) to use in processing information during manufacturing and service rendering",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tMultiple Choice Questions\tAnswers\tMarks\n1.\tSome of the main objectives of an organization\u2019s documented information is to Hide evidence that what planned has been done Not used as a tool for information sharing To disseminate and preserve the organization\u2019s experiences Keeping sensitive information secrete\t\t1\n2.\tDocumented information needs to be maintained by the organization to\u00a0establish The scope of the quality management system. The information which will not support the operation of processes. Measure to hide the quality policy and procedures. None of the above\t\t1\n3\tInformation maintained by the organization effectively may include: Tests and work instructions Documents for internal communications The list of suppliers All of the above\t\t1\n4\tThe documented information may be controlled as follows: When there are no safeguards in place to prevent employees\u00a0from incorrectly accessing and using obsolete information The controls for \u201cpreservation\u201d are very similar to the controls for \u201cprotection,\u201d described\u00a0above. The organization is not expected to specify where the documented information is located. Keeping the records which must be disposed off after the retention times have elapsed\t\t1\n5\tThe external documents that may require control include: Standards from industrial organizations applicable to the organization Evidence of fitness for the purpose of monitoring and measuring resources. Design and development records of inputs and outputs. Records of design and development controls.\t\t1\nTotal\tTotal\tTotal\t5"
+      }
+    ]
+  },
+  {
+    "id": "6def76970c0f4cf485a3806804830b9d",
+    "number": "2.1.2",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "910d5a17fcae47069265b2f3f751d093",
+    "text": "Gather information using tools from samples taken and data from statistical process control (SPC)",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "The diagram below shows the statistical process control chart which is used for gathering information."
+      },
+      {
+        "type": "question_text",
+        "text": "With the aid of the tool below, an organization will retain information in order to provide evidence for the records of the results achieved."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\t\tMarks\n1\tDiscuss the 10 records which an organization will need to provide evidence for collected data for the results achieved using SPC\t\t10\nTotal\tTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "533c365364c146b3b84210e4e950f68b",
+    "number": "2.1.3",
+    "type": "question",
+    "marks": "10",
+    "parent_id": "910d5a17fcae47069265b2f3f751d093",
+    "text": "Analyse sample results and data collected from service delivered or manufacturing process",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answer\tMarks\n1\tBriefly discuss the 2 types of data collection methods and give relevant industry example Qualitative Data \u2013 Quantitative Data \u2013\t5\n2\tData Analysis is a process of inspecting, cleansing, transforming, and modelling data with the goal of discovering useful information, suggesting conclusions, and supporting decision-making. Discuss how you will analyse data collected by using any 5 of the 7 essential principle of data collection.\t5\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "d743d671147049c686c56b2f4f9c94b7",
+    "number": "2.1.4",
+    "type": "question",
+    "marks": "15",
+    "parent_id": "910d5a17fcae47069265b2f3f751d093",
+    "text": "Make recommendation for process improvements based on the analysis",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\t\tMarks\n1\tDiscuss the 8 principles of problem solving \u2018\t\t15\nTotal\tTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t10\t\n1.1.2\t10\t\n1.1.3\t10\t\n1.1.4\t15\t\n1.1.5\t10\t\n1.1.6\t10\t\n1.1.7\t10\t\n1.1.8\t5\t\nTotal Question 1.1\t80\t\n2.1.1\t5\t\n2.1.2\t10\t\n2.1.3\t10\t\n2.1.4\t15\t\nTotal Question 2.1\t40"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  }
+]

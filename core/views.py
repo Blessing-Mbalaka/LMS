@@ -44,7 +44,7 @@ from .models import QuestionBankEntry, Assessment
 import random
 from .forms import QualificationForm
 from django.db.models import Sum
-
+from utils import populate_examnodes_from_structure_json, save_parent_child_tables_from_structure_json
 
 from .forms import CustomUserForm
 from django.contrib import admin
@@ -1921,8 +1921,9 @@ def save_blocks(request, paper_pk):
         paper.save(update_fields=["structure_json"])
         print(f"✅ [SAVE COMPLETE] Saved {len(nodes)} blocks to ExamNode model for Paper ID: {paper.pk}")
 
-    from utils import populate_examnodes_from_structure_json
+    
     populate_examnodes_from_structure_json(paper)
+    save_parent_child_tables_from_structure_json(paper, paper.structure_json)
 
     messages.success(request, "Manual edits saved.")
     return redirect("review_paper", paper_pk=paper_pk)
@@ -2103,6 +2104,7 @@ def load_saved_paper_view(request, paper_pk):
         serialized = [serialize_node(n) for n in all_nodes]
         questions = rebuild_nested_structure(serialized)
         print(f"✅ Reconstructed {len(questions)} top-level nodes from DB.")
+        print("🔎 First question content:", questions[0].get("content", "NO CONTENT")) if questions else print("❌ No questions")
 
     return render(request, "core/administrator/review_paper.html", {
         "paper": paper,

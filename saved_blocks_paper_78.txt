@@ -1,6 +1,221 @@
 [
   {
-    "id": "d5c29d298c9a44cb9b35fae321edafba",
+    "id": "dbea079ce734476b8b20e41a78f2d4e3",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "",
+    "content": []
+  },
+  {
+    "id": "cf348f2d69184421b8d3d44254dc7197",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "",
+    "content": []
+  },
+  {
+    "id": "d064131270504a1b8fc3888912959dd6",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "EXTERNAL INTEGRATED SUMMATIVE ASSESSMENT",
+    "content": []
+  },
+  {
+    "id": "1ed3932d807a42548889e39cc615aac5",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "QUALITY CONTROLLER",
+    "content": []
+  },
+  {
+    "id": "9146292b4aa0489e9ff937430109ab63",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "QUESTION PAPER 2B",
+    "content": []
+  },
+  {
+    "id": "1c29884a0607445b8b4d6970260a3738",
+    "number": "",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "GENERAL EISA RULES",
+    "content": []
+  },
+  {
+    "id": "60536afefef14dcc89374526fc6fcb9a",
+    "number": "1",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students are only allowed to use the supplied EISA booklets.",
+    "content": []
+  },
+  {
+    "id": "da78d2e5d8ec49d08986535b3b8ec145",
+    "number": "2",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students are only allowed to use a black pen for their answers.",
+    "content": []
+  },
+  {
+    "id": "275ffba59786446d8151a631b00f4f8c",
+    "number": "3",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students to ensure that their name, surname and EISA registration number appears on the front of your EISA booklet.",
+    "content": []
+  },
+  {
+    "id": "98d9ff9b2b664666a1e268b5d4083cb6",
+    "number": "4",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "This is a closed book examination; therefore, no other material or belongings are to be brought into the assessment centre.  Should you bring any other material or belongings into the assessment centre, you will be required to leave such at the front of the assessment centre examination room.  The assessment centre will not be held liable for any loss or damage to property brought into the assessment centre examination room.",
+    "content": []
+  },
+  {
+    "id": "3a567643e71b4eb9806b0c81d47c2977",
+    "number": "5",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "All EISA booklets must be handed back to the invigilator intact.  No pages may be torn off from the EISA booklet.  The removal of EISA booklets from the examination room is prohibited.",
+    "content": []
+  },
+  {
+    "id": "c53eb6175e0b4835a6964c6c7a8ea1a4",
+    "number": "6",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students may make use of a calculator in this EISA.",
+    "content": []
+  },
+  {
+    "id": "faabf6df117247ffa0c5f34e18186de1",
+    "number": "7",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Unless this is an online examination where access to a computer will be made available to you; the use of any communication devices, including smart watches, cell phones, tablets, iPads, headphones and laptops are prohibited.",
+    "content": []
+  },
+  {
+    "id": "2f49fef33aca4fd183502bc172aa9677",
+    "number": "8",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "All cell phones are to be switched off for the duration of the EISA.",
+    "content": []
+  },
+  {
+    "id": "02eea821786640c9a335f72e66542893",
+    "number": "9",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "The invigilator will not assist you with the explanation of questions related to the EISA.",
+    "content": []
+  },
+  {
+    "id": "74fd8c4e1a0e494a8f0465646375aa85",
+    "number": "10",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students are prohibited from conversing in any manner with other students.",
+    "content": []
+  },
+  {
+    "id": "cffe9216e3fe4da1a0e625df87ca71f9",
+    "number": "11",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students may not leave the examination venue within one hour of the start of the examination and in the last 10 minutes of the allotted examination period.",
+    "content": []
+  },
+  {
+    "id": "a53c258e2eff462894f35514b8a6e650",
+    "number": "12",
+    "type": "paragraph",
+    "marks": "",
+    "parent_id": null,
+    "text": "Students who are found to be disruptive and unruly in the assessment centre will be requested to leave the assessment centre by the invigilator.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "I HEREBY CONFIRM THAT I HAVE READ THE ABOVE EISA RULES AND DECLARE THAT I"
+      },
+      {
+        "type": "question_text",
+        "text": "UNDERSTAND AND ACCEPT THE RULES."
+      },
+      {
+        "type": "question_text",
+        "text": "________________________"
+      },
+      {
+        "type": "question_text",
+        "text": "SIGNATURE OF STUDENT"
+      },
+      {
+        "type": "question_text",
+        "text": "CANDIDATE INSTRUCTIONS"
+      },
+      {
+        "type": "question_text",
+        "text": "Candidate must complete all question s in the EISA"
+      },
+      {
+        "type": "question_text",
+        "text": "Candidates must ensure that they use only a black pen when completing this EISA."
+      },
+      {
+        "type": "question_text",
+        "text": "Should you require additional space to complete your answer, please request additional paper from your invigilator."
+      },
+      {
+        "type": "question_text",
+        "text": "Ensure that you indicate your name, surname and EISA registration number at the top of the additional paper."
+      },
+      {
+        "type": "question_text",
+        "text": "Also ensure that the question number is clearly marked on your additional paper."
+      },
+      {
+        "type": "question_text",
+        "text": "-----------------------------------------------------------------------------------------------------------------"
+      },
+      {
+        "type": "question_text",
+        "text": "ur Sayzwani Abd Suki;Elmi Abu Bakar ,Shahrul Kamaruddin/ A Case Study on Improvement of Outgoing Quality Control Works for Manufacturing"
+      },
+      {
+        "type": "question_text",
+        "text": "Products 4(1), pp. 12-21, 2015"
+      }
+    ]
+  },
+  {
+    "id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "number": "1.1",
     "type": "paragraph",
     "marks": "15",
@@ -86,11 +301,11 @@
     ]
   },
   {
-    "id": "ae04e695096444e08abc98614923fdb7",
+    "id": "cac21a4fdb45462598693dda8c454788",
     "number": "1.1.1",
     "type": "question",
     "marks": "",
-    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "parent_id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "text": "Case Study \nAllocate fifteen marks for number 1 \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
     "content": [
       {
@@ -104,11 +319,11 @@
     ]
   },
   {
-    "id": "154ef875b9634df0afa9fd0e183a8d69",
+    "id": "b7f92480749344e58cbcb6d674816281",
     "number": "1.1.2",
     "type": "question",
     "marks": "15",
-    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "parent_id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "text": "Investigate the root cause of the deviation, non-conformance (internal) and risks (internal and external stakeholders) using a relevant technique e.g. fishbone diagram, 5 why\u2019s root cause analysis",
     "content": [
       {
@@ -134,11 +349,11 @@
     ]
   },
   {
-    "id": "ce6d4dee325049d3b400a84268e520f9",
+    "id": "ddc8edc4c06d4cc0b2d7002d8fc1d962",
     "number": "1.1.3",
     "type": "question",
     "marks": "10",
-    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "parent_id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "text": "Develop alternative solutions (recommendations) for identified deviations and non-conformances",
     "content": [
       {
@@ -148,11 +363,11 @@
     ]
   },
   {
-    "id": "2bde9a9dda2f41e0b5a6d387fb817c90",
+    "id": "1dd5e45ed53c4f088cf11d59a94c26a4",
     "number": "1.1.4",
     "type": "question",
     "marks": "10",
-    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "parent_id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "text": "Implement corrective actions to address deviations and non-conformances",
     "content": [
       {
@@ -162,11 +377,11 @@
     ]
   },
   {
-    "id": "fcf56a59b1234c768f7d32f1fabe3212",
+    "id": "06d64eb038134b618d059730ffdee972",
     "number": "1.1.1",
     "type": "question",
     "marks": "",
-    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "parent_id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "text": "Case Study \nAllocate fifteen marks for number 1 \nUse discretion to allocate marks for any other relevant point that may be given by the student.",
     "content": [
       {
@@ -180,11 +395,11 @@
     ]
   },
   {
-    "id": "8bed3115a09e4b629b56eac0bb34340d",
+    "id": "6c6a1f29a316408f8a161869c3a4214b",
     "number": "1.1.2",
     "type": "question",
     "marks": "15",
-    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "parent_id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "text": "Investigate the root cause of the deviation, non-conformance (internal) and risks (internal and external stakeholders) using a relevant technique e.g. fishbone diagram, 5 why\u2019s root cause analysis",
     "content": [
       {
@@ -210,11 +425,11 @@
     ]
   },
   {
-    "id": "b2acebf225c54d6889fed25b5a0e2675",
+    "id": "8b08381ea5424fd3be38dc060526a8c2",
     "number": "1.1.3",
     "type": "question",
     "marks": "10",
-    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "parent_id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "text": "Develop alternative solutions (recommendations) for identified deviations and non-conformances",
     "content": [
       {
@@ -224,11 +439,11 @@
     ]
   },
   {
-    "id": "2d3707bd90aa423fab814f54d72a498f",
+    "id": "3e93cf2913b4476498f24ee16d37b7d5",
     "number": "1.1.4",
     "type": "question",
     "marks": "10",
-    "parent_id": "d5c29d298c9a44cb9b35fae321edafba",
+    "parent_id": "74e453e73dfb40c09c7bf0bf22a92b5f",
     "text": "Implement corrective actions to address deviations and non-conformances",
     "content": [
       {
@@ -238,7 +453,7 @@
     ]
   },
   {
-    "id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "id": "bd1ca06f71984121b447acca32652cec",
     "number": "1.2",
     "type": "paragraph",
     "marks": "10",
@@ -372,11 +587,11 @@
     ]
   },
   {
-    "id": "be6f1471a67c480892a964b4e24e5ab3",
+    "id": "f0e1f4e6e54c4f078785094330411975",
     "number": "1.2.1",
     "type": "question",
     "marks": "20",
-    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "parent_id": "bd1ca06f71984121b447acca32652cec",
     "text": "True or False \nAllocate one mark  for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
     "content": [
       {
@@ -390,11 +605,11 @@
     ]
   },
   {
-    "id": "35e9157cd7b2456e92435596549a98db",
+    "id": "b62d9bbb85cf4a50b4ff73d807b25344",
     "number": "1.2.2",
     "type": "question",
     "marks": "20",
-    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "parent_id": "bd1ca06f71984121b447acca32652cec",
     "text": "Constructive Response \nAllocate two marks for number 1 to 7 and six marks for number 8\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
     "content": [
       {
@@ -416,11 +631,11 @@
     ]
   },
   {
-    "id": "9dfa389927a440e8af3dd2318b681497",
+    "id": "0bfaf52edbd24218882333b438685063",
     "number": "1.2.3",
     "type": "question",
     "marks": "",
-    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "parent_id": "bd1ca06f71984121b447acca32652cec",
     "text": "Case study \nAllocate twelve marks for number 1, eight marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
     "content": [
       {
@@ -462,11 +677,11 @@
     ]
   },
   {
-    "id": "048cdc46f8ed4bc083e72ce48576ecf1",
+    "id": "6e6768a16d824eb383a45413901d19cc",
     "number": "1.2.1",
     "type": "question",
     "marks": "20",
-    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "parent_id": "bd1ca06f71984121b447acca32652cec",
     "text": "True or False \nAllocate one mark  for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
     "content": [
       {
@@ -480,11 +695,11 @@
     ]
   },
   {
-    "id": "d4620ff7462e4a75b41f99817e63bf30",
+    "id": "4cf5d534e1454536ae34e51ffea31068",
     "number": "1.2.2",
     "type": "question",
     "marks": "20",
-    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "parent_id": "bd1ca06f71984121b447acca32652cec",
     "text": "Constructive Response \nAllocate two marks for number 1 to 7 and six marks for number 8\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
     "content": [
       {
@@ -506,11 +721,11 @@
     ]
   },
   {
-    "id": "87c68b60eb1644f1a90324e867f08086",
+    "id": "4e0d3d28e6b142009d9da9654d46a3f7",
     "number": "1.2.3",
     "type": "question",
     "marks": "",
-    "parent_id": "e9b47171ae1d4e7db7c57d51731fb5bf",
+    "parent_id": "bd1ca06f71984121b447acca32652cec",
     "text": "Case study \nAllocate twelve marks for number 1, eight marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
     "content": [
       {

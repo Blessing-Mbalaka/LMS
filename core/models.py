@@ -454,3 +454,32 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"{self.assessment.eisa_id} → {self.to_user}"
+
+#Trying to store everything relationaly---in addition to the current structured JSON.
+
+class QuestionParent(models.Model):
+    paper = models.ForeignKey('Paper', on_delete=models.CASCADE, related_name='parents')
+    block_id = models.CharField(max_length=50, unique=True)  # Matches JSON `id`
+    number = models.CharField(max_length=20, blank=True)
+    marks = models.CharField(max_length=10, blank=True)
+    text = models.TextField(blank=True)
+
+class QuestionChild(models.Model):
+    parent = models.ForeignKey(QuestionParent, on_delete=models.CASCADE, related_name='children')
+    block_id = models.CharField(max_length=50, unique=True)  # Matches JSON `id`
+    number = models.CharField(max_length=20, blank=True)
+    marks = models.CharField(max_length=10, blank=True)
+    text = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+class QuestionContent(models.Model):
+    parent_block = models.ForeignKey(QuestionParent, on_delete=models.CASCADE, null=True, blank=True, related_name='content_blocks')
+    child_block = models.ForeignKey(QuestionChild, on_delete=models.CASCADE, null=True, blank=True, related_name='content_blocks')
+
+    block_type = models.CharField(max_length=20)  # e.g., 'question_text', 'table', 'figure'
+    text = models.TextField(blank=True)
+    rows = models.JSONField(null=True, blank=True)  # optional for tables
+    data_uri = models.TextField(blank=True)  # for images or diagrams
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']

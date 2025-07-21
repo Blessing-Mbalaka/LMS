@@ -132,6 +132,20 @@
 
 {% block extra_js %}
 <script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";").map(c => c.trim());
+    for (const cookie of cookies) {
+      if (cookie.startsWith(name + "=")) {
+        cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const blocks = Array.from(document.querySelectorAll('.block'));
   const mapByQn = {};
@@ -199,6 +213,22 @@ document.addEventListener('DOMContentLoaded', () => {
                   || b.querySelector('.block-text')?.textContent?.trim()
                   || '';
 
+        const content = Array.from(b.querySelectorAll('.block-content')).map(el => {
+          if (el.tagName === 'IMG') {
+            return { type: 'figure', data_uri: el.src };
+          }
+          if (el.tagName === 'TABLE') {
+            const rows = Array.from(el.querySelectorAll('tr')).map(row =>
+              Array.from(row.querySelectorAll('td')).map(cell => cell.innerText.trim())
+            );
+            return { type: 'table', rows };
+          }
+          if (el.closest('.border.bg-light')) {
+            return { type: 'case_study', text: el.innerText.trim() };
+          }
+          return { type: 'question_text', text: el.innerText.trim() };
+        });
+
         return {
           id,
           number: b.dataset.qn || '',
@@ -206,6 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
           marks: b.dataset.marks || '',
           parent_id: parents[id] || null,
           text,
+          content,
+          ...(type === 'figure' ? { data_uri: b.querySelector('img')?.src || '' } : {})
         };
       });
 
@@ -216,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Optional: delete button logic
+  // Optional: handle delete-block buttons
   document.querySelectorAll('.delete-block-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const block = btn.closest('.block');
@@ -230,80 +262,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Auto-Classify with Gemini
-  const classifyBtn = document.getElementById('ai-classify-btn');
-  if (classifyBtn) {
-    classifyBtn.addEventListener('click', async () => {
-      classifyBtn.disabled = true;
-      classifyBtn.textContent = 'Classifying...';
-
-      const blocksData = Array.from(document.querySelectorAll('.block')).map(b => {
-        const type = b.dataset.type || '';
-        const id = b.dataset.id;
-        const text = b.querySelector('.block-text')?.value?.trim()
-                  || b.querySelector('.block-text')?.textContent?.trim()
-                  || '';
-
-        return {
-          id,
-          type,
-          text,
-        };
-      });
-
-      const response = await fetch(window.location.href + 'classify/', {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ blocks: blocksData })
-      });
-
-      if (response.ok) {
-        location.reload();  // Show updated block types
-      } else {
-        alert('Classification failed.');
-      }
-
-      classifyBtn.disabled = false;
-      classifyBtn.textContent = 'Auto-Classify with AI';
+  // Auto-Classify with AI button
+  document.getElementById('ai-classify-btn').addEventListener('click', () => {
+    const blocks = Array.from(document.querySelectorAll('.block')).map(b => {
+      return {
+        id: b.dataset.id,
+        text: b.querySelector('.block-text')?.value?.trim() || b.querySelector('.block-text')?.textContent?.trim() || '',
+        type: b.dataset.type || 'paragraph'
+      };
     });
-  }
-});
 
-
-//Randomizer Button Yiripanapa!!!
-// Randomizer Button - Fixed to always bind click event
-document.addEventListener("DOMContentLoaded", () => {
-  const selectEl = document.querySelector("select[name='paper_id']");
-  const randomizeBtn = document.getElementById("randomize-btn");
-
-  if (selectEl && randomizeBtn) {
-    // Enable button if something is already selected
-    if (selectEl.value) {
-      randomizeBtn.disabled = false;
+    const paperPk = window.location.pathname.match(/\/review-paper\/(\d+)\//)?.[1];
+    if (!paperPk) {
+      alert("❌ Error: paper ID not found in URL.");
+      return;
     }
 
-    // Enable/disable on change
-    selectEl.addEventListener("change", () => {
-      randomizeBtn.disabled = !selectEl.value;
-    });
+    fetch(`/administrator/review-paper/${paperPk}/classify/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken")
+      },
+      body: JSON.stringify({ blocks })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      const types = data.types;
+      if (!Array.isArray(types)) throw new Error("Response format invalid");
 
-    // ✅ Always attach click event
-    randomizeBtn.addEventListener("click", () => {
-      const selected = selectEl.value;
-      if (!selected) return;
+      // Update DOM with new types
+      document.querySelectorAll('.block').forEach((b, i) => {
+        b.dataset.type = types[i] || 'paragraph';
+        const badge = b.querySelector('.type-badge');
+        if (badge) badge.textContent = types[i];
+      });
 
-      const confirmRandomize = confirm("Are you sure you want to randomize this paper?");
-      if (confirmRandomize) {
-        window.location.href = `/administrator/randomize-paper/${selected}/`;
-      }
+      alert("✅ Classification updated.");
+    })
+    .catch(err => {
+      console.error(err);
+      alert("❌ Classification failed.");
     });
-  }
+  });
 });
-console.log("✅ JS Loaded");
-
 </script>
 {% endblock %}
 
