@@ -58,13 +58,7 @@
             <span>Dashboard</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'upload_assessment' %} active{% endif %}"
-             href="{% url 'upload_assessment' %}">
-            <i class="fa fa-upload"></i>
-            <span>Upload Assessment</span>
-          </a>
-        </li>
+        
         <li class="nav-item">
           <a class="nav-link{% if request.resolver_match.url_name == 'generate_tool_page' %} active{% endif %}"
              href="{% url 'generate_tool_page' %}">
@@ -134,7 +128,7 @@
       </div>
 
       
-<form id="uploadForm" action="{% url 'upload_assessment' %}" method="post" enctype="multipart/form-data">
+
   {% csrf_token %}
 
   <div class="form-section">

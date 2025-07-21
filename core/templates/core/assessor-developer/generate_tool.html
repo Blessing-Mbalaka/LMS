@@ -68,13 +68,7 @@
             <span>Dashboard</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'upload_assessment' %} active{% endif %}"
-             href="{% url 'upload_assessment' %}">
-            <i class="fa fa-upload"></i>
-            <span>Upload Assessment</span>
-          </a>
-        </li>
+        
         <li class="nav-item">
           <a class="nav-link{% if request.resolver_match.url_name == 'generate_tool_page' %} active{% endif %}"
              href="{% url 'generate_tool_page' %}">
@@ -155,7 +149,7 @@
           <button class="nav-link" id="tab-approved-btn" data-bs-toggle="tab" data-bs-target="#tab-approved" type="button" role="tab">Approved Papers</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="tab-compiled-btn" data-bs-toggle="tab" data-bs-target="#tab-compiled" type="button" role="tab">Compiled Papers</button>
+          <button class="nav-link" id="tab-compiled-btn" data-bs-toggle="tab" data-bs-target="#tab-compiled" type="button" role="tab">Pre-Approved Uploaded Papers</button>
         </li>
       </ul>
 

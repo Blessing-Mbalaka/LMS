@@ -303,37 +303,61 @@ def delete_assessment_centre(request, centre_id):
     return redirect('assessment_centres')
 
 
+from uuid import uuid4
+from django.shortcuts            import render, redirect, get_object_or_404
+from django.contrib              import messages
+from django.contrib.auth.decorators import login_required
+
+from .models     import (
+    Qualification, Paper, Assessment,
+    CustomUser
+)
+from utils      import (
+    extract_full_docx_structure,
+    
+    auto_classify_blocks_with_gemini,
+    populate_examnodes_from_structure_json,
+    save_parent_child_tables_from_structure_json,
+)
+
+
 @login_required
 def admin_dashboard(request):
     if request.method == "POST":
-        q_id      = request.POST.get("qualification")
+        print("🟢 [admin_dashboard] POST received, beginning upload flow")
+
+        # match your template's <select name="qualification_id">
+        q_id      = request.POST.get("qualification_id")
         paper_num = request.POST.get("paper_number", "").strip()
         saqa      = request.POST.get("saqa_id", "").strip()
         file_obj  = request.FILES.get("file_input")
         memo_obj  = request.FILES.get("memo_file")
 
+        # debug prints
+        print("▶️ qualification_id:", q_id)
+        print("▶️ paper_number:", repr(paper_num))
+        print("▶️ file_input present:", bool(file_obj))
+
         if not q_id or not paper_num or not file_obj:
+            print("🔴 [admin_dashboard] Missing required fields")
             messages.error(request, "Please fill all required fields.")
             return redirect("admin_dashboard")
 
-        # ✅ Lookup qualification strictly
+        # 1️⃣ Lookup qualification
         qual = get_object_or_404(Qualification, pk=q_id)
+        print(f"🟢 [admin_dashboard] Qualification selected: {qual}")
 
-        # ✅ Create or get paper
-        paper_obj, _ = Paper.objects.get_or_create(
+        # 2️⃣ Create or fetch Paper (no 'status' here)
+        paper_obj, created = Paper.objects.get_or_create(
             name=paper_num,
             qualification=qual,
-            defaults={"total_marks": 0, "status": "approved"}
+            defaults={"total_marks": 0}
         )
+        print(f"🟢 [admin_dashboard] Paper {'created' if created else 'fetched'}: {paper_obj}")
 
-        # Ensure paper status is 'approved'
-        if paper_obj.status != "approved":
-            paper_obj.status = "approved"
-            paper_obj.save()
-
-        # ✅ Create new assessment record
+        # 3️⃣ Create the Assessment record
         assessment = Assessment.objects.create(
-            eisa_id      = f"EISA-{uuid.uuid4().hex[:8].upper()}",
+            eisa_id       = f"EISA-{uuid4().hex[:8].upper()}",
             qualification = qual,
             paper         = paper_num,
             saqa_id       = saqa,
@@ -343,37 +367,60 @@ def admin_dashboard(request):
             paper_link    = paper_obj,
             status        = "uploaded"
         )
+        print(f"🟢 [admin_dashboard] Assessment created: {assessment.eisa_id}")
 
-        # ✅ Extract and populate structure if DOCX
-        if file_obj.name.endswith(".docx"):
+        # 4️⃣ If it's a .docx, run extraction + saves
+        if file_obj.name.lower().endswith(".docx"):
             try:
+                print("🟢 [admin_dashboard] Starting extraction…")
                 blocks = extract_full_docx_structure(file_obj)
+                print(f"🟢 [admin_dashboard] extract_full_docx_structure → {len(blocks)} blocks")
+
+                print("🟢 [admin_dashboard] Ensuring IDs on blocks…")
                 ensure_ids(blocks)
+                print("🟢 [admin_dashboard] IDs ensured")
 
+                print("🟢 [admin_dashboard] Running AI classification…")
+                blocks = auto_classify_blocks_with_gemini(blocks)
+                types = [b.get("type") for b in blocks]
+                print(f"🟢 [admin_dashboard] post-classification types: {types}")
+
+                # persist structure & calculate total_marks only on questions
                 paper_obj.structure_json = blocks
-                paper_obj.total_marks = sum(int(q.get("marks") or 0) for q in blocks if isinstance(q, dict))
+                paper_obj.total_marks = sum(
+                    int(b.get("marks") or 0)
+                    for b in blocks
+                    if b.get("type") == "question"
+                )
                 paper_obj.save()
+                print(f"🟢 [admin_dashboard] Saved structure_json; total_marks={paper_obj.total_marks}")
 
+                print("🟢 [admin_dashboard] Populating ExamNode hierarchy…")
                 populate_examnodes_from_structure_json(paper_obj)
+                print("🟢 [admin_dashboard] ExamNode population complete")
+
+                print("🟢 [admin_dashboard] Saving parent/child relational tables…")
+                save_parent_child_tables_from_structure_json(paper_obj, blocks)
+                print("🟢 [admin_dashboard] Parent/child save complete")
 
             except Exception as e:
-                messages.error(request, f"❌ Extraction failed: {str(e)}")
+                print(f"🔴 [admin_dashboard] Extraction pipeline error: {e}")
+                messages.error(request, f"❌ Extraction failed: {e}")
 
-        messages.success(request, "✅ Assessment uploaded and extracted successfully.")
+        messages.success(request, "✅ Assessment uploaded, extracted, and saved successfully.")
+        print("🟢 [admin_dashboard] Finished POST flow, redirecting")
         return redirect("admin_dashboard")
 
-    # GET: Show dashboard
-    tools       = Assessment.objects.select_related("qualification", "created_by").order_by("-created_at")
+    # — GET: render dashboard
+    tools       = Assessment.objects.select_related("qualification", "created_by") \
+                                     .order_by("-created_at")
     total_users = CustomUser.objects.filter(is_superuser=False).count()
     quals       = Qualification.objects.all()
-
     return render(request, "core/administrator/admin_dashboard.html", {
         "tools": tools,
         "total_users": total_users,
         "qualifications": quals,
     })
-
-
 #_____________________________________________________________________________________________________
 
 
@@ -1743,12 +1790,11 @@ def paper_as_is_view(request, paper_pk=None):
             qualification = qualification,
             total_marks   = 0,
         )
-
         # parsing the DOCX
-        blocks    = extract_full_docx_structure(request.FILES["paper"])
-        types = auto_classify_blocks_with_gemini(blocks)
-        for b, t in zip(blocks, types):
-            b["type"] = t
+        blocks = extract_full_docx_structure(request.FILES["paper"])
+        # parsing with gemini
+        blocks = auto_classify_blocks_with_gemini(blocks)
+
 
         #Tirikuisa ma blocks achiri JSON panapa.  Paper yirimmu session tirikuisa mu database tasati tai flattener.
         request.session[f"paper_{paper.pk}_structured"] = blocks
@@ -1784,6 +1830,7 @@ def paper_as_is_view(request, paper_pk=None):
     return render(request,
                   "core/administrator/review_paper.html",
                   {"questions": questions, "paper": paper, "qualifications" : qualifications})
+
 #Flatten is a problem at the moment, might remove if non-distructive to the UI.
 def _flatten_structure(qs):
     flattened = []
@@ -1922,8 +1969,9 @@ def save_blocks(request, paper_pk):
         print(f"✅ [SAVE COMPLETE] Saved {len(nodes)} blocks to ExamNode model for Paper ID: {paper.pk}")
 
     
-    populate_examnodes_from_structure_json(paper)
-    save_parent_child_tables_from_structure_json(paper, paper.structure_json)
+        populate_examnodes_from_structure_json(paper)
+        print("🚀 Calling save_parent_child_tables_from_structure_json...")
+        save_parent_child_tables_from_structure_json(paper, paper.structure_json)
 
     messages.success(request, "Manual edits saved.")
     return redirect("review_paper", paper_pk=paper_pk)

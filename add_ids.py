@@ -10,15 +10,37 @@ $ python add_ids.py exam.json -o new.json # writes to new.json in-place
 
 import json, uuid, argparse, sys, pathlib
 
-def ensure_ids(node):
-    """Recursively add an 'id' key (UUID4) to every dict that doesn’t have one."""
+import uuid
+
+def ensure_ids(node, depth=0, seen=None):
+    """
+    Recursively adds a unique 'id' to every dictionary in a nested structure,
+    safely avoiding circular references and recursion overflow.
+    """
+    MAX_DEPTH = 100
+    if seen is None:
+        seen = set()
+
+    if depth > MAX_DEPTH:
+        print(f"⚠️ [ensure_ids] Max recursion depth exceeded.")
+        return
+
     if isinstance(node, dict):
-        node.setdefault("id", uuid.uuid4().hex)     # 32-char hex
+        node_id = id(node)
+        if node_id in seen:
+            print(f"🛑 [ensure_ids] Circular reference detected. Skipping node.")
+            return
+        seen.add(node_id)
+
+        node.setdefault("id", uuid.uuid4().hex)
+
         for v in node.values():
-            ensure_ids(v)
+            ensure_ids(v, depth + 1, seen)
+
     elif isinstance(node, list):
         for v in node:
-            ensure_ids(v)
+            ensure_ids(v, depth + 1, seen)
+
 
 def main():
     p = argparse.ArgumentParser()

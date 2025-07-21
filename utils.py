@@ -3,6 +3,7 @@ import re
 from PyPDF2 import PdfReader
 import docx
 from docx import Document
+from core.gemmaAI_classification import classify_with_local_gemma
 
 print("✅ [CONFIRM] LOADED utils.py FROM:", __file__)
 
@@ -395,11 +396,12 @@ def extract_full_docx_structure(docx_file):
                 print(f"⚠️ Figure extraction failed: {e}")
             if found_figure:
                 continue
-
-            para = Paragraph(el, doc)
-            text = para.text.strip()
+#Paragraph handler
+            # Combine all text runs to reconstruct the full line
+            text = "".join(run.text for run in el.iter(f'{{{W_NS}}}r')).strip()
             if not text:
                 continue
+
 
             m_mark = marks_only_rx.match(text)
             if m_mark:
@@ -545,36 +547,49 @@ def _flatten_structure(structure, parent=None):
 #<---------------Serializer Node-----[used to preserve paper structure]----------------------->
 def serialize_node(obj):
     """
-    Converts either an extracted dict OR an ExamNode instance into a unified format.
+    Converts either an extracted dict OR an ExamNode instance into a unified format,
+    with debug prints to trace serialization behavior.
     """
+
     if isinstance(obj, dict):
+        print(f"🧾 [DICT] Serializing dict node: ID={obj.get('id')}, Type={obj.get('type')}, Number={obj.get('number')}")
+        children = obj.get("children", [])
+        print(f"↪️ [DICT] Contains {len(children)} child(ren)")
+
         return {
             "id":       obj.get("id"),
             "type":     obj.get("type", ""),
             "number":   obj.get("number", ""),
             "marks":    obj.get("marks", ""),
             "text":     obj.get("text", ""),
+            "parent_id": str(obj.get("parent_id")) if obj.get("parent_id") else None,
             "content":  obj.get("content", []),
-            "children": [serialize_node(c) for c in obj.get("children", [])],
+            "children": [serialize_node(c) for c in children],
             **({"data_uri": obj.get("data_uri", "")} if obj.get("type") == "figure" else {})
         }
 
     if isinstance(obj, ExamNode):
-        payload = obj.payload or {}
-        return {
+        print(f"📦 [MODEL] Serializing ExamNode: ID={obj.id}, Type={obj.node_type}, Number={obj.number}")
+        child_count = obj.children.count()
+        print(f"↪️ [MODEL] Contains {child_count} child(ren)")
+
+        serialized = {
             "id":       str(obj.id),
             "type":     obj.node_type,
             "number":   obj.number,
             "marks":    obj.marks,
-            "text":     payload.get("text", ""),
-            "content":  payload.get("content", []),
+            "text":     obj.text,
+            "content":  obj.content or [],
             "children": [serialize_node(child) for child in obj.children.all().order_by("number")],
-            **({"data_uri": payload.get("data_uri", "")} if obj.node_type == "figure" else {})
         }
 
-    raise TypeError("Unsupported object type")
-#<---------------Critical for paper reconstruction and preserving formating------------------->
+        if obj.node_type == "figure":
+            print(f"🖼️ [MODEL] Figure node detected, adding data_uri of length {len(obj.data_uri or '')}")
+            serialized["data_uri"] = obj.data_uri
 
+        return serialized
+
+    raise TypeError("❌ Unsupported object type passed to serialize_node")
 
 
 
@@ -637,30 +652,30 @@ import google.generativeai as genai
 
 def auto_classify_blocks_with_gemini(blocks):
     print("🔥 [DEBUG] Using UPDATED Gemini classification function")
-        #  Defensive type check to prevent calling .get() on strings
+
+    # 1. Defensive type check
     if not isinstance(blocks, list) or not all(isinstance(b, dict) for b in blocks):
         raise TypeError("❌ Expected list of dicts, but got invalid structure.")
 
-    # Step 1: Basic pre-labeling
-    types = []
+    # 2. Pre‑label obvious types
+    pre_types = []
     for b in blocks:
         text = (b.get('text') or '').strip()
         if re.match(r'^\d+(?:\.\d+)+', text):
-            types.append('question_header')
+            pre_types.append('question_header')
         elif text.lower().startswith('case study'):
-            types.append('case_study')
+            pre_types.append('case_study')
         elif b.get('data_uri'):
-            types.append('figure')
+            pre_types.append('figure')
         elif b.get('rows') is not None:
-            types.append('table')
+            pre_types.append('table')
         elif re.fullmatch(r'-{5,}', text):
-            types.append('instruction')
+            pre_types.append('instruction')
         else:
-            types.append(None)
+            pre_types.append(None)
+    print("🧠 [LOG] Pre‑assigned types:", pre_types)
 
-    print("🧠 [LOG] Pre-assigned types:", types)
-
-    # Step 2: System prompt
+    # 3. System prompt
     system_prompt = """
 You are a classification assistant. You will be given a list of blocks extracted from a question paper.
 
@@ -675,7 +690,7 @@ Your job is to classify the remaining untyped blocks using ONLY one of the follo
 🛑 DO NOT classify any non-question text as "question_header".
 
 ---
-**Examples of proper classification:**
+*Examples of proper classification:*
 - "1.1 Define the term ‘quality assurance’. (5 Marks)" → question_header
 - "Use only the supplied EISA booklets." → instruction
 - "All questions are compulsory." → instruction
@@ -684,6 +699,7 @@ Your job is to classify the remaining untyped blocks using ONLY one of the follo
 
 ---
 Your output should ONLY be this JSON format:
+The "types" list must have the same number of elements as the input blocks.
 
 {
   "types": ["paragraph", "instruction", "rubric", ...]
@@ -691,43 +707,43 @@ Your output should ONLY be this JSON format:
 """.strip()
 
     try:
-
-        for i in range(4):
-            print(f"🔁 [LOOP] Running classification pass {i+1}/4")
-        # Step 3: Gemini request
-            model = genai.GenerativeModel('gemini-1.5-flash')  # or 'gemini-1.5-pro' if preferred
-            response = model.generate_content([
+        # 4. Send to Gemini
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content([
             system_prompt,
-            json.dumps({'blocks': blocks, 'partial_types': types})
+            json.dumps({'blocks': blocks, 'partial_types': pre_types})
         ])
 
-        # Step 4: Log and clean response
-        raw_text = (response.text or '').strip()
-        print("📨 [LOG] Gemini raw response:", raw_text[:300], "..." if len(raw_text) > 300 else "")
-
-        # Remove Markdown-style triple backticks if they exist
-        cleaned_text = re.sub(r'^```(?:json)?|```$', '', raw_text, flags=re.IGNORECASE | re.MULTILINE).strip()
-
-        parsed = json.loads(cleaned_text)
-        ai_types = parsed.get('types', [])
-
+        raw = (response.text or '').strip()
+        cleaned = re.sub(r'^```(?:json)?|```$', '', raw, flags=re.MULTILINE).strip()
+        ai_types = json.loads(cleaned).get('types', [])
         if not isinstance(ai_types, list):
-            raise ValueError("Gemini response does not contain a valid 'types' list")
+            raise ValueError("Invalid 'types' from Gemini")
 
-        # Step 5: Final merge
-        final = [pre or ai for pre, ai in zip(types, ai_types)]
-        print("✅ [LOG] Final merged types:", final)
-        return final
+        # 5. Merge and inject into blocks
+        final = [pre or ai for pre, ai in zip(pre_types, ai_types)]
+        for i, t in enumerate(final):
+            if t == 'question_header':
+                t = 'question'
+            blocks[i]['type'] = t
+
+        print("✅ [LOG] Final merged types injected:", final)
+        return blocks
 
     except Exception as e:
-        print("❌ [ERROR] Gemini classification failed:", str(e))
-        #add print payload so we can see th tree...
-        return ['paragraph'] * len(blocks)
-    
-    
+        print("❌ [ERROR] Gemini classification failed:", e)
+        print("🔁 [FALLBACK] Trying classification with local Gemma...")
 
+        # 6. Fallback via local Gemma
+        ai_types = classify_with_local_gemma(blocks, pre_types)
+        final = [pre or ai for pre, ai in zip(pre_types, ai_types)]
+        for i, t in enumerate(final):
+            if t == 'question_header':
+                t = 'question'
+            blocks[i]['type'] = t
 
-
+        print("✅ [LOG] Gemma fallback injected types:", final)
+        return blocks
 #----------------------------------------------end----------------------------------------------------------------
 #responsible for AI filtering not classification only.
 import os
@@ -857,124 +873,143 @@ from core.models import ExamNode
 import uuid
 from core.models import ExamNode  # or wherever ExamNode is defined
 
+import uuid
+from core.models import ExamNode, QuestionParent, QuestionChild, QuestionContent
+
+
 def populate_examnodes_from_structure_json(paper):
     """
     Populate ExamNode entries from the structure_json field of a given paper.
     Preserves parent-child hierarchy and sets is_top_level and order_index.
+    Normalizes question_header → question for consistency.
     """
-
     structure = paper.structure_json or []
-    created_nodes = {}  # Map block id -> ExamNode instance
+    created_nodes = {}
+
+    def _normalize_type(t):
+        return "question" if t == "question_header" else t
 
     def _create_node(block, parent=None, index=0):
-        node_id = uuid.uuid4().hex
+        node_id = block.get("id") or uuid.uuid4().hex
+        block["id"] = node_id
 
-        # Prepare payload
+        block_type = _normalize_type(block.get("type", ""))
+        text = block.get("text", "")
         payload = {
+            "text": text if block_type in ["paragraph", "question"] else "",
             "content": block.get("content", []),
             "data_uri": block.get("data_uri", ""),
-            "children": block.get("children", []),  # Optional: preserve full structure
+            "children": block.get("children", []),
         }
 
-        # Preserve top-level text only if not inside content
-        text = block.get("text", "")
-        if block.get("type") in ["paragraph", "question", "question_header"]:
-            payload["text"] = text
-        else:
-            text = ""  # avoid duplicate if it will be displayed from content
-
         node = ExamNode.objects.create(
-            id=node_id,
+            id=node_id[:32],
             paper=paper,
             parent=parent,
-            node_type=block.get("type", ""),
+            node_type=block_type,
             number=block.get("number", ""),
             marks=block.get("marks", ""),
-            text=text,
+            text=payload["text"],
             content=block.get("content", []),
             data_uri=block.get("data_uri", ""),
             payload=payload,
             is_top_level=(parent is None),
-            order_index=index
+            order_index=index,
         )
-
         created_nodes[node_id] = node
 
-        # Recurse for children
         for i, child in enumerate(block.get("children", [])):
             _create_node(child, parent=node, index=i)
 
-    # Clear old nodes for this paper
+    # Clear old nodes
     ExamNode.objects.filter(paper=paper).delete()
 
-    # Save new ones from structure_json
     for idx, block in enumerate(structure):
         _create_node(block, index=idx)
 
     print(f"✅ Populated {len(created_nodes)} ExamNodes for paper ID {paper.id} ({paper.name})")
     return created_nodes
 
-#Job is to store in Relational DB as an addition...
 
-from core.models import QuestionParent, QuestionChild, QuestionContent
 
 def save_parent_child_tables_from_structure_json(paper, structure_json):
     """
-    Separately store parent and child questions (and their content) into relational tables
-    QuestionParent, QuestionChild, and QuestionContent.
+    Save parent-child-question structure to relational tables for easier querying and reporting.
+    Normalizes block types and handles UUID fallback for missing IDs.
     """
-    # Step 1: Clear existing entries
+    if not isinstance(structure_json, list):
+        print("❌ Invalid structure_json format: expected a list")
+        return
+
+    print(f"🔁 Saving parent/child blocks for paper: {paper.name} | blocks: {len(structure_json)}")
+
+    # Clear existing records
     QuestionParent.objects.filter(paper=paper).delete()
 
-    id_to_parent = {}
+    parent_entries = []
+    child_entries = []
+    content_entries = []
 
-    for block in structure_json:
-        block_id = block.get("id")
-        parent_id = block.get("parent_id")
-        number = block.get("number", "")
-        marks = block.get("marks", "")
-        text = block.get("text", "")
-        block_type = block.get("type", "")
-        content = block.get("content", [])
+    for i, parent_block in enumerate(structure_json):
+        block_type = parent_block.get("type")
+        if block_type == "question_header":
+            block_type = "question"
+            parent_block["type"] = "question"
+        if block_type != "question":
+            print(f"⏩ Skipping block {i} — type={block_type}")
+            continue
 
-        # Step 2: Save as QuestionParent if top-level question
-        if parent_id is None and block_type == "question":
+        parent_id = parent_block.get("id") or uuid.uuid4().hex
+        parent_block["id"] = parent_id
+
+        try:
             parent = QuestionParent.objects.create(
-                paper=paper,
-                block_id=block_id,
-                number=number,
-                marks=marks,
-                text=text,
+                block_id=parent_id,
+                number=parent_block.get("number", ""),
+                marks=parent_block.get("marks", ""),
+                text=parent_block.get("text", ""),
+                paper=paper
             )
-            id_to_parent[block_id] = parent
+            parent_entries.append(parent)
 
-            for i, c in enumerate(content):
-                QuestionContent.objects.create(
-                    parent_block=parent,
-                    block_type=c.get("type", ""),
-                    text=c.get("text", ""),
-                    rows=c.get("rows", None),
-                    data_uri=c.get("data_uri", ""),
-                    order=i
-                )
+            for j, content in enumerate(parent_block.get("content", [])):
+                content_entries.append(QuestionContent(
+                    block_type=content.get("type", "text"),
+                    text=content.get("text", ""),
+                    rows=content.get("rows", []),
+                    data_uri=content.get("data_uri", ""),
+                    order=j,
+                    parent_block=parent
+                ))
 
-        # Step 3: Save as QuestionChild if it belongs to a parent
-        elif parent_id in id_to_parent:
-            parent = id_to_parent[parent_id]
-            child = QuestionChild.objects.create(
-                parent=parent,
-                block_id=block_id,
-                number=number,
-                marks=marks,
-                text=text,
-                order=len(parent.children.all())
-            )
-            for i, c in enumerate(content):
-                QuestionContent.objects.create(
-                    child_block=child,
-                    block_type=c.get("type", ""),
-                    text=c.get("text", ""),
-                    rows=c.get("rows", None),
-                    data_uri=c.get("data_uri", ""),
-                    order=i
+            for k, child_block in enumerate(parent_block.get("children", [])):
+                child_id = child_block.get("id") or uuid.uuid4().hex
+                child_block["id"] = child_id
+
+                child = QuestionChild.objects.create(
+                    block_id=child_id,
+                    number=child_block.get("number", ""),
+                    marks=child_block.get("marks", ""),
+                    text=child_block.get("text", ""),
+                    order=k,
+                    parent=parent
                 )
+                child_entries.append(child)
+
+                for m, content in enumerate(child_block.get("content", [])):
+                    content_entries.append(QuestionContent(
+                        block_type=content.get("type", "text"),
+                        text=content.get("text", ""),
+                        rows=content.get("rows", []),
+                        data_uri=content.get("data_uri", ""),
+                        order=m,
+                        child_block=child
+                    ))
+
+        except Exception as e:
+            print(f"❌ Error processing block {i} — {str(e)}")
+
+    if content_entries:
+        QuestionContent.objects.bulk_create(content_entries)
+
+    print(f"✅ Saved {len(parent_entries)} parents, {len(child_entries)} children, {len(content_entries)} content blocks.")

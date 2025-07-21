@@ -31,13 +31,7 @@
             <span>Dashboard</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'upload_assessment' %} active{% endif %}"
-             href="{% url 'upload_assessment' %}">
-            <i class="fa fa-upload"></i>
-            <span>Upload Assessment</span>
-          </a>
-        </li>
+        
         <li class="nav-item">
           <a class="nav-link{% if request.resolver_match.url_name == 'generate_tool_page' %} active{% endif %}"
              href="{% url 'generate_tool_page' %}">
@@ -125,9 +119,7 @@
 
       <!-- ===== UPLOAD / GENERATE BUTTONS ===== -->
       <div class="upload-section d-flex mb-4">
-        <a href="{% url 'upload_assessment' %}" class="gradient-button me-3">
-          Upload Assessment
-        </a>
+        
         <a href="{% url 'generate_tool_page' %}" class="gradient-button">
           Generate EISA Tool
         </a>
@@ -145,7 +137,7 @@
               <th>Moderator details</th>
               <th>Status</th>
               <th>QCTO Comments</th>
-              <th>Action</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
