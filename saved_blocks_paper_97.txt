@@ -1,0 +1,506 @@
+[
+  {
+    "id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "number": "1.1",
+    "type": "[object Object]",
+    "marks": "15",
+    "parent_id": null,
+    "text": "",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Identify deviations, non-conformance (internal) and risks (internal and external stakeholders)"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Company \u2018A\u2019 strives to be very competitive company, however continuous customer complaints due to poor service and product failure are the main challenges. An analysis must be conducted to determine if the product/service meet the desired specifications and also to determine if the product parameters are still within specifications."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tDefine Deviation and give an industry example\t3\n2\tA deviation is an unplanned event and can be caused by many factors, List and discuss 6 factors which may cause deviation to occur.\t12\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Investigate the root cause of the deviation, non-conformance (internal) and risks (internal and external stakeholders) using a relevant technique e.g fishbone diagram, 5 why\u2019s root cause analysis"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tExplain how will go about finding a root cause for problems experienced by company \u2018A\u2019 in the case study above and list the 6 symptoms to look out for when conducting a root cause analysis\t10\n2\tDraw and label the fish bone technique\t5\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tOnce a problem has been found, solution must be found. The best way will be to develop best alternative solutions for identified deviations and non-conformances. Discuss in details either 1 of the 2 brainstorming techniques used to find alternatives solutions.\t10\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tCorrective action is usually taken when there are deviations of processes and or product /services from specifications. Discuss the implications of recommending inappropriate recommendation/s for both production and service industry\t10\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Company \u2018A\u2019 strives to be very competitive company, however continuous customer complaints due to poor service and product failure are the main challenges. An analysis must be conducted to determine if the product/service meet the desired specifications and also to determine if the product parameters are still within specifications."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tDefine Deviation and give an industry example\t3\n2\tA deviation is an unplanned event and can be caused by many factors, List and discuss 6 factors which may cause deviation to occur.\t12\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Investigate the root cause of the deviation, non-conformance (internal) and risks (internal and external stakeholders) using a relevant technique e.g fishbone diagram, 5 why\u2019s root cause analysis"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tExplain how will go about finding a root cause for problems experienced by company \u2018A\u2019 in the case study above and list the 6 symptoms to look out for when conducting a root cause analysis\t10\n2\tDraw and label the fish bone technique\t5\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tOnce a problem has been found, solution must be found. The best way will be to develop best alternative solutions for identified deviations and non-conformances. Discuss in details either 1 of the 2 brainstorming techniques used to find alternatives solutions.\t10\nTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tCorrective action is usually taken when there are deviations of processes and or product /services from specifications. Discuss the implications of recommending inappropriate recommendation/s for both production and service industry\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "77dec13f248041a6836ef7188c290036",
+    "number": "1.1.1",
+    "type": "[object Object]",
+    "marks": "15",
+    "parent_id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "text": "Case Study \nAllocate three marks for number 1 and twelve marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Company \u2018A\u2019 strives to be very competitive company, however continuous customer complaints due to poor service and product failure are the main challenges. An analysis must be conducted to determine if the product/service meet the desired specifications and also to determine if the product parameters are still within specifications."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tDefine Deviation and give an industry example\t3\n2\tA deviation is an unplanned event and can be caused by many factors, List and discuss 6 factors which may cause deviation to occur.\t12\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Investigate the root cause of the deviation, non-conformance (internal) and risks (internal and external stakeholders) using a relevant technique e.g fishbone diagram, 5 why\u2019s root cause analysis"
+      }
+    ]
+  },
+  {
+    "id": "ce260123361b48fdbc0704bb110523c8",
+    "number": "1.1.2",
+    "type": "[object Object]",
+    "marks": "",
+    "parent_id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "text": "Case Study \nAllocate ten marks for number 1 and five marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tExplain how will go about finding a root cause for problems experienced by company \u2018A\u2019 in the case study above and list the 6 symptoms to look out for when conducting a root cause analysis\t10\n2\tDraw and label the fish bone technique\t5\nTotal\tTotal\t15"
+      }
+    ]
+  },
+  {
+    "id": "999330a93b454bcc803fa7a30255e5bb",
+    "number": "1.1.3",
+    "type": "[object Object]",
+    "marks": "10",
+    "parent_id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "text": "Develop alternative solutions (recommendations) for identified deviations and non-conformances",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tOnce a problem has been found, solution must be found. The best way will be to develop best alternative solutions for identified deviations and non-conformances. Discuss in details either 1 of the 2 brainstorming techniques used to find alternatives solutions.\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "e8474bda7bf64395a37bf189a4feff7b",
+    "number": "1.1.4",
+    "type": "[object Object]",
+    "marks": "10",
+    "parent_id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "text": "Implement corrective actions to address deviations and non-conformances",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tCorrective action is usually taken when there are deviations of processes and or product /services from specifications. Discuss the implications of recommending inappropriate recommendation/s for both production and service industry\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "6db1394e16c94a79baf65b3abeb2fe3f",
+    "number": "1.1.1",
+    "type": "[object Object]",
+    "marks": "15",
+    "parent_id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "text": "Case Study \nAllocate three marks for number 1 and twelve marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Case Study:"
+      },
+      {
+        "type": "question_text",
+        "text": "Company \u2018A\u2019 strives to be very competitive company, however continuous customer complaints due to poor service and product failure are the main challenges. An analysis must be conducted to determine if the product/service meet the desired specifications and also to determine if the product parameters are still within specifications."
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tDefine Deviation and give an industry example\t3\n2\tA deviation is an unplanned event and can be caused by many factors, List and discuss 6 factors which may cause deviation to occur.\t12\nTotal\tTotal\t15"
+      },
+      {
+        "type": "question_text",
+        "text": "Investigate the root cause of the deviation, non-conformance (internal) and risks (internal and external stakeholders) using a relevant technique e.g fishbone diagram, 5 why\u2019s root cause analysis"
+      }
+    ]
+  },
+  {
+    "id": "4874b29855b847c7aa0bc342986a440c",
+    "number": "1.1.2",
+    "type": "[object Object]",
+    "marks": "",
+    "parent_id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "text": "Case Study \nAllocate ten marks for number 1 and five marks for number 2\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tExplain how will go about finding a root cause for problems experienced by company \u2018A\u2019 in the case study above and list the 6 symptoms to look out for when conducting a root cause analysis\t10\n2\tDraw and label the fish bone technique\t5\nTotal\tTotal\t15"
+      }
+    ]
+  },
+  {
+    "id": "76eafc8327904978a5531dd56c239d97",
+    "number": "1.1.3",
+    "type": "[object Object]",
+    "marks": "10",
+    "parent_id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "text": "Develop alternative solutions (recommendations) for identified deviations and non-conformances",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tOnce a problem has been found, solution must be found. The best way will be to develop best alternative solutions for identified deviations and non-conformances. Discuss in details either 1 of the 2 brainstorming techniques used to find alternatives solutions.\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "99618a1efaf946cbbc3c873af057f246",
+    "number": "1.1.4",
+    "type": "[object Object]",
+    "marks": "10",
+    "parent_id": "9ab7f7d3ecdd4215808bf113bb8a6363",
+    "text": "Implement corrective actions to address deviations and non-conformances",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tQuestion and Answer\tMarks\n1\tCorrective action is usually taken when there are deviations of processes and or product /services from specifications. Discuss the implications of recommending inappropriate recommendation/s for both production and service industry\t10\nTotal\tTotal\t10"
+      }
+    ]
+  },
+  {
+    "id": "f039b8c763604ae1bd024fe080f81dde",
+    "number": "1.2",
+    "type": "[object Object]",
+    "marks": "10",
+    "parent_id": null,
+    "text": "",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Identify the components of the quality policy with regards to the safety, environment and legal compliance of product/service"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tStatement\tTrue/False\tMarks\n1\tDifferent industries and professions have compliance regulatory organisations supported by legislation.\t\t1\n2\tIt is not always important to ensure that correct processes are followed to keep business compliant.\t\t1\n3\tCompliance to the Occupational Health and Safety Act measures may result in the loss of production.\t\t1\n4\tIt is important to note that the implementation of a quality management system is not a legal requirement.\t\t1\n5\tPersonal protective equipment (PPE) is not the main source of protection for emergency and recovery workers.\t\t1\n6\tDepending on the hazard, the recommendations on the use of PPE change.\t\t1\n7\tEffective\u00a0housekeeping\u00a0can help control and even eliminate potential workplace hazards to ensure safety throughout the working day.\t\t1\n8\tThe Occupational Health and Safety Act requires employers to have a Health and Safety Policy in place.\t\t1\n9\tIn the workplace an employees can work under the influence of liquor as that may not affect the quality of work.\t\t1\n10\tFirms can use green approaches to address concerns about the natural environment.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Having Health and Safety Policies & Procedures shows that employers, management and employees prioritize health and safety. It also indicates the commitment to reduce or remove risks, safe guard the safety and welfare of premises users. This includes contractors, visitors and anyone else who could be associated with the business. Answer the following questions below:"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss the 5 responsibilities a manager has with regard to the health and safety procedure.\t10\n2\tDiscuss the 3 major types of a standard operating procedures and how they are used in an industry\t6\n3.\tDiscuss what is meant by an organisation to be being socially responsible with regard to maintaining safety environment.\t4\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Conformance to quality is the degree to which a good or service meets certain design standards determined by the producer. In other words, it is a measure of how close products and services come to meeting planned criteria once they are produced or delivered. On the other hand, non-conformance is when something (a product, service, process or system) fails to conform to your agreed standard. Effective segregation and proper labelling of non-conforming products is required in order to ensure that there is no cross contamination as well the use of nonconforming products. The picture below is a typical illustration of segregation in the workplace."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss the main types of audit and give one industry example\t9\n2\tDiscuss the 4 types of non- conformances and give one industry example\t8\n3.\tDiscuss what is meant by effective segregation.\t3\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t15\t\n1.1.2\t15\t\n1.1.3\t10\t\n1.1.4\t10\t\nTotal Question 1.1\t50\t\n2.1.1\t10\t\n2.1.2\t20\t\n2.1.3\t20\t\nTotal Question 2.1\t50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tStatement\tTrue/False\tMarks\n1\tDifferent industries and professions have compliance regulatory organisations supported by legislation.\t\t1\n2\tIt is not always important to ensure that correct processes are followed to keep business compliant.\t\t1\n3\tCompliance to the Occupational Health and Safety Act measures may result in the loss of production.\t\t1\n4\tIt is important to note that the implementation of a quality management system is not a legal requirement.\t\t1\n5\tPersonal protective equipment (PPE) is not the main source of protection for emergency and recovery workers.\t\t1\n6\tDepending on the hazard, the recommendations on the use of PPE change.\t\t1\n7\tEffective\u00a0housekeeping\u00a0can help control and even eliminate potential workplace hazards to ensure safety throughout the working day.\t\t1\n8\tThe Occupational Health and Safety Act requires employers to have a Health and Safety Policy in place.\t\t1\n9\tIn the workplace an employees can work under the influence of liquor as that may not affect the quality of work.\t\t1\n10\tFirms can use green approaches to address concerns about the natural environment.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      },
+      {
+        "type": "question_text",
+        "text": "Having Health and Safety Policies & Procedures shows that employers, management and employees prioritize health and safety. It also indicates the commitment to reduce or remove risks, safe guard the safety and welfare of premises users. This includes contractors, visitors and anyone else who could be associated with the business. Answer the following questions below:"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss the 5 responsibilities a manager has with regard to the health and safety procedure.\t10\n2\tDiscuss the 3 major types of a standard operating procedures and how they are used in an industry\t6\n3.\tDiscuss what is meant by an organisation to be being socially responsible with regard to maintaining safety environment.\t4\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      },
+      {
+        "type": "question_text",
+        "text": "Conformance to quality is the degree to which a good or service meets certain design standards determined by the producer. In other words, it is a measure of how close products and services come to meeting planned criteria once they are produced or delivered. On the other hand, non-conformance is when something (a product, service, process or system) fails to conform to your agreed standard. Effective segregation and proper labelling of non-conforming products is required in order to ensure that there is no cross contamination as well the use of nonconforming products. The picture below is a typical illustration of segregation in the workplace."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss the main types of audit and give one industry example\t9\n2\tDiscuss the 4 types of non- conformances and give one industry example\t8\n3.\tDiscuss what is meant by effective segregation.\t3\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t15\t\n1.1.2\t15\t\n1.1.3\t10\t\n1.1.4\t10\t\nTotal Question 1.1\t50\t\n2.1.1\t10\t\n2.1.2\t20\t\n2.1.3\t20\t\nTotal Question 2.1\t50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  },
+  {
+    "id": "8040d465cd8d42578cdbf7ebf76ee8f5",
+    "number": "1.2.1",
+    "type": "[object Object]",
+    "marks": "20",
+    "parent_id": "f039b8c763604ae1bd024fe080f81dde",
+    "text": "True or False \nAllocate one mark each for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tStatement\tTrue/False\tMarks\n1\tDifferent industries and professions have compliance regulatory organisations supported by legislation.\t\t1\n2\tIt is not always important to ensure that correct processes are followed to keep business compliant.\t\t1\n3\tCompliance to the Occupational Health and Safety Act measures may result in the loss of production.\t\t1\n4\tIt is important to note that the implementation of a quality management system is not a legal requirement.\t\t1\n5\tPersonal protective equipment (PPE) is not the main source of protection for emergency and recovery workers.\t\t1\n6\tDepending on the hazard, the recommendations on the use of PPE change.\t\t1\n7\tEffective\u00a0housekeeping\u00a0can help control and even eliminate potential workplace hazards to ensure safety throughout the working day.\t\t1\n8\tThe Occupational Health and Safety Act requires employers to have a Health and Safety Policy in place.\t\t1\n9\tIn the workplace an employees can work under the influence of liquor as that may not affect the quality of work.\t\t1\n10\tFirms can use green approaches to address concerns about the natural environment.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      }
+    ]
+  },
+  {
+    "id": "08fa15b4511644d3b70fa9aa8bc81a42",
+    "number": "1.2.2",
+    "type": "[object Object]",
+    "marks": "20",
+    "parent_id": "f039b8c763604ae1bd024fe080f81dde",
+    "text": "Constructive Response \nAllocate ten marks for number 1, six marks for number 2 and four marks for number 3\nse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Having Health and Safety Policies & Procedures shows that employers, management and employees prioritize health and safety. It also indicates the commitment to reduce or remove risks, safe guard the safety and welfare of premises users. This includes contractors, visitors and anyone else who could be associated with the business. Answer the following questions below:"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss the 5 responsibilities a manager has with regard to the health and safety procedure.\t10\n2\tDiscuss the 3 major types of a standard operating procedures and how they are used in an industry\t6\n3.\tDiscuss what is meant by an organisation to be being socially responsible with regard to maintaining safety environment.\t4\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      }
+    ]
+  },
+  {
+    "id": "d3876ef548844900adcc38bcae2df318",
+    "number": "1.2.3",
+    "type": "[object Object]",
+    "marks": "",
+    "parent_id": "f039b8c763604ae1bd024fe080f81dde",
+    "text": "Case study \nAllocate nine marks for number 1, eight marks for number 2 and three marks for number 3\nse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Conformance to quality is the degree to which a good or service meets certain design standards determined by the producer. In other words, it is a measure of how close products and services come to meeting planned criteria once they are produced or delivered. On the other hand, non-conformance is when something (a product, service, process or system) fails to conform to your agreed standard. Effective segregation and proper labelling of non-conforming products is required in order to ensure that there is no cross contamination as well the use of nonconforming products. The picture below is a typical illustration of segregation in the workplace."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss the main types of audit and give one industry example\t9\n2\tDiscuss the 4 types of non- conformances and give one industry example\t8\n3.\tDiscuss what is meant by effective segregation.\t3\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t15\t\n1.1.2\t15\t\n1.1.3\t10\t\n1.1.4\t10\t\nTotal Question 1.1\t50\t\n2.1.1\t10\t\n2.1.2\t20\t\n2.1.3\t20\t\nTotal Question 2.1\t50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  },
+  {
+    "id": "c6535246157b4be9a208b50dab3d2b23",
+    "number": "1.2.1",
+    "type": "[object Object]",
+    "marks": "20",
+    "parent_id": "f039b8c763604ae1bd024fe080f81dde",
+    "text": "True or False \nAllocate one mark each for number 1 to 10\nUse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Number\tStatement\tTrue/False\tMarks\n1\tDifferent industries and professions have compliance regulatory organisations supported by legislation.\t\t1\n2\tIt is not always important to ensure that correct processes are followed to keep business compliant.\t\t1\n3\tCompliance to the Occupational Health and Safety Act measures may result in the loss of production.\t\t1\n4\tIt is important to note that the implementation of a quality management system is not a legal requirement.\t\t1\n5\tPersonal protective equipment (PPE) is not the main source of protection for emergency and recovery workers.\t\t1\n6\tDepending on the hazard, the recommendations on the use of PPE change.\t\t1\n7\tEffective\u00a0housekeeping\u00a0can help control and even eliminate potential workplace hazards to ensure safety throughout the working day.\t\t1\n8\tThe Occupational Health and Safety Act requires employers to have a Health and Safety Policy in place.\t\t1\n9\tIn the workplace an employees can work under the influence of liquor as that may not affect the quality of work.\t\t1\n10\tFirms can use green approaches to address concerns about the natural environment.\t\t1\nTotal\tTotal\tTotal\t10"
+      },
+      {
+        "type": "question_text",
+        "text": "Apply procedures to maintain safety environment, legal compliance and quality of service or products."
+      }
+    ]
+  },
+  {
+    "id": "76ec990cfa524c3ab190956377deaa0b",
+    "number": "1.2.2",
+    "type": "[object Object]",
+    "marks": "20",
+    "parent_id": "f039b8c763604ae1bd024fe080f81dde",
+    "text": "Constructive Response \nAllocate ten marks for number 1, six marks for number 2 and four marks for number 3\nse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Having Health and Safety Policies & Procedures shows that employers, management and employees prioritize health and safety. It also indicates the commitment to reduce or remove risks, safe guard the safety and welfare of premises users. This includes contractors, visitors and anyone else who could be associated with the business. Answer the following questions below:"
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss the 5 responsibilities a manager has with regard to the health and safety procedure.\t10\n2\tDiscuss the 3 major types of a standard operating procedures and how they are used in an industry\t6\n3.\tDiscuss what is meant by an organisation to be being socially responsible with regard to maintaining safety environment.\t4\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Identify and report non-conformance, risks and ensuring effective segregation."
+      }
+    ]
+  },
+  {
+    "id": "4ede494d44054b0c82fa0d923b36b516",
+    "number": "1.2.3",
+    "type": "[object Object]",
+    "marks": "",
+    "parent_id": "f039b8c763604ae1bd024fe080f81dde",
+    "text": "Case study \nAllocate nine marks for number 1, eight marks for number 2 and three marks for number 3\nse discretion to allocate marks for any other relevant point that may be given by the student.",
+    "content": [
+      {
+        "type": "question_text",
+        "text": "Conformance to quality is the degree to which a good or service meets certain design standards determined by the producer. In other words, it is a measure of how close products and services come to meeting planned criteria once they are produced or delivered. On the other hand, non-conformance is when something (a product, service, process or system) fails to conform to your agreed standard. Effective segregation and proper labelling of non-conforming products is required in order to ensure that there is no cross contamination as well the use of nonconforming products. The picture below is a typical illustration of segregation in the workplace."
+      },
+      {
+        "type": "question_text",
+        "text": ""
+      },
+      {
+        "type": "question_text",
+        "text": "Number\tQuestions and Answers\tMarks\n1\tDiscuss the main types of audit and give one industry example\t9\n2\tDiscuss the 4 types of non- conformances and give one industry example\t8\n3.\tDiscuss what is meant by effective segregation.\t3\nTotal\tTotal\t20"
+      },
+      {
+        "type": "question_text",
+        "text": "Marks Allocation Grid (For use by Assessor Only)"
+      },
+      {
+        "type": "question_text",
+        "text": "Question\tMarks\tAllocated Marks\n1.1.1\t15\t\n1.1.2\t15\t\n1.1.3\t10\t\n1.1.4\t10\t\nTotal Question 1.1\t50\t\n2.1.1\t10\t\n2.1.2\t20\t\n2.1.3\t20\t\nTotal Question 2.1\t50"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Assessor Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Details"
+      },
+      {
+        "type": "question_text",
+        "text": "Moderator Name and Surname\t\nRegistration Number\t\nSignature\t\nDate"
+      }
+    ]
+  }
+]

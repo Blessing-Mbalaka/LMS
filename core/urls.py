@@ -25,21 +25,19 @@ from core.views import (
     databank_view, clean_questions,
     admin_dashboard, paper_pool_view,
     assessment_centres_view,
-    user_management,
+    user_management, 
     toggle_user_status,
     update_user_qualification,
     update_user_role, review_saved_selector,
     custom_login, custom_logout,
 edit_assessment_centre, new_databank_view,
-delete_assessment_centre, auto_fix_blocks,
+delete_assessment_centre, auto_fix_blocks, etqa_assessment_view,
 qualification_management_view, register, 
 default_page, student_results, beta_paper_extractor, #Beta_paper extractor might delete if it does not work...
 assessment_progress_tracker, save_blocks,
 etqa_dashboard, assessment_center_view, submit_to_center, load_saved_paper_view, view_paper_as_doc_layout,
-approve_by_etqa, reject_by_etqa, student_assessment, student_dashboard, submit_exam, student_results, 
- randomize_paper_structure_view, load_randomized_papers, randomize_qualification_papers,randomize_qualification_papers
-
-
+student_assessment, student_dashboard, submit_exam, student_results, 
+ randomize_paper_structure_view, load_randomized_papers, randomize_qualification_papers,randomize_qualification_papers, toggle_selection_by_etqa, release_assessment_to_students
 )
 
 urlpatterns = [
@@ -132,6 +130,11 @@ urlpatterns = [
     path('toggle-user-status/<int:user_id>/', toggle_user_status, name='toggle_user_status'),
     path('administrator/qualifications/', qualification_management_view, name='manage_qualifications'),
     
+#ETQA
+    path('etqa/toggle/<int:assessment_id>/', toggle_selection_by_etqa, name='toggle_selection_by_etqa'),
+    path('etqa/release/<int:assessment_id>/', release_assessment_to_students, name='release_assessment_to_students'),
+    path('etqa/assessment/', etqa_assessment_view, name='etqa_assessment_view'),
+#______________________________________________________________________________________________________________
 
 #Login and logout path**********************************************************
      path('logout/', custom_logout, name='logout'),
@@ -150,12 +153,10 @@ urlpatterns = [
     path('submit-to-center/<int:batch_id>/', submit_to_center, name='submit_to_center'),
 
 
-    path('etqa/approve/<int:assessment_id>/', approve_by_etqa, name='approve_by_etqa'),
-    path('etqa/reject/<int:assessment_id>/', reject_by_etqa, name='reject_by_etqa'),
+
 
      path('administrator/paper-pool/', paper_pool_view, name='paper_pool'),
     path('administrator/randomize/<int:qualification_id>/', randomize_qualification_papers, name='randomize_qualification'),
-
 
 
      # Student-facing URLs
@@ -188,11 +189,8 @@ urlpatterns = [
 ]
 
     
+
+
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
-
-
-   
-  

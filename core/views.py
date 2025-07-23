@@ -729,7 +729,7 @@ def upload_assessment(request):
             forward_to_moderator=forward,
             created_by=request.user,
             paper_link=paper_obj,
-            status="Submitted to Moderator" if forward else "Pending",
+            status="Submitted to Moderator" if forward else "Submitted to ETQA",
 
         )
 
@@ -1006,7 +1006,7 @@ def submit_generated_paper(request):
             memo=None,
             forward_to_moderator=True,
             moderator_notes=content,
-            status="Submitted to Moderator"
+            status="Submitted to ETQA"
         )
 
         return JsonResponse({"status": "success", "message": "Paper submitted to moderator."})
@@ -1421,23 +1421,27 @@ def etqa_dashboard(request):
         or request.POST.get('qualification')
         or ""
     )
+     
+    
 
-    # 2) Always load the APPROVED assessments for that qualification
+   
+
     approved_assessments = []
     if selected_qualification:
         approved_assessments = Assessment.objects.filter(
             qualification_id=selected_qualification,
-            status="Approved by ETQA"
-        )
+            status="Submitted to ETQA",
+            is_selected_by_etqa=True
+    )    
 
     created_batch = None
 
     if request.method == 'POST':
         # 3) Simple presence check
-        missing = [f for f in ('center','qualification','assessment','date','number_of_learners')
+        missing = [f for f in ('center','qualification','assessment','date')
                    if f not in request.POST]
         if missing:
-            return render(request, 'core/qcto/etqa_dashboard.html', {
+            return render(request, 'core/etqa/etqa_dashboard.html', {
                 'centers': centers,
                 'qualifications': qualifications,
                 'selected_qualification': selected_qualification,
@@ -1452,12 +1456,12 @@ def etqa_dashboard(request):
             qualification_id    = request.POST['qualification'],
             assessment_id       = request.POST['assessment'],
             assessment_date     = request.POST['date'],
-            number_of_learners  = request.POST['number_of_learners'],
+            # number_of_learners  = request.POST['number_of_learners'],
         )
         created_batch = batch
         # Note: no redirect here; we simply fall through and re-render
 
-    return render(request, 'core/qcto/etqa_dashboard.html', {
+    return render(request, 'core/etqa/etqa_dashboard.html', {
         'centers': centers,
         'qualifications': qualifications,
         'selected_qualification': selected_qualification,
@@ -1466,28 +1470,44 @@ def etqa_dashboard(request):
         'created_batch': created_batch,
     })
 
+@login_required
+def release_assessment_to_students(request, assessment_id):
+    if request.method == 'POST':
+        assessment = get_object_or_404(Assessment, id=assessment_id)
+        if assessment.status == "Submitted to ETQA":
+            assessment.status = "Released to students"
+            assessment.save()
+    return redirect('assessment_center')
+
 
   
 
 @login_required
-def approve_by_etqa(request, assessment_id):
+def toggle_selection_by_etqa(request, assessment_id):
     assessment = get_object_or_404(Assessment, id=assessment_id)
-    assessment.status = "Approved by ETQA"
+    assessment.is_selected_by_etqa = not assessment.is_selected_by_etqa
     assessment.save()
-    return redirect('etqa_dashboard')
+    return redirect('etqa_assessment_view')
 
 @login_required
-def reject_by_etqa(request, assessment_id):
-    assessment = get_object_or_404(Assessment, id=assessment_id)
-    assessment.status = "Rejected"
-    assessment.save()
-    return redirect('etqa_dashboard')
-
+def etqa_assessment_view(request):
+    submitted_assessments = Assessment.objects.filter(status="Submitted to ETQA")
+    return render(request, 'core/etqa/etqa_assessment.html', {
+        'assessments': submitted_assessments
+    })
 
 #_________________________________________________view for assessment centre_____________________________
 def assessment_center_view(request):
     batches = Batch.objects.filter(submitted_to_center=True)
-    return render(request, 'assessment_center.html', {'batches': batches})
+#Adding
+    tools  = Assessment.objects.select_related("qualifications", "created_by")\
+                                .order_by("-created_at")   
+#end of add
+
+
+
+    return render(request, 'assessment_center.html', {'batches': batches,
+                                                       'tools' : tools,               })
 
 def submit_to_center(request, batch_id):
     batch = Batch.objects.get(id=batch_id)

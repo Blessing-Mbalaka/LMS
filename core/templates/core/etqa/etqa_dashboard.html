@@ -56,13 +56,14 @@
       <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
       
     </div>
-    <ul class="sidebar-menu">
-      <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-      <li><a href="#"><i class="fas fa-building"></i> Assessment Centers</a></li>
-      <li><a href="#"><i class="fas fa-calendar-alt"></i> Scheduling</a></li>
-      <li><a href="#"><i class="fas fa-users"></i> Learner Batches</a></li>
+     <ul class="sidebar-menu">
+      <li><a href="{% url 'etqa_dashboard' %}" class="nav-item"><i class="fas fa-calendar-alt"></i> Assessment Scheduling</a></li>
+      <!-- <li><a href="#"><i class="fas fa-building"></i> Assessment Centers</a></li>
+      <li><a href="#"><i class="fas fa-calendar-alt"></i> Scheduling</a></li> -->
+      <li><a href="{% url 'etqa_assessment_view' %}" class="nav-item"><i class="fas fa-users"></i> Assessment View</a></li>
+      <!-- <li><a href="#"><i class="fas fa-users"></i> Learner Batches</a></li>
       <li><a href="#"><i class="fas fa-chart-line"></i> Completion Tracking</a></li>
-      <li><a href="#"><i class="fas fa-cog"></i> Configuration</a></li>
+      <li><a href="#"><i class="fas fa-cog"></i> Configuration</a></li> -->
       <li><a  href="{% url 'logout' %}"><i class="fas fa-sign-out-alt logout"></i> Log Out</a></li>
     </ul>
     <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
@@ -74,54 +75,12 @@
             <!-- <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Profile Picture" width="390px" height="190px"> -->
           </div>
           <div class="welcome-box">
-            <h2>ETQA Dashboard</h2>
+            <h2>ETQA Assessment Scheduling</h2>
             
             <button class="gradient-button">Innovating for Impact</button>
           </div>
         </div>
-    <h2 style="color: var(--dark-purple);">Batch Assignment</h2>
-
-    <div class="card">
-      <div class="card-header">Assessments Awaiting Final Approval</div>
-      <div class="card-body">
-        {% if assessments_for_etqa %}
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Assessment ID</th>
-                <th>Qualification</th>
-                <th>Questions</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for a in assessments_for_etqa %}
-              <tr>
-                <td>{{ a.eisa_id }}</td>
-                <td>{{ a.qualification.name }}</td>
-                <td>{% include 'core/includes/_question_list.html' with assessment=a %}</td>
-                <td>{{ a.status }}</td>
-                <td>
-                  <form method="post" action="{% url 'approve_by_etqa' a.id %}" style="display:inline;">{% csrf_token %}
-                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                  </form>
-                  <form method="post" action="{% url 'reject_by_etqa' a.id %}" style="display:inline;">{% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                  </form>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% else %}
-        <p class="text-muted">No assessments submitted to ETQA found.</p>
-        {% endif %}
-      </div>
-    </div>
-
+   
     <!-- form for creating batch -->
     <div class="form-container">
       <form method="post">
@@ -157,10 +116,10 @@
           <label for="date">Assessment Date:</label>
           <input type="date" id="date" name="date" class="form-control" required>
         </div>
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label for="number_of_learners">Number of Learners:</label>
           <input type="number" id="number_of_learners" name="number_of_learners" class="form-control" min="1" required>
-        </div>
+        </div> -->
         <button type="submit" class="btn-purple">Create Batch</button>
       </form>
     </div>
@@ -173,7 +132,7 @@
         <tr><th>Qualification</th><td>{{ created_batch.qualification.name }}</td></tr>
         <tr><th>Assessment</th><td>{{ created_batch.assessment.paper }} ({{ created_batch.assessment.eisa_id }})</td></tr>
         <tr><th>Date</th><td>{{ created_batch.assessment_date }}</td></tr>
-        <tr><th>Learners</th><td>{{ created_batch.number_of_learners }}</td></tr>
+        
       </table>
       <form method="post" action="{% url 'submit_to_center' created_batch.id %}">{% csrf_token %}
         <button type="submit" class="btn-gold">Submit to Center</button>

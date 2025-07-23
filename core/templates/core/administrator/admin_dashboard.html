@@ -59,25 +59,62 @@
   <div class="overal_container">
     <div class="dashboard-container">
       <div class="sidebar">
-        <div class="graduate-icon">
-          <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
-        </div><br><br>
-        <ul>
-          <li><a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa fa-home"></i> Dashboard</a></li>
-          <li><a href="{% url 'assessment_centres' %}" class="nav-item"><i class="fa fa-upload"></i> Assessment
-              Centres</a></li>
-          <li><a href="{% url 'user_management' %}" class="nav-item"><i class="fa fa-cogs"></i> User Management</a></li>
-          <li><a href="{% url 'manage_qualifications' %}" class="nav-item"><i class="fa fa-cogs"></i> Qualifications</a>
-          </li>
-          <!-- <li>🔔 Notifications</li>
-          <li>🛠️ Help & Support</li><br><br><br><br> -->
-          <!-- <button class="fixy">⚙️ Settings</button> -->
-          <br>
-          <br>
-          <a href="{% url 'logout' %}" class="logout-btn">🚪 Log Out</a>
-        </ul>
-        <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
-      </div>
+  <div class="sidebar-header">
+    <div class="graduate-icon">
+      <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo" style="width: 130px;">
+    </div>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+     
+      
+      <li class="nav-item">
+        <a href="{% url 'admin_dashboard' %}" class="nav-link{% if request.resolver_match.url_name == 'admin_dashboard' %} active{% endif %}">
+          <i class="fa fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+       <li class="nav-item">
+        <a class="nav-link{% if request.resolver_match.url_name == 'upload_assessment' %} active{% endif %}" 
+           href="{% url 'upload_assessment' %}">
+          <i class="fa fa-upload"></i>
+          <span>Upload Assessment</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a href="{% url 'assessment_centres' %}" class="nav-link{% if request.resolver_match.url_name == 'assessment_centres' %} active{% endif %}">
+          <i class="fa fa-upload"></i>
+          <span>Assessment Centres</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a href="{% url 'user_management' %}" class="nav-link{% if request.resolver_match.url_name == 'user_management' %} active{% endif %}">
+          <i class="fa fa-cogs"></i>
+          <span>User Management</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a href="{% url 'manage_qualifications' %}" class="nav-link{% if request.resolver_match.url_name == 'manage_qualifications' %} active{% endif %}">
+          <i class="fa fa-cogs"></i>
+          <span>Qualifications</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}" class="logout-btn">
+        <i class="fa fa-sign-out"></i>
+        <span>Log Out</span>
+      </a>
+      <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" class="sidebar-art">
+    </div>
+  </nav>
+</div>
 
       <div class="content p-4">
         <div class="welcome-container">

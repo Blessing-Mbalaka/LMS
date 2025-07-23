@@ -50,70 +50,57 @@
         </a>
       </div>
 
-      <ul class="sidebar-nav">
-        <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'assessor_dashboard' %} active{% endif %}"
-             href="{% url 'assessor_dashboard' %}">
-            <i class="fa fa-home"></i>
-            <span>Dashboard</span>
-          </a>
-        </li>
-        
-        <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'generate_tool_page' %} active{% endif %}"
-             href="{% url 'generate_tool_page' %}">
-            <i class="fa fa-cogs"></i>
-            <span>Generate Assessment</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'assessment_archive' %} active{% endif %}"
-             href="{% url 'assessment_archive' %}">
-            <i class="fa fa-archive"></i>
-            <span>Assessment History</span>
-          </a>
-        </li>
-        <!-- <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'assessor_reports' %} active{% endif %}"
-             href="{% url 'assessor_reports' %}">
-            <i class="fa fa-chart-bar"></i>
-            <span>Reports</span>
-          </a>
-        </li> -->
+   <nav class="sidebar-nav">
+    <ul class="nav-list">
+     
+      
+      <li class="nav-item">
+        <a href="{% url 'admin_dashboard' %}" class="nav-link{% if request.resolver_match.url_name == 'admin_dashboard' %} active{% endif %}">
+          <i class="fa fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
 
-        <!-- Placeholder items (Notifications / Help) -->
-        <!-- <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="fa fa-bell"></i>
-            <span>Notifications</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="fa fa-life-ring"></i>
-            <span>Help &amp; Support</span>
-          </a>
-        </li> -->
-
-        <!-- Settings / Logout Buttons -->
-        <!-- <li class="nav-item mt-4">
-          <button class="gradient-button w-100">
-            <i class="fa fa-cog"></i>
-            <span>Settings</span>
-          </button>
-        </li> -->
-        <li class="nav-item mt-2">
-          <button class="gradient-button w-100">
-            <i class="fa fa-sign-out-alt"></i>
-           <a href="{% url 'logout' %}" class="fix">Log Out</a><br>
-          </button>
-        </li>
-      </ul>
-
-      <div class="sidebar-footer">
-        <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art">
-      </div>
+       <li class="nav-item">
+        <a class="nav-link{% if request.resolver_match.url_name == 'upload_assessment' %} active{% endif %}" 
+           href="{% url 'upload_assessment' %}">
+          <i class="fa fa-upload"></i>
+          <span>Upload Assessment</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a href="{% url 'assessment_centres' %}" class="nav-link{% if request.resolver_match.url_name == 'assessment_centres' %} active{% endif %}">
+          <i class="fa fa-upload"></i>
+          <span>Assessment Centres</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a href="{% url 'user_management' %}" class="nav-link{% if request.resolver_match.url_name == 'user_management' %} active{% endif %}">
+          <i class="fa fa-cogs"></i>
+          <span>User Management</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a href="{% url 'manage_qualifications' %}" class="nav-link{% if request.resolver_match.url_name == 'manage_qualifications' %} active{% endif %}">
+          <i class="fa fa-cogs"></i>
+          <span>Qualifications</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}" class="logout-btn">
+        <i class="fa fa-sign-out"></i>
+        <span>Log Out</span>
+      </a>
+      <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" class="sidebar-art">
     </div>
+  </nav>
+</div>
+
 
     <div class="content p-4">
       <div class="welcome-container">
@@ -122,25 +109,25 @@
         </div>
         <div class="welcome-box">
           <h2>Upload EISA Assessment Tool</h2>
-          <div class="date">Generate EISA assessments tools using the Databank</div>
+          <div class="welcome-box mb-3">
+  Welcome, {{ user.get_full_name|default:user.username }}<br>
+      Qualification: <strong>{{ request.user.qualification.name|default:"Not Assigned" }}</strong>
+</div>
           <button class="gradient-button">Innovating for Impact</button>
         </div>
       </div>
 
       
-
+<form id="uploadForm" action="{% url 'upload_assessment' %}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
 
   <div class="form-section">
   <label for="qualification">Qualification</label>
-<select id="qualification" name="qualification" required>
+<select name="qualification" required>
   <option value="">-- Select Qualification --</option>
-  {% for qual in qualifications %}
-    <option value="{{ qual.id }}"
-      {% if request.POST.qualification == qual.id|stringformat:"s" %}
-        selected
-      {% endif %}>
-      {{ qual.name }}
+  {% for q in qualifications %}
+    <option value="{{ q.id }}" {% if q.id == request.user.qualification.id %}selected{% endif %}>
+      {{ q.name }}
     </option>
   {% endfor %}
 </select>
@@ -153,9 +140,9 @@
   </div>
 
   <div class="form-section">
-    <label for="saqaID">SAQA ID</label>
-    <input type="text" id="saqaID" name="saqa_id" placeholder="e.g. 123456" required>
-  </div>
+  <label for="saqaID">SAQA ID</label>
+  <input type="text" id="saqaID" name="saqa_id" value="{{ request.user.qualification.saqa_id }}" readonly required>
+</div>
 
   <div class="form-section">
     <label for="fileInput">Upload EISA Assessment</label>

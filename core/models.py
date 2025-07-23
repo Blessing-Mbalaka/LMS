@@ -63,6 +63,7 @@ class CustomUser(AbstractUser):
         ('assessor_marker', 'Assessor (Marker)'),
         ('internal_mod',    'Internal Moderator'),
         ('external_mod',    'External Moderator (QALA)'),
+        ('assessment_center', 'Assessment Center')
     ]
 
     role                     = models.CharField(max_length=30, choices=ROLE_CHOICES, default='learner')
@@ -161,6 +162,8 @@ class Assessment(models.Model):
     moderator_notes     = models.TextField(blank=True)
     created_at          = models.DateTimeField(auto_now_add=True)
     qcto_notes          = models.TextField(blank=True)
+    is_selected_by_etqa = models.BooleanField(default=False)
+    
 
     STATUS_CHOICES = [
         ("Pending",                  "Pending"),
@@ -170,8 +173,9 @@ class Assessment(models.Model):
         ("Submitted to QCTO",        "Submitted to QCTO"),
         ("Approved by QCTO",         "Approved by QCTO"),
         ("Submitted to ETQA",        "Submitted to ETQA"),
-        ("Approved by ETQA",         "Approved by ETQA"),
+        ("Released to students",         "Released to students"),
         ("Rejected",                 "Rejected"),
+        
     ]
     status      = models.CharField(max_length=30, choices=STATUS_CHOICES, default="Pending")
     created_by  = models.ForeignKey(
@@ -292,7 +296,7 @@ class Batch(models.Model):
     qualification = models.ForeignKey('Qualification', on_delete=models.CASCADE)
     assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE)
     assessment_date = models.DateField()
-    number_of_learners = models.PositiveIntegerField()
+    # number_of_learners = models.PositiveIntegerField()
     submitted_to_center = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

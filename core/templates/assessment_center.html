@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -107,7 +108,8 @@
       border-collapse: collapse;
     }
 
-    .table-batches th, .table-batches td {
+    .table-batches th,
+    .table-batches td {
       padding: 12px 15px;
       border-bottom: 1px solid #dee2e6;
       text-align: left;
@@ -129,6 +131,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="d-flex min-vh-100">
     <!-- Sidebar -->
@@ -169,7 +172,7 @@
                 <th>Qualification</th>
                 <th>Assessment</th>
                 <th>Date</th>
-                <th>Learners</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -179,14 +182,35 @@
                 <td>{{ batch.qualification.name }}</td>
                 <td>{{ batch.assessment.eisa_id }}</td>
                 <td>{{ batch.assessment_date }}</td>
-                <td>{{ batch.number_of_learners }}</td>
+                
+                <td>
+                  {% if batch.assessment.status == "Submitted to ETQA" %}
+                  <div class="d-flex gap-2">
+                    <form method="POST" action="{% url 'release_assessment_to_students' batch.assessment.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-success btn-sm">Release to Students</button>
+                    </form>
+
+                    {% if batch.assessment.file %}
+                    <a href="{{ batch.assessment.file.url }}" class="btn btn-outline-primary btn-sm" download>
+                      <i class="fa fa-download"></i> Download
+                    </a>
+                    {% endif %}
+                  </div>
+                  {% else %}
+                  <span class="badge bg-primary">{{ batch.assessment.status }}</span>
+                  {% endif %}
+                </td>
               </tr>
               {% endfor %}
             </tbody>
+
+
           </table>
         </div>
       </div>
     </div>
   </div>
 </body>
+
 </html>
