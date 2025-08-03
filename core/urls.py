@@ -2,195 +2,83 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
-from core.views import (
-    generate_tool_page, no_permission,
-    generate_tool, save_extracted_questions, beta_paper_tables_view,
-    assessor_dashboard,
-    view_assessment,
-    upload_assessment,
-    assessment_archive,
-    assessor_reports,
-    submit_generated_paper,
-    add_question, auto_classify_blocks,
-    add_case_study, randomize_single_paper_view,
-    add_feedback,
-    moderator_developer_dashboard,
-    moderate_assessment, paper_as_is_view,
-    checklist_stats,
-    toggle_checklist_item, qcto_dashboard, qcto_moderate_assessment, qcto_compliance,qcto_assessment_review,
-    qcto_archive,
-    qcto_reports,
-    qcto_view_assessment,
-    qcto_latest_assessment_detail,
-    databank_view, clean_questions,
-    admin_dashboard, paper_pool_view,
-    assessment_centres_view,
-    user_management, 
-    toggle_user_status,
-    update_user_qualification,
-    update_user_role, review_saved_selector,
-    custom_login, custom_logout,
-edit_assessment_centre, new_databank_view,
-delete_assessment_centre, auto_fix_blocks, etqa_assessment_view,
-qualification_management_view, register, 
-default_page, student_results, beta_paper_extractor, #Beta_paper extractor might delete if it does not work...
-assessment_progress_tracker, save_blocks,
-etqa_dashboard, assessment_center_view, submit_to_center, load_saved_paper_view, view_paper_as_doc_layout,
-student_assessment, student_dashboard, submit_exam, student_results, 
- randomize_paper_structure_view, load_randomized_papers, randomize_qualification_papers,randomize_qualification_papers, toggle_selection_by_etqa, release_assessment_to_students
-)
-
+import core.views as views
+    
 urlpatterns = [
-    path('administrator/dashboard/', admin_dashboard, name='admin_dashboard'),
-    #paper extraction views still in development
-    path("new-databank/", new_databank_view, name="new_databank"),
-
-    path('randomize/paper/<int:paper_pk>/', randomize_paper_structure_view, name='randomize_paper_structure'),
-    path('papers/<int:paper_pk>/save-blocks/', save_blocks, name='save-blocks'),
-    path('administrator/auto-fix-blocks/', auto_fix_blocks, name='auto_fix_blocks'),
-    path('administrator/review-paper/<int:paper_pk>/classify/', auto_classify_blocks, name='auto_classify_blocks'),
-    #Paper Extraction  logic end
-   
-   #Load saved Paper
-    path("administrator/review-paper/<int:paper_pk>/", paper_as_is_view, name="review_paper"),
-    path("administrator/review-paper/<int:paper_pk>/save-blocks/", save_blocks, name="save_blocks"),
-    path("administrator/load-saved/<int:paper_pk>/", load_saved_paper_view, name="load_saved_paper"),
-    path("administrator/review-saved/", review_saved_selector, name="review_saved_selector"),
-    path(
-        "administrator/review-paper/",
-        paper_as_is_view,
-        name="upload_review_paper",
-    ),
-
-    # 2️⃣ show the blocks for an existing paper
-    path(
-        "administrator/review-paper/<int:paper_pk>/",
-        paper_as_is_view,
-        name="review_paper",
-    ),
-
-    # 3️⃣ persist manual edits
-    path(
-        "administrator/review-paper/<int:paper_pk>/save-blocks/",
-        save_blocks,
-        name="save_blocks"),
-
-    path('randomized-papers/', load_randomized_papers, name='load_randomized_papers'),
-    path('administrator/randomize-paper/<int:paper_id>/', randomize_single_paper_view, name='randomize_paper'),
-
-
-    path('view-paper-as-word/<int:paper_id>/', view_paper_as_doc_layout, name='view_paper_as_word'),
-    path("randomize-paper/<int:paper_pk>/", randomize_paper_structure_view, name="randomize_paper_structure"),
-    path("administrator/beta-paper-tables/", beta_paper_tables_view, name="beta_paper_tables"),
-    path('administrator/beta-paper/', beta_paper_extractor, name='beta_paper'),
-    path("api/clean-questions/", clean_questions, name="clean_questions"),
-    path('administrator/save-extracted/', save_extracted_questions, name='save_extracted_questions'),
-#___________________________________________________________________________________________________________
-    path('awaiting-activation/', default_page, name='default'),
-
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    path('assessor/dashboard/', assessor_dashboard, name='assessor_dashboard'),
-    path('assessor/assessment/<str:eisa_id>/', view_assessment, name='view_assessment'),
-    path('upload_assessment/', upload_assessment, name='upload_assessment'),
-    path('assessor-developer/assessment_archive/', assessment_archive, name='assessment_archive'),
-    path('reports/', assessor_reports, name='assessor_reports'),
-    path('generate-paper/', generate_tool_page, name='generate_tool_page'),
-    path('api/generate-paper/', generate_tool, name='generate_tool'),
-    path("submit-generated-paper/", submit_generated_paper, name="submit_generated_paper"),
-    path('add-question/', add_question, name='add_question'), #Add Paper is the new name forthcoming
-    path('add-case-study/', add_case_study, name='add_case_study'),
-    
-    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    path("moderator/", moderator_developer_dashboard, name="moderator_developer"),
-    path("moderator/<str:eisa_id>/moderate/", moderate_assessment, name="moderate_assessment"),
-    path("moderator/<str:eisa_id>/feedback/add/", add_feedback, name="add_feedback"),
-    path( "moderator/checklist/<int:item_id>/toggle/", toggle_checklist_item,name="toggle_checklist_item"),
-    path( "moderator/checklist/stats/", checklist_stats,name="checklist_stats"),
-
-    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    path('qcto/dashboard/', qcto_dashboard, name='qcto_dashboard'),
-    #_____________________________________________________________
-    path('etqa/dashboard/', etqa_dashboard, name='etqa_dashboard'),
-    #______________________________________________________________
-    path('qcto/<str:eisa_id>/moderate/', qcto_moderate_assessment, name='qcto_moderate_assessment'),
-    path('qcto/compliance/', qcto_compliance, name='qcto_compliance'),
-    path('qcto/review/', qcto_assessment_review, name='qcto_assessment_review'),
-    path('qcto/archive/', qcto_archive, name='qcto_archive'),
-    path('qcto/reports/', qcto_reports, name='qcto_reports'),
-    path('qcto/<str:eisa_id>/view/', qcto_view_assessment, name='qcto_view_assessment'),
-    path("qcto/view-latest/", qcto_latest_assessment_detail, name="qcto_latest_assessment_detail"),
-    path("administrator/databank/", databank_view, name='databank'),
-    path("administrator/dashboard/", admin_dashboard, name='admin_dashboard'),
-    path("administrator/assessment-centres/", assessment_centres_view, name='assessment_centres'),
-    path('administrator/assessment-centres/edit/<int:centre_id>/', edit_assessment_centre, name='edit_assessment_centre'),
-    path('administrator/assessment-centres/delete/<int:centre_id>/', delete_assessment_centre, name='delete_assessment_centre'),
-    path("administrator/user-management/", user_management, name='user_management'),
-    path('update-user-role/<int:user_id>/', update_user_role, name='update_user_role'),
-    path('update-user-qualification/<int:user_id>/',update_user_qualification, name='update_user_qualification'),
-    path('toggle-user-status/<int:user_id>/', toggle_user_status, name='toggle_user_status'),
-    path('administrator/qualifications/', qualification_management_view, name='manage_qualifications'),
-    
-#ETQA
-    path('etqa/toggle/<int:assessment_id>/', toggle_selection_by_etqa, name='toggle_selection_by_etqa'),
-    path('etqa/release/<int:assessment_id>/', release_assessment_to_students, name='release_assessment_to_students'),
-    path('etqa/assessment/', etqa_assessment_view, name='etqa_assessment_view'),
-#______________________________________________________________________________________________________________
-
-#Login and logout path**********************************************************
-     path('logout/', custom_logout, name='logout'),
-    path('', custom_login, name='custom_login'),
-     path("register/", register, name="register"),
-#********************************************************************
-#Assessment progress Tracker this is for tracking who has the paper...
-    path('assessment-tracker/', assessment_progress_tracker, name='assessment_progress_tracker'),
-
-# paths to create batch and view all the approved assessments______________________________________________
-
-    # path('create-batch/', create_batch, name='create_batch'),
-    path('assessment-center/', assessment_center_view, name='assessment_center'),   
-
-# paths to submit batch to assessment html page_______________________________________________________
-    path('submit-to-center/<int:batch_id>/', submit_to_center, name='submit_to_center'),
-
-
-
-
-     path('administrator/paper-pool/', paper_pool_view, name='paper_pool'),
-    path('administrator/randomize/<int:qualification_id>/', randomize_qualification_papers, name='randomize_qualification'),
-
-
-     # Student-facing URLs
-     # 1) Dashboard: list “ready” assessments for this user
-    path(
-        'student/',
-        student_dashboard,
-        name='student_dashboard'
-    ),
-
-    # 2) Writing an assessment
-    path(
-        'student/assessment/<int:assessment_id>/',
-        student_assessment,
-        name='student_assessment'
-    ),
-
-    # 3) Submitting answers
-    path(
-        'student/submit-exam/<int:assessment_id>/',
-        submit_exam,
-        name='submit_exam'
-    ),
-
-    # 4) Viewing past results
-    path('student/results/', student_results, name='student_results'),
-
-    path('no-permission/', no_permission, name='no_permission'),
+    path('administrator/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path("new-databank/", views.new_databank_view, name="new_databank"),
+    path('randomize/paper/<int:paper_pk>/', views.randomize_paper_structure_view, name='randomize_paper_structure'),
+    path('papers/<int:paper_pk>/save-blocks/', views.save_blocks, name='save-blocks'),
+    path('administrator/auto-fix-blocks/', views.auto_fix_blocks, name='auto_fix_blocks'),
+    path('administrator/review-paper/<int:paper_pk>/classify/', views.auto_classify_blocks, name='auto_classify_blocks'),
+    path("administrator/review-paper/<int:paper_pk>/", views.paper_as_is_view, name="review_paper"),
+    path("administrator/review-paper/<int:paper_pk>/save-blocks/", views.save_blocks, name="save_blocks"),
+    path("administrator/load-saved/<int:paper_pk>/", views.load_saved_paper_view, name="load_saved_paper"),
+    path("administrator/review-saved/", views.review_saved_selector, name="review_saved_selector"),
+    path("administrator/review-paper/", views.paper_as_is_view, name="upload_review_paper"),
+    path("administrator/review-paper/<int:paper_pk>/", views.paper_as_is_view, name="review_paper"),
+    path("administrator/review-paper/<int:paper_pk>/save-blocks/", views.save_blocks, name="save_blocks"),
+    path('randomized-papers/', views.load_randomized_papers, name='load_randomized_papers'),
+    path('administrator/randomize-paper/<int:paper_id>/', views.randomize_single_paper_view, name='randomize_paper'),
+    path('view-paper-as-word/<int:paper_id>/', views.view_paper_as_doc_layout, name='view_paper_as_word'),
+    path("randomize-paper/<int:paper_pk>/", views.randomize_paper_structure_view, name="randomize_paper_structure"),
+    path("administrator/beta-paper-tables/", views.beta_paper_tables_view, name="beta_paper_tables"),
+    path('administrator/beta-paper/', views.beta_paper_extractor, name='beta_paper'),
+    path("api/clean-questions/", views.clean_questions, name="clean_questions"),
+    path('administrator/save-extracted/', views.save_extracted_questions, name='save_extracted_questions'),
+    path('awaiting-activation/', views.default_page, name='default'),
+    path('assessor/dashboard/', views.assessor_dashboard, name='assessor_dashboard'),
+    path('assessor/assessment/<str:eisa_id>/', views.view_assessment, name='view_assessment'),
+    path('upload_assessment/', views.upload_assessment, name='upload_assessment'),
+    path('assessor-developer/assessment_archive/', views.assessment_archive, name='assessment_archive'),
+    path('reports/', views.assessor_reports, name='assessor_reports'),
+    path('generate-paper/', views.generate_tool_page, name='generate_tool_page'),
+    path('api/generate-paper/', views.generate_tool, name='generate_tool'),
+    path("submit-generated-paper/", views.submit_generated_paper, name="submit_generated_paper"),
+    path('add-question/', views.add_question, name='add_question'), #Add Paper is the new name forthcoming
+    path('add-case-study/', views.add_case_study, name='add_case_study'),
+    path("moderator/", views.moderator_developer_dashboard, name="moderator_developer"),
+    path("moderator/<str:eisa_id>/moderate/", views.moderate_assessment, name="moderate_assessment"),
+    path("moderator/<str:eisa_id>/feedback/add/", views.add_feedback, name="add_feedback"),
+    path( "moderator/checklist/<int:item_id>/toggle/", views.toggle_checklist_item,name="toggle_checklist_item"),
+    path( "moderator/checklist/stats/", views.checklist_stats,name="checklist_stats"),
+    path('qcto/dashboard/', views.qcto_dashboard, name='qcto_dashboard'),
+    path('etqa/dashboard/', views.etqa_dashboard, name='etqa_dashboard'),
+    path('qcto/<str:eisa_id>/moderate/', views.qcto_moderate_assessment, name='qcto_moderate_assessment'),
+    path('qcto/compliance/', views.qcto_compliance, name='qcto_compliance'),
+    path('qcto/review/', views.qcto_assessment_review, name='qcto_assessment_review'),
+    path('qcto/archive/', views.qcto_archive, name='qcto_archive'),
+    path('qcto/reports/', views.qcto_reports, name='qcto_reports'),
+    path('qcto/<str:eisa_id>/view/', views.qcto_view_assessment, name='qcto_view_assessment'),
+    path("qcto/view-latest/", views.qcto_latest_assessment_detail, name="qcto_latest_assessment_detail"),
+    path("administrator/databank/", views.databank_view, name='databank'),
+    path("administrator/dashboard/", views.admin_dashboard, name='admin_dashboard'),
+    path("administrator/assessment-centres/", views.assessment_centres_view, name='assessment_centres'),
+    path('administrator/assessment-centres/edit/<int:centre_id>/', views.edit_assessment_centre, name='edit_assessment_centre'),
+    path('administrator/assessment-centres/delete/<int:centre_id>/', views.delete_assessment_centre, name='delete_assessment_centre'),
+    path("administrator/user-management/", views.user_management, name='user_management'),
+    path('update-user-role/<int:user_id>/', views.update_user_role, name='update_user_role'),
+    path('update-user-qualification/<int:user_id>/',views.update_user_qualification, name='update_user_qualification'),
+    path('toggle-user-status/<int:user_id>/', views.toggle_user_status, name='toggle_user_status'),
+    path('administrator/qualifications/', views.qualification_management_view, name='manage_qualifications'),
+    path('etqa/toggle/<int:assessment_id>/', views.toggle_selection_by_etqa, name='toggle_selection_by_etqa'),
+    path('etqa/release/<int:assessment_id>/', views.release_assessment_to_students, name='release_assessment_to_students'),
+    path('etqa/assessment/', views.etqa_assessment_view, name='etqa_assessment_view'),
+    path('logout/', views.custom_logout, name='logout'),
+    path('', views.custom_login, name='custom_login'),
+    path("register/", views.register, name="register"),
+    path('assessment-tracker/', views.assessment_progress_tracker, name='assessment_progress_tracker'),
+    path('assessment-center/', views.assessment_center_view, name='assessment_center'),
+    path('submit-to-center/<int:batch_id>/', views.submit_to_center, name='submit_to_center'),
+    path('administrator/paper-pool/', views.paper_pool_view, name='paper_pool'),
+    path('administrator/randomize/<int:qualification_id>/', views.randomize_qualification_papers, name='randomize_qualification'),
+    path('student/',views.student_dashboard, name='student_dashboard'),
+    path('student/assessment/<int:assessment_id>/',views.student_assessment, name='student_assessment'),
+    path('student/submit-exam/<int:assessment_id>/',views.submit_exam,name='submit_exam'),
+    path('student/results/', views.student_results, name='student_results'),
+    path('no-permission/', views.no_permission, name='no_permission'),
     
 ]
-
-    
-
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

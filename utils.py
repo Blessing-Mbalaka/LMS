@@ -687,7 +687,7 @@ Your job is to classify the remaining untyped blocks using ONLY one of the follo
 - "rubric": General rules or formatting notes that apply to the exam, typically near the top of the paper.
 - "diagram": Describes a visual element without being a full figure block.
 
-🛑 DO NOT classify any non-question text as "question_header".
+ DO NOT classify any non-question text as "question_header".
 
 ---
 *Examples of proper classification:*

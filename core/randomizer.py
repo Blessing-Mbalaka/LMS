@@ -69,4 +69,4 @@ def randomize_paper_via_structure_json_debug(paper_id):
         json.dump(randomized, f, indent=2)
     print(f"📝 Randomized structure saved to: {output_path.resolve()}")
 
-    return new_paper #self expalanatory lol.
+    return new_paper 
