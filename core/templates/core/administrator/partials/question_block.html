@@ -1,54 +1,36 @@
 {# core/templates/core/administrator/partials/question_block.html #}
 {% load uuid_extras %}
 
-<div class="block mb-4 p-3 border rounded"
-     data-id="{% if q.id %}{{ q.id }}{% else %}{% generate_uuid %}{% endif %}"
+<div class="block card mb-3" 
+     data-id="{{ q.id }}" 
+     data-type="{{ q.type }}" 
      data-qn="{{ q.number }}"
-     data-type="{{ q.type }}"
-     data-marks="{{ q.marks|default:'' }}">
-
-  {# Editable text + delete button #}
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <textarea class="form-control block-text" rows="3">{{ q.text }}</textarea>
-    <div class="btn-group ms-2">
-      <button type="button" class="btn btn-sm btn-danger delete-block-btn">Delete</button>
+     data-marks="{{ q.marks }}">
+  
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div>
+      <span class="badge bg-secondary type-badge">{{ q.type }}</span>
+      {% if q.number %}<strong>Q{{ q.number }}</strong>{% endif %}
+      {% if q.marks %}<span class="badge bg-success ms-2">{{ q.marks }} marks</span>{% endif %}
+    </div>
+    <div class="btn-group btn-group-sm">
+      <button type="button" class="btn btn-outline-danger delete-block-btn">Delete</button>
     </div>
   </div>
-
-  {# Metadata: Question number + marks #}
-  <div class="d-flex justify-content-between mb-2">
-    <strong>Question {{ q.number }}</strong>
-    <div class="d-flex align-items-center gap-2">
-      <label for="marks-{{ q.id }}" class="fw-bold mb-0">Marks:</label>
-      <input type="number"
-             id="marks-{{ q.id }}"
-             class="form-control form-control-sm block-marks"
-             value="{{ q.marks|default:"0" }}"
-             min="0"
-             style="max-width: 100px;">
-    </div>
-  </div>
-
-  {# Render attached block content #}
-  {% if q.content %}
-    {% for block in q.content %}
-      {% if block.type == "question_text" %}
-        <p class="block-content">{{ block.text }}</p>
-
-      {% elif block.type == "case_study" %}
-        <div class="border p-2 bg-light mb-2 block-content">
-          <em>Case Study:</em><br>{{ block.text }}
-        </div>
-
-      {% elif block.type == "figure" %}
-        <div class="text-center mb-2 block-content">
-          <img src="{{ block.data_uri }}" class="img-fluid" alt="Figure">
-        </div>
-
-      {% elif block.type == "table" %}
-        <div class="table-responsive mb-2 block-content">
-          <table class="table table-bordered">
-            {% for row in block.rows %}
+  
+  <div class="card-body">
+    {% if q.text %}
+      <div class="mb-3">
+        <textarea class="form-control block-text" rows="3">{{ q.text }}</textarea>
+      </div>
+    {% endif %}
+    
+    <!-- Render table content properly -->
+    {% for item in q.content %}
+      {% if item.type == 'table' and item.rows %}
+        <div class="table-responsive mt-3 block-content">
+          <table class="table table-bordered table-sm">
+            {% for row in item.rows %}
               <tr>
                 {% for cell in row %}
                   <td>{{ cell }}</td>
@@ -58,8 +40,17 @@
           </table>
         </div>
       {% endif %}
+      
+      <!-- Render figure/image content -->
+      {% if item.type == 'figure' and item.images %}
+        <div class="mt-3 block-content">
+          {% for img in item.images %}
+            <img src="/media/exam_images/{{ img }}" class="img-fluid mb-2" alt="Question image">
+          {% endfor %}
+        </div>
+      {% endif %}
     {% endfor %}
-  {% endif %}
+  </div>
 
   {# Recursive rendering of children handled in parent #}
   {% if q.children %}

@@ -102,10 +102,7 @@
             <thead class="table-dark">
               <tr>
                 <th>Name</th>
-                <th>SAQA ID</th>
-                <th>Qualification Type</th>
-                <th>Description</th>
-                <th>Level</th>
+                <th>SAQA ID</th>    
               </tr>
             </thead>
             <tbody>
@@ -113,10 +110,6 @@
               <tr>
                 <td>{{ qualification.name }}</td>
                 <td>{{ qualification.saqa_id }}</td>
-                <td>{{ qualification.qualification_type }}</td>
-                <td>{{ qualification.code|default:"—" }}</td>
-                <td>{{ qualification.description|default:"—" }}</td>
-                <td>{{ qualification.level|default:"—" }}</td>
               </tr>
               {% empty %}
               <tr>
@@ -141,17 +134,30 @@
         <div class="modal-body">
           <form method="post" action="{% url 'manage_qualifications' %}">
             {% csrf_token %}
-            {% for field in form %}
-              <div class="mb-3">
-                <label class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <div class="text-danger small">
-                    {{ field.errors|striptags }}
-                  </div>
-                {% endif %}
-              </div>
-            {% endfor %}
+            <div class="mb-3">
+
+  <label class="form-label" for="id_name">Qualification Name</label>
+  {{ form.name }}
+  {% if form.name.errors %}
+    <div class="text-danger small">
+      {{ form.name.errors|striptags }}
+    </div>
+  {% endif %}
+</div>
+
+
+
+
+<div class="mb-3">
+  <label class="form-label" for="id_saqa_id">SAQA ID</label>
+  {{ form.saqa_id }}
+  {% if form.saqa_id.errors %}
+    <div class="text-danger small">
+      {{ form.saqa_id.errors|striptags }}
+    </div>
+  {% endif %}
+</div>
+
             <button type="submit" class="btn btn-success">Save Qualification</button>
           </form>
         </div>
@@ -160,30 +166,30 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"> </script>
- <script>
+<script>
   document.addEventListener("DOMContentLoaded", () => {
-    const typeField = document.querySelector("select[name='qualification_type']");
-    const saqaField = document.querySelector("input[name='saqa_id']");
+    const nameField = document.getElementById("qualificationName");
+    const saqaField = document.getElementById("saqaId");
 
     const saqaMap = {
-      "Maintenance Planner": "101874",
-      "Quality Controller": "117309",
-      "Chemical Plant": "102156",
-      "default": "000000"
+      "Maintenance Planner 1A": "101870",
+      "Maintenance Planner 1B": "101871",
+      "Maintenance Planner 1C": "101872",
+      "Quality Controller 1A": "117307",
+      "Quality Controller 1B": "117308",
+      "Chemical Plant 1A": "102150",
+      "Chemical Plant 1B": "102151",
+      "Chemical Plant 1C": "102152"
     };
 
-    if (typeField && saqaField) {
-      typeField.addEventListener("change", function () {
+    if (nameField && saqaField) {
+      nameField.addEventListener("change", function () {
         const selected = this.value;
-        if (saqaMap[selected]) {
-          saqaField.value = saqaMap[selected];
-        } else {
-          saqaField.value = "";
-        }
+        saqaField.value = saqaMap[selected] || "";
       });
 
-      // Apply default on page load
-      const initial = typeField.value;
+      // Set default SAQA ID on load
+      const initial = nameField.value;
       if (saqaMap[initial]) {
         saqaField.value = saqaMap[initial];
       }
@@ -191,6 +197,3 @@
   });
 </script>
 
-
-</body>
-</html>

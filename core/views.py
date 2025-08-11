@@ -4,14 +4,13 @@ from django.contrib import messages
 from rest_framework.parsers import MultiPartParser, JSONParser
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
-from .models import QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion, Batch, AssessmentCentre
+from .models import Assessment, GeneratedQuestion, Batch, AssessmentCentre, ExamNode
 import json
 import random
 from django.db import models
 from django.urls import reverse
 import time
 import re
-from .models import MCQOption
 from .forms import EmailRegistrationForm
 import uuid
 import csv
@@ -36,21 +35,17 @@ from django.contrib.admin.views.decorators import staff_member_required
 import random, string
 from django.contrib.auth.decorators import login_required
 from .models import Qualification, CustomUser, Paper
-
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import QuestionBankEntry, Assessment
 import random
 from .forms import QualificationForm
 from django.db.models import Sum
-from utils import populate_examnodes_from_structure_json, save_parent_child_tables_from_structure_json
-
+from utils import populate_examnodes_from_structure_json, save_nodes_to_db
 from .forms import CustomUserForm
 from django.contrib import admin
 from django.conf import settings
 from django.contrib.auth.admin import UserAdmin
-from .models import AssessmentCentre
 from .forms import AssessmentCentreForm
 from .models import (
     QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion,
@@ -58,10 +53,10 @@ from .models import (
 )
 from .forms import AssessmentCentreForm, CustomUserForm
 from .question_bank import QUESTION_BANK
-from utils import extract_text
 from google import genai
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from robustexamextractor import save_robust_extraction_to_db
 
 
 # Initialize AI client
@@ -148,7 +143,7 @@ from django.contrib.auth import get_user_model
 
 from django.contrib.auth.decorators import login_required
 
-from .models import Qualification
+
 
 CustomUser = get_user_model()  
 
@@ -313,109 +308,478 @@ from .models     import (
     CustomUser
 )
 from utils      import (
-    extract_full_docx_structure,
-    
-    auto_classify_blocks_with_gemini,
-    populate_examnodes_from_structure_json,
-    save_parent_child_tables_from_structure_json,
-)
+    extract_full_docx_structure)
 
+
+
+#Helper Function
+# --- robust helpers (safe defaults) ---------------------------------
+MARK_RE = re.compile(r'(\d+)\s*(?:mark|marks)\b', re.I)
+
+def extract_marks_from_text(text: str) -> int:
+    if not text:
+        return 0
+    m = MARK_RE.findall(text)
+    if m:
+        # take the last number in the line like "(10 Marks)"
+        try:
+            return int(m[-1])
+        except ValueError:
+            return 0
+    # bare numbers at the end e.g. "... [5]"
+    tail = re.findall(r'(\d+)\s*$', text)
+    return int(tail[-1]) if tail else 0
+
+def extract_node_text_from_robust(node: dict) -> str:
+    # prefer explicit text field
+    if isinstance(node.get('text'), str):
+        return node['text']
+    # try content array
+    parts = []
+    for item in node.get('content', []):
+        if isinstance(item, dict):
+            if 'text' in item and isinstance(item['text'], str):
+                parts.append(item['text'])
+            # table text flatten (header + cells)
+            if item.get('type') == 'table':
+                t = item.get('table', {})
+                for row in t.get('rows', []):
+                    for cell in row.get('cells', []):
+                        ct = cell.get('text', '')
+                        if ct:
+                            parts.append(ct)
+    return ' '.join(p.strip() for p in parts if p)
+
+def extract_marks_from_robust_data(node: dict) -> int:
+    # explicit marks first
+    val = node.get('marks')
+    if isinstance(val, int):
+        return val
+    if isinstance(val, str):
+        nums = re.findall(r'\d+', val)
+        return int(nums[0]) if nums else 0
+    # fall back to text/content
+    return extract_marks_from_text(extract_node_text_from_robust(node))
+
+def handle_robust_image_content(node: dict, paper_obj) -> list:
+    """
+    Placeholder: return lightweight descriptors only.
+    If you later persist files, do it here and return stored paths.
+    """
+    meta = node.get('image') or {}
+    # Avoid dumping heavy/binary data into JSONField
+    cleaned = {
+        k: v for k, v in meta.items()
+        if isinstance(v, (str, int, float, bool)) or v is None
+    }
+    return [cleaned] if cleaned else []
+# --------------------------------------------------------------------
+
+def save_robust_manifest_to_db(nodes, paper_obj):
+    """Convert robust extractor manifest nodes to ExamNode rows (defensive)."""
+    print(f"💾 Converting {len(nodes)} robust nodes to ExamNodes...")
+    TYPE_MAP = {
+        'figure': 'image',
+        'question_header': 'question',
+        'paragraph': 'instruction',  # adjust if your model supports 'paragraph'
+    }
+    ALLOWED = {'question', 'table', 'image', 'case_study', 'instruction'}
+
+    from django.db import transaction
+    errors = []
+
+    try:
+        with transaction.atomic():
+            # clear existing nodes for this paper
+            ExamNode.objects.filter(paper=paper_obj).delete()
+
+            node_map = {}     # number -> ExamNode (parents only if numbered)
+            created_objs = [] # keep for optional auditing
+            for order, node_data in enumerate(nodes):
+                try:
+                    # normalize type
+                    raw_type = (node_data.get('type') or 'instruction').strip().lower()
+                    node_type = TYPE_MAP.get(raw_type, raw_type)
+                    if node_type not in ALLOWED:
+                        # fallback to closest safe bucket
+                        node_type = 'instruction' if node_type not in ('table', 'image') else node_type
+
+                    # extract text and marks
+                    text_val = extract_node_text_from_robust(node_data) or ''
+                    marks_val = extract_marks_from_robust_data(node_data)
+                    if marks_val == 0 and node_type == 'question':
+                        marks_val = find_marks_in_following_tables(nodes, order)
+
+                    # keep content JSON-safe and lightweight
+                    content_data = {
+                        'raw_type': raw_type,
+                        'extracted_text': text_val[:2000],  # avoid megabytes
+                        'extracted_marks': marks_val,
+                    }
+                    if node_type in ['image']:
+                        image_paths = []
+                        for item in node_data.get('content', []):
+                            if isinstance(item, dict) and item.get('type') == 'figure':
+                                if 'images' in item:
+                                    image_paths.extend(item.get('images', []))
+                        content_data['images'] = image_paths
+
+                    if node_type == 'table' or 'table' in (node_data.get('type') or '').lower():
+                        for item in node_data.get('content', []):
+                            if isinstance(item, dict) and item.get('type') == 'table':
+                                content_data['table_data'] = item.get('rows', [])
+
+                    number_str = str(node_data.get('number') or '')
+
+                    obj = ExamNode.objects.create(
+                        id=uuid.uuid4().hex,
+                        paper=paper_obj,
+                        node_type=node_type,          # 👉 if your field is block_type, rename here
+                        number=number_str[:64],       # keep within DB limits
+                        marks= int(marks_val or 0),
+                        text=  text_val,
+                        content=content_data,
+                        order_index=order
+                    )
+                    created_objs.append(obj)
+                    if obj.number:
+                        node_map[obj.number] = obj
+
+                    if node_type == 'question':
+                        print(f"📝 Q{obj.number or '?'} ⇒ {obj.marks} marks")
+
+                except Exception as e:
+                    errors.append(f"row {order}: {e.__class__.__name__}: {e}")
+                    # keep going to save as much as possible
+                    continue
+
+            # second pass: link parents by dotted number
+            for number, node in node_map.items():
+                if '.' in number:
+                    parent_number = '.'.join(number.split('.')[:-1])
+                    parent = node_map.get(parent_number)
+                    if parent:
+                        node.parent = parent
+                        node.save(update_fields=['parent'])
+
+        if errors:
+            # surface the first few errors in logs so we can fix quickly
+            print("⚠️ Some nodes failed to save:")
+            for line in errors[:10]:
+                print("   ", line)
+            return False  # keep your banner behavior
+        print(f"✅ Converted {len(created_objs)} nodes")
+        return True
+
+    except Exception as e:
+        print(f"❌ Robust manifest conversion failed: {e}")
+        print(traceback.format_exc())
+        return False
+
+def find_marks_in_following_tables(nodes, current_index):
+    """Algorithm to find marks in following table nodes - handles your specific case"""
+    print(f"🔍 Looking for marks in tables following node {current_index}")
+    
+    # Look at the next few nodes for tables
+    for i in range(current_index + 1, min(current_index + 5, len(nodes))):
+        next_node = nodes[i]
+        
+        # Stop if we hit another question (marks belong to previous question)
+        if next_node.get('type') == 'question':
+            break
+            
+        # Check if this is a table with marks
+        if next_node.get('type') == 'table':
+            table_marks = extract_marks_from_table_content(next_node)
+            if table_marks > 0:
+                print(f"✅ Found {table_marks} marks in following table at index {i}")
+                return table_marks
+    
+    print(f"❌ No marks found in following tables")
+    return 0
+
+def extract_marks_from_table_content(node_data):
+    """Extract marks from table content in node_data"""
+    try:
+        # Look through content array for tables
+        for content_item in node_data.get('content', []):
+            if content_item.get('type') == 'table':
+                marks = extract_marks_from_table(content_item)
+                if marks > 0:
+                    return marks
+        
+        # Fallback: look for marks in the raw text
+        text = extract_node_text_from_robust(node_data)
+        return extract_marks_from_text(text)
+        
+    except Exception as e:
+        print(f"⚠️ Error extracting marks from table content: {e}")
+        return 0
+
+# Enhanced marks extraction with better table parsing
+def extract_marks_from_table(table_item):
+    """Extract marks from table structure - enhanced for your specific format"""
+    try:
+        table_data = table_item.get('table', {})
+        rows = table_data.get('rows', [])
+        
+        print(f"🔍 Analyzing table with {len(rows)} rows")
+        
+        # Strategy 1: Look for "Total" row
+        for row_idx, row in enumerate(rows):
+            cells = row.get('cells', [])
+            
+            if len(cells) > 0:
+                first_cell_text = cells[0].get('text', '').strip().lower()
+                
+                if 'total' in first_cell_text:
+                    print(f"📊 Found total row at index {row_idx}")
+                    
+                    # Look for number in any cell of this row
+                    for cell_idx, cell in enumerate(cells):
+                        cell_text = cell.get('text', '').strip()
+                        print(f"   Cell {cell_idx}: '{cell_text}'")
+                        
+                        # Direct number
+                        if cell_text.isdigit():
+                            marks = int(cell_text)
+                            print(f"✅ Found marks: {marks}")
+                            return marks
+                        
+                        # Extract numbers from text
+                        numbers = re.findall(r'\d+', cell_text)
+                        if numbers:
+                            marks = int(numbers[-1])
+                            print(f"✅ Extracted marks from '{cell_text}': {marks}")
+                            return marks
+        
+        # Strategy 2: Look for "Marks" column and sum individual marks
+        marks_column_index = None
+        
+        # Find the marks column
+        for row_idx, row in enumerate(rows):
+            cells = row.get('cells', [])
+            for col_idx, cell in enumerate(cells):
+                cell_text = cell.get('text', '').strip().lower()
+                if 'marks' in cell_text or 'mark' in cell_text:
+                    marks_column_index = col_idx
+                    print(f"📊 Found marks column at index {col_idx}")
+                    break
+            if marks_column_index is not None:
+                break
+        
+        # Sum marks from the marks column
+        if marks_column_index is not None:
+            total_marks = 0
+            for row_idx, row in enumerate(rows[1:], 1):  # Skip header
+                cells = row.get('cells', [])
+                if len(cells) > marks_column_index:
+                    cell_text = cells[marks_column_index].get('text', '').strip()
+                    
+                    # Skip the "Total" row itself
+                    first_cell = cells[0].get('text', '').strip().lower()
+                    if 'total' in first_cell:
+                        continue
+                    
+                    if cell_text.isdigit():
+                        marks_value = int(cell_text)
+                        total_marks += marks_value
+                        print(f"   Row {row_idx}: +{marks_value} marks")
+            
+            if total_marks > 0:
+                print(f"✅ Calculated total marks: {total_marks}")
+                return total_marks
+        
+        # Strategy 3: Look for patterns in all cell text
+        all_text = []
+        for row in rows:
+            for cell in row.get('cells', []):
+                all_text.append(cell.get('text', ''))
+        
+        combined_text = ' '.join(all_text)
+        text_marks = extract_marks_from_text(combined_text)
+        if text_marks > 0:
+            print(f"✅ Found marks in combined text: {text_marks}")
+            return text_marks
+                
+    except Exception as e:
+        print(f"⚠️ Error extracting marks from table: {e}")
+        
+    return 0
+
+# Enhanced admin dashboard calculation
+def calculate_total_marks_from_manifest(nodes):
+    """Enhanced marks calculation that looks at following tables"""
+    total_marks = 0
+    
+    for i, node in enumerate(nodes):
+        if node.get('type') == 'question':
+            # Try direct extraction first
+            extracted_marks = extract_marks_from_robust_data(node)
+            
+            # If no marks found, look in following tables
+            if extracted_marks == 0:
+                extracted_marks = find_marks_in_following_tables(nodes, i)
+            
+            total_marks += extracted_marks
+            
+            if extracted_marks > 0:
+                question_num = node.get('number', 'Unknown')
+                print(f"📝 Q{question_num}: {extracted_marks} marks")
+    
+    print(f"💯 Total calculated marks: {total_marks}")
+    return total_marks
+#===================================================================================
 
 @login_required
 def admin_dashboard(request):
     if request.method == "POST":
         print("🟢 [admin_dashboard] POST received, beginning upload flow")
 
-        # match your template's <select name="qualification_id">
-        q_id      = request.POST.get("qualification_id")
-        paper_num = request.POST.get("paper_number", "").strip()
-        saqa      = request.POST.get("saqa_id", "").strip()
-        file_obj  = request.FILES.get("file_input")
-        memo_obj  = request.FILES.get("memo_file")
+        q_id = request.POST.get("qualification_id")
+        saqa = request.POST.get("saqa_id", "").strip()
+        file_obj = request.FILES.get("file_input")
+        memo_obj = request.FILES.get("memo_file")
 
-        # debug prints
+        # Debug logging
         print("▶️ qualification_id:", q_id)
-        print("▶️ paper_number:", repr(paper_num))
         print("▶️ file_input present:", bool(file_obj))
 
-        if not q_id or not paper_num or not file_obj:
+        if not q_id or not file_obj or not memo_obj:
             print("🔴 [admin_dashboard] Missing required fields")
             messages.error(request, "Please fill all required fields.")
             return redirect("admin_dashboard")
 
-        # 1️⃣ Lookup qualification
+        # Lookup qualification
         qual = get_object_or_404(Qualification, pk=q_id)
         print(f"🟢 [admin_dashboard] Qualification selected: {qual}")
 
-        # 2️⃣ Create or fetch Paper (no 'status' here)
+        # Auto-generate paper name
+        paper_name = f"{qual.name} - Paper"
         paper_obj, created = Paper.objects.get_or_create(
-            name=paper_num,
+            name=paper_name,
             qualification=qual,
             defaults={"total_marks": 0}
         )
         print(f"🟢 [admin_dashboard] Paper {'created' if created else 'fetched'}: {paper_obj}")
 
-        # 3️⃣ Create the Assessment record
+        # Create Assessment
         assessment = Assessment.objects.create(
-            eisa_id       = f"EISA-{uuid4().hex[:8].upper()}",
-            qualification = qual,
-            paper         = paper_num,
-            saqa_id       = saqa,
-            file          = file_obj,
-            memo          = memo_obj,
-            created_by    = request.user,
-            paper_link    = paper_obj,
-            status        = "uploaded"
+            eisa_id=f"EISA-{uuid4().hex[:8].upper()}",
+            qualification=qual,
+            paper=paper_name,
+            saqa_id=saqa,
+            file=file_obj,
+            memo=memo_obj,
+            created_by=request.user,
+            paper_link=paper_obj,
+            status="uploaded"
         )
         print(f"🟢 [admin_dashboard] Assessment created: {assessment.eisa_id}")
 
-        # 4️⃣ If it's a .docx, run extraction + saves
+        # ROBUST EXTRACTOR - Enhanced error handling
         if file_obj.name.lower().endswith(".docx"):
             try:
-                print("🟢 [admin_dashboard] Starting extraction…")
-                blocks = extract_full_docx_structure(file_obj)
-                print(f"🟢 [admin_dashboard] extract_full_docx_structure → {len(blocks)} blocks")
+                print("🟢 [admin_dashboard] Starting ROBUST extraction...")
+                
+                # Save uploaded file temporarily
+                import tempfile
+                temp_path = None
+                try:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp:
+                        for chunk in file_obj.chunks():
+                            tmp.write(chunk)
+                        temp_path = tmp.name
 
-                print("🟢 [admin_dashboard] Ensuring IDs on blocks…")
-                ensure_ids(blocks)
-                print("🟢 [admin_dashboard] IDs ensured")
+                    # Use robust extractor
+                    from robustexamextractor import extract_docx
+                    
 
-                print("🟢 [admin_dashboard] Running AI classification…")
-                blocks = auto_classify_blocks_with_gemini(blocks)
-                types = [b.get("type") for b in blocks]
-                print(f"🟢 [admin_dashboard] post-classification types: {types}")
+                    manifest = extract_docx(
+                        temp_path,
+                        out_dir=None,      # Auto-generate output directory
+                        use_gemini=False,  # Disable since API having issues
+                        use_gemma=False    # Disable since memory issues
+                    )
+                    
+                finally:
+                    # Ensure cleanup even if extraction fails
+                    if temp_path and os.path.exists(temp_path):
+                        os.unlink(temp_path)
+                
+                # Validate extraction results
+                if not manifest:
+                    print("❌ [admin_dashboard] Robust extraction returned None")
+                    messages.error(request, "Document extraction failed - no data returned")
+                    return redirect("admin_dashboard")
+                    
+                if not manifest.get('nodes'):
+                    print("❌ [admin_dashboard] Robust extraction returned no nodes")
+                    messages.error(request, "Document extraction failed - no content found")
+                    return redirect("admin_dashboard")
 
-                # persist structure & calculate total_marks only on questions
-                paper_obj.structure_json = blocks
-                paper_obj.total_marks = sum(
-                    int(b.get("marks") or 0)
-                    for b in blocks
-                    if b.get("type") == "question"
-                )
+                # Log extraction success
+                counts = manifest.get('counts', {})
+                print(f"🟢 [admin_dashboard] ROBUST EXTRACTOR SUCCESS:")
+                print(f"   📝 {counts.get('questions', 0)} questions")
+                print(f"   📊 {counts.get('tables', 0)} tables") 
+                print(f"   🖼️ {counts.get('figures', 0)} figures")
+                print(f"   📄 {len(manifest['nodes'])} total nodes")
+
+                # Save manifest to paper
+                paper_obj.structure_json = manifest
+                
+                # Calculate total marks from manifest - enhanced calculation
+                total_marks = 0
+                for node in manifest['nodes']:
+                    if node.get('type') == 'question':
+                        marks_value = node.get('marks', 0)
+                        try:
+                            if isinstance(marks_value, str):
+                                # Extract numeric from strings like "10 Marks"
+                                import re
+                                numbers = re.findall(r'\d+', marks_value)
+                                marks_value = int(numbers[0]) if numbers else 0
+                            total_marks += int(marks_value or 0)
+                        except (ValueError, TypeError):
+                            continue
+                
+                paper_obj.total_marks = total_marks
                 paper_obj.save()
-                print(f"🟢 [admin_dashboard] Saved structure_json; total_marks={paper_obj.total_marks}")
 
-                print("🟢 [admin_dashboard] Populating ExamNode hierarchy…")
-                populate_examnodes_from_structure_json(paper_obj)
-                print("🟢 [admin_dashboard] ExamNode population complete")
-
-                print("🟢 [admin_dashboard] Saving parent/child relational tables…")
-                save_parent_child_tables_from_structure_json(paper_obj, blocks)
-                print("🟢 [admin_dashboard] Parent/child save complete")
+                # Convert robust extractor nodes to ExamNodes
+                conversion_success = save_robust_manifest_to_db(manifest['nodes'], paper_obj)
+                
+                if conversion_success:
+                    print("🟢 [admin_dashboard] Robust extraction and storage complete.")
+                    
+                    # Enhanced success message
+                    messages.success(request, 
+                        f"🎉 ROBUST EXTRACTION SUCCESS!\n"
+                        f"📝 {counts.get('questions', 0)} questions extracted\n"
+                        f"📊 {counts.get('tables', 0)} tables preserved\n"
+                        f"🖼️ {counts.get('figures', 0)} figures captured\n"
+                        f"💯 {total_marks} total marks calculated"
+                    )
+                else:
+                    messages.warning(request, "Extraction succeeded but database save had issues")
 
             except Exception as e:
-                print(f"🔴 [admin_dashboard] Extraction pipeline error: {e}")
-                messages.error(request, f"❌ Extraction failed: {e}")
+                print(f"🔴 [admin_dashboard] Robust extraction error: {e}")
+                import traceback
+                print(traceback.format_exc())
+                messages.error(request, f"❌ Robust extraction failed: {str(e)}")
+        else:
+            messages.error(request, "Please upload a .docx file")
 
-        messages.success(request, "✅ Assessment uploaded, extracted, and saved successfully.")
-        print("🟢 [admin_dashboard] Finished POST flow, redirecting")
         return redirect("admin_dashboard")
 
-    # — GET: render dashboard
-    tools       = Assessment.objects.select_related("qualification", "created_by") \
-                                     .order_by("-created_at")
+    # GET: render dashboard
+    tools = Assessment.objects.select_related("qualification", "created_by")\
+                             .order_by("-created_at")
     total_users = CustomUser.objects.filter(is_superuser=False).count()
-    quals       = Qualification.objects.all()
+    quals = Qualification.objects.all()
+    
     return render(request, "core/administrator/admin_dashboard.html", {
         "tools": tools,
         "total_users": total_users,
@@ -431,7 +795,9 @@ def qualification_management_view(request):
 
     if request.method == 'POST':
         form = QualificationForm(request.POST)
+        print (request.POST)
         if form.is_valid():
+            print ("form is saving")
             form.save()
             messages.success(request, "Qualification added successfully.")
             return redirect('manage_qualifications')
@@ -447,51 +813,21 @@ def qualification_management_view(request):
 #0) Databank View 2025/06/10 made to handle logic for the databank for the question generation.
 
 def databank_view(request):
-    if request.method == "POST":
-        qt = request.POST["question_type"]
-        qualification_code = request.POST["qualification"]
-        qualification = Qualification.objects.get(code=qualification_code)
-
-        q = QuestionBankEntry.objects.create(
-            qualification=qualification,
-            question_type=qt,
-            text=request.POST["text"],
-            marks=request.POST["marks"],
-            case_study=(
-                CaseStudy.objects.get(pk=request.POST["case_study"])
-                if qt == "case_study" else None
-            )
-        )
-
-        if qt == "mcq":
-            for i in range(1, 5):
-                txt = request.POST.get(f"opt_text_{i}")
-                corr = request.POST.get(f"opt_correct_{i}") == "on"
-                if txt:
-                    q.options.create(text=txt, is_correct=corr)
-
-        return redirect("databank")
-
-    # GET request
-    entries = QuestionBankEntry.objects.select_related("case_study", "qualification").prefetch_related("options").all()
-    databank = defaultdict(list)
-    for e in entries:
-        databank[e.qualification].append(e)
-
-    qualification_codes = Qualification.objects.values_list("code", flat=True)
+    # Get questions from ExamNode
+    entries = ExamNode.objects.filter(
+        node_type='question'
+    ).select_related(
+        'paper__qualification'
+    ).order_by('-created_at')
 
     return render(request, "core/administrator/databank.html", {
-        "databank": dict(databank),
-        "qualifications": sorted(Qualification.objects.all(), key=lambda q: q.name),
-        "qualification_codes": qualification_codes,
-        "case_studies": CaseStudy.objects.all(),
-        "question_bank_entries": entries,
+        "entries": entries,
+        "qualifications": Qualification.objects.all(),
     })
 
 # -------------------------------------------
 # 1) Add a new question to the Question Bank
-# -------------------------------------------
-
+# ---------------------------------------
 
 @csrf_exempt
 def add_question(request):
@@ -640,7 +976,7 @@ def generate_tool_page(request):
             raw_cs_id = request.POST.get("case_study_id", "").strip()
             cs_obj = CaseStudy.objects.filter(id=int(raw_cs_id)).first() if raw_cs_id.isdigit() else None
 
-            qualification = Qualification.objects.filter(code=qual).first()
+            qualification = Qualification.objects.filter(id=qual).first()
             if not qualification:
                 context.update({
                     "error": f"Selected qualification '{qual}' does not exist.",
@@ -690,13 +1026,12 @@ from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from core.models import Assessment, Qualification, Paper
-from utils import (
-    extract_full_docx_structure,
-    save_nodes_to_db,
-)
+from utils import (extract_full_docx_structure, ensure_ids, auto_classify_blocks_with_gemini)
 import uuid
+
 @require_http_methods(["GET", "POST"])
 def upload_assessment(request):
+    """Enhanced upload using robust extractor"""
     qualifications = Qualification.objects.all()
     submissions = Assessment.objects.all().order_by("-created_at")
 
@@ -707,53 +1042,74 @@ def upload_assessment(request):
 
         paper_number = request.POST["paper_number"].strip()
         saqa = request.POST["saqa_id"].strip()
-        file = request.FILES.get("file_input")
+        file = request.FILES.get("file_input") 
         memo = request.FILES.get("memo_file")
         comment = request.POST.get("comment_box", "").strip()
         forward = request.POST.get("forward_to_moderator") == "on"
 
-        paper_obj, _ = Paper.objects.get_or_create(
-            name=paper_number,
-            qualification=qualification_obj,
-            defaults={"total_marks": 0}
-        )
-
-        assessment_obj = Assessment.objects.create(
-            eisa_id=eisa_id,
-            qualification=qualification_obj,
-            paper=paper_number,
-            saqa_id=saqa,
-            file=file,
-            memo=memo,
-            comment=comment,
-            forward_to_moderator=forward,
-            created_by=request.user,
-            paper_link=paper_obj,
-            status="Submitted to Moderator" if forward else "Submitted to ETQA",
-
-        )
-
         if file and file.name.endswith(".docx"):
             try:
-               blocks = extract_full_docx_structure(file)
-               ensure_ids(blocks)
-               paper_obj.structure_json = blocks
-               paper_obj.save()
+                print("🚀 Using ROBUST EXTRACTOR with database integration...")
+                
+                # Use the robust extractor function - ONE CALL DOES EVERYTHING!
+                paper_obj = save_robust_extraction_to_db(
+                    docx_file=file,
+                    paper_name=paper_number,
+                    qualification=qualification_obj,
+                    user=request.user,
+                    use_gemini=False,  # Disable due to API issues
+                    use_gemma=False    # Disable due to memory issues
+                )
+                
+                if paper_obj:
+                    # Create assessment record
+                    assessment_obj = Assessment.objects.create(
+                        eisa_id=eisa_id,
+                        qualification=qualification_obj, 
+                        paper=paper_number,
+                        saqa_id=saqa,
+                        file=file,
+                        memo=memo,
+                        comment=comment,
+                        forward_to_moderator=forward,
+                        created_by=request.user,
+                        paper_link=paper_obj,
+                        status="Submitted to Moderator" if forward else "Submitted to ETQA"
+                    )
 
+                    # Count what was extracted
+                    nodes = ExamNode.objects.filter(paper=paper_obj)
+                    questions = nodes.filter(node_type='question').count()
+                    tables = nodes.filter(node_type='table').count()
+                    images = nodes.filter(node_type='image').count();
+
+                    messages.success(request, 
+                        f"🎉 ROBUST EXTRACTION SUCCESS!\n"
+                        f"📝 {questions} questions extracted\n"
+                        f"📊 {tables} tables preserved\n" 
+                        f"🖼️ {images} images captured\n"
+                        f"💯 {paper_obj.total_marks} total marks calculated"
+                    )
+                    
+                    return redirect("load_saved_paper", paper_obj.pk)
+                else:
+                    messages.error(request, "❌ Robust extraction failed - please try again")
+                    
             except Exception as e:
-                messages.error(request, f"Error processing paper: {e}")
+                print(f"❌ Robust extraction error: {str(e)}")
+                import traceback
+                print(traceback.format_exc())
+                messages.error(request, f"Extraction failed: {str(e)}")
+                
+        else:
+            messages.error(request, "Please upload a .docx file")
 
-        messages.success(request, "Assessment uploaded and paper extracted.")
-        return redirect("load_saved_paper", paper_obj.pk)
+        return redirect("upload_assessment")
 
     return render(request, "core/assessor-developer/upload_assessment.html", {
         "submissions": submissions,
         "qualifications": qualifications,
     })
-
-
-
-
 # ---------------------------------------
 # 4) DRF endpoint: returns JSON (for AJAX)
 # ---------------------------------------
@@ -894,15 +1250,7 @@ def generate_tool(request):
         }, status=500)
 
 
-# -----------------------------------------
-# 5) Upload an existing assessment (PDF/Memo)
-# -----------------------------------------
 
-
-
-# ---------------------------
-# 6) Assessor Reports (chart)
-# ---------------------------
 def assessor_reports(request):
     data = [
         { "qualification": "Maintenance Planner", "toolsGenerated": 10, "toolsSubmitted": 8,  "questionsAdded": 5 },
@@ -1332,7 +1680,7 @@ def register(request):
             # Build user but do not log in yet
             user = form.save(commit=False)
             user.role = 'default'               # Assign default role
-            user.qualification = Qualification.objects.get(code='default')
+            user.qualification = Qualification.objects.get(id='default')
             user.is_active = True
             user.is_staff = False               # Default users are not staff
             user.save()
@@ -1411,57 +1759,40 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def etqa_dashboard(request):
-    centers         = AssessmentCentre.objects.all()
-    qualifications  = Qualification.objects.all()
+    centers = AssessmentCentre.objects.all()
+    qualifications = Qualification.objects.all()
+    
+    
+    # Get all assessments submitted to ETQA
     assessments_for_etqa = Assessment.objects.filter(status="Submitted to ETQA")
 
-    # 1) Figure out which qualification we're working with
-    selected_qualification = (
-        request.GET.get('qualification_id')
-        or request.POST.get('qualification')
-        or ""
-    )
-     
-    
+    # Get selected qualification (if any)
+    selected_qualification = request.GET.get('qualification_id') or request.POST.get('qualification')
 
-   
-
-    approved_assessments = []
+    # Filter assessments by qualification if one is selected
+    approved_assessments = Assessment.objects.filter(status="Submitted to ETQA")
     if selected_qualification:
-        approved_assessments = Assessment.objects.filter(
-            qualification_id=selected_qualification,
-            status="Submitted to ETQA",
-            is_selected_by_etqa=True
-    )    
-
+        approved_assessments = approved_assessments.filter(qualification_id=selected_qualification)
+    
     created_batch = None
-
     if request.method == 'POST':
-        # 3) Simple presence check
-        missing = [f for f in ('center','qualification','assessment','date')
-                   if f not in request.POST]
-        if missing:
-            return render(request, 'core/etqa/etqa_dashboard.html', {
-                'centers': centers,
-                'qualifications': qualifications,
-                'selected_qualification': selected_qualification,
-                'approved_assessments': approved_assessments,
-                'assessments_for_etqa': assessments_for_etqa,
-                'error': f'Missing: {missing[0]}'
-            })
+        # Get selected assessments
+        selected_ids = request.POST.getlist('assessment_ids')
+        selected_assessments = Assessment.objects.filter(id__in=selected_ids)
+        
+        if not selected_assessments:
+            messages.error(request, "Please select at least one assessment")
+            return redirect('etqa_dashboard')
+            
+        # Process selected assessments
+        for assessment in selected_assessments:
+            assessment.status = "Approved by ETQA"
+            assessment.save()
+            
+        messages.success(request, f"Approved {len(selected_assessments)} assessments")
+        return redirect('etqa_dashboard')
 
-        # 4) Create the batch
-        batch = Batch.objects.create(
-            center_id           = request.POST['center'],
-            qualification_id    = request.POST['qualification'],
-            assessment_id       = request.POST['assessment'],
-            assessment_date     = request.POST['date'],
-            # number_of_learners  = request.POST['number_of_learners'],
-        )
-        created_batch = batch
-        # Note: no redirect here; we simply fall through and re-render
-
-    return render(request, 'core/etqa/etqa_dashboard.html', {
+    return render(request, "core/etqa/etqa_dashboard.html", {
         'centers': centers,
         'qualifications': qualifications,
         'selected_qualification': selected_qualification,
@@ -1470,917 +1801,213 @@ def etqa_dashboard(request):
         'created_batch': created_batch,
     })
 
-@login_required
-def release_assessment_to_students(request, assessment_id):
-    if request.method == 'POST':
-        assessment = get_object_or_404(Assessment, id=assessment_id)
-        if assessment.status == "Submitted to ETQA":
-            assessment.status = "Released to students"
-            assessment.save()
-    return redirect('assessment_center')
+@login_required 
+def review_saved_selector(request):
+    """View to select a saved paper for review"""
+    
+    filter_type = request.GET.get("type", "")
+    
+    # Get papers query
+    all_papers = Paper.objects.order_by("-created_at")
+    
+    # Filter papers
+    original_papers = all_papers.filter(is_randomized=False)
+    randomized_papers = all_papers.filter(is_randomized=True)
+    
+    # Get qualifications for filtering
+    qualifications = Qualification.objects.all()
 
+    if request.method == "POST":
+        paper_id = request.POST.get("paper_id")
+        if paper_id:
+            return redirect("load_saved_paper", paper_pk=paper_id)
 
-  
-
-@login_required
-def toggle_selection_by_etqa(request, assessment_id):
-    assessment = get_object_or_404(Assessment, id=assessment_id)
-    assessment.is_selected_by_etqa = not assessment.is_selected_by_etqa
-    assessment.save()
-    return redirect('etqa_assessment_view')
-
-@login_required
-def etqa_assessment_view(request):
-    submitted_assessments = Assessment.objects.filter(status="Submitted to ETQA")
-    return render(request, 'core/etqa/etqa_assessment.html', {
-        'assessments': submitted_assessments
+    return render(request, "core/administrator/review_saved_selector.html", {
+        "original_papers": original_papers,
+        "randomized_papers": randomized_papers,
+        "papers": all_papers,  # For dropdown
+        "qualifications": qualifications,
+        "filter_type": filter_type,
     })
 
-#_________________________________________________view for assessment centre_____________________________
-def assessment_center_view(request):
-    batches = Batch.objects.filter(submitted_to_center=True)
-#Adding
-    tools  = Assessment.objects.select_related("qualifications", "created_by")\
-                                .order_by("-created_at")   
-#end of add
+@login_required
+def load_saved_paper_view(request, paper_pk):
+    """View for loading and reviewing a saved paper"""
+    try:
+        # Add debug logging
+        print(f"🔍 Loading paper ID: {paper_pk}")
+        
+        # Get paper with related data
+        paper = get_object_or_404(Paper.objects.select_related('qualification'), id=paper_pk)
+        print(f"📄 Found paper: {paper.name}")
+        
+        # Get all nodes for this paper
+        nodes = ExamNode.objects.filter(
+            paper=paper
+        ).select_related('parent').order_by('order_index')
+        
+        print(f"📑 Found {nodes.count()} nodes")
+        
+        # Build hierarchical structure
+        questions = []
+        parent_map = {}  # Track parent-child relationships
+        
+        for node in nodes:
+            node_data = {
+                'id': node.id,
+                'type': node.node_type,
+                'number': node.number,
+                'text': node.text,
+                'marks': node.marks or 0,
+                'content': node.content or {},
+                'children': []
+            }
+            
+            if node.parent:
+                # Add to parent's children
+                if node.parent.id in parent_map:
+                    parent_map[node.parent.id]['children'].append(node_data)
+                else:
+                    print(f"⚠️ Warning: Parent {node.parent.id} not found for node {node.id}")
+            else:
+                # Top level node
+                questions.append(node_data)
+            
+            parent_map[node.id] = node_data
+            
+        print(f"✅ Built structure with {len(questions)} top-level questions")
 
+        # Get linked assessment if any
+        assessment = Assessment.objects.filter(paper_link=paper).first()
 
+        context = {
+            "paper": paper,
+            "questions": questions,
+            "assessment": assessment,
+            "total_marks": paper.total_marks,
+            "node_count": nodes.count()
+        }
+        
+        print("✅ Rendering template")
+        return render(request, "core/administrator/review_paper.html", context)
 
-    return render(request, 'assessment_center.html', {'batches': batches,
-                                                       'tools' : tools,               })
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        print(f"Traceback: {traceback.format_exc()}")
+        messages.error(request, f"Error loading paper: {str(e)}")
+        return redirect('review_saved_selector')
 
-def submit_to_center(request, batch_id):
-    batch = Batch.objects.get(id=batch_id)
-    batch.submitted_to_center = True
-    batch.save()
-    return redirect('etqa_dashboard')
-
-#----------------------views students-------------------------------------------------------
-# pull the assesment under a specific qualification that the studnet has enrolled
-from django.db.models import Max
-from .models import Assessment, ExamAnswer
 
 @login_required
 def student_dashboard(request):
-    assessments = Assessment.objects.filter(
-        status="Approved by ETQA"
-    ).prefetch_related('generated_questions')
+    """Dashboard view for students/learners to see their available assessments"""
+    
+    # Get user's qualification
+    user_qualification = request.user.qualification
 
+    # Get assessments that:
+    # 1. Are approved by ETQA
+    # 2. Match the user's qualification
+    # 3. Include related questions
+    assessments = Assessment.objects.filter(
+        status="Approved by ETQA",
+        qualification=user_qualification
+    ).select_related(
+        'qualification', 
+        'paper_link'
+    ).prefetch_related(
+        'generated_questions'
+    ).order_by('-created_at')
+
+    # Get attempt counts for each assessment
     assessment_data = []
     for assessment in assessments:
         attempt_count = ExamAnswer.objects.filter(
             question__assessment=assessment,
             user=request.user
-        ).count()
+        ).values('attempt_number').distinct().count()
+
         assessment_data.append({
             'assessment': assessment,
-            'attempt': attempt_count
+            'attempt_count': attempt_count,
+            'max_attempts': 3,
+            'can_attempt': attempt_count < 3
         })
 
-    return render(request, 'core/student/dashboard.html', {
+    return render(request, "core/student/dashboard.html", {
         'assessment_data': assessment_data,
+        'user': request.user,
+        'qualification': user_qualification
     })
 
-
-
-
-
+def custom_logout(request):
+     logout(request)
+     return redirect('custom_login')
 
 @login_required
-def student_assessment(request, assessment_id):
-    assessment = get_object_or_404(
-        Assessment,
-        id=assessment_id,
-        status="Approved by ETQA"
-    )
-
-    # Count user's attempts on this assessment
-    user_attempts = ExamAnswer.objects.filter(
-        user=request.user,
-        question__assessment=assessment
-    ).values('attempt_number').distinct().count()
-
-    if user_attempts >= 3:
-        messages.error(request, "You've reached the maximum number of attempts (3).")
-        return redirect('student_dashboard')
-
-    generated_qs = assessment.generated_questions.all()
-
-    if not generated_qs.exists():
-        generated_qs = QuestionBankEntry.objects.filter(qualification=assessment.qualification)
-
-    return render(request, "core/student/assessment.html", {
-        "assessment": assessment,
-        "generated_qs": generated_qs,
-        "attempt_number": user_attempts + 1  # next attempt number
-    })
-
-from django.views.decorators.http import require_POST
-
-#@require_POST
-@login_required
-def submit_exam(request, assessment_id):
-    assessment = get_object_or_404(Assessment, id=assessment_id)
-    
-    # Determine current attempt number
-    current_attempt = ExamAnswer.objects.filter(
-        user=request.user,
-        question__assessment=assessment
-    ).aggregate(max_attempt=models.Max('attempt_number'))['max_attempt'] or 0
-
-    if current_attempt >= 3:
-        messages.error(request, "You cannot submit again. You've reached the maximum attempts.")
-        return redirect('student_dashboard')
-
-    next_attempt = current_attempt + 1
-
-    # Process answers for this attempt
-    for question in assessment.generated_questions.all():
-        answer_key = f'answer_{question.id}'
-        answer_text = request.POST.get(answer_key, '').strip()
-        if answer_text:
-            ExamAnswer.objects.update_or_create(
-                user=request.user,
-                question=question,
-                attempt_number=next_attempt,
-                defaults={'answer_text': answer_text}
-            )
-
-    messages.success(request, f"Attempt {next_attempt} submitted successfully!")
-    return redirect('student_dashboard')
-
-
-@login_required
-def student_results(request):
-    return render(request, 'core/student/results.html')
-
-login_required
-def write_exam(request, assessment_id):
-    # Fetch only if status is 'Approved by ETQA'
-    assessment = get_object_or_404(Assessment, id=assessment_id, status="Approved by ETQA")
-
-    # Get only the questions linked to this assessment
-    generated_qs = GeneratedQuestion.objects.filter(assessment=assessment)
-
-    return render(request, 'core/student/write_exam.html', {
-        'assessment': assessment,
-        'generated_qs': generated_qs,
-        'attempt_number': 1  # or fetch from logic if attempts are tracked
-    })
-
-
-
-from utils import extract_text, extract_all_tables, extract_questions_with_metadata
-
-def beta_paper_extractor(request):
-    questions    = {}
-    raw_text     = ""
-    file_url     = None
-    match_tables = []
-    mcq_tables   = []
-
-    if request.method == "POST":
-        uploaded = request.FILES.get("paper")
-        if uploaded and uploaded.name.lower().endswith(".docx"):
-            # save file (if you still need file_url)
-            fs   = FileSystemStorage()
-            name = fs.save(uploaded.name, uploaded)
-            file_url = fs.url(name)
-
-            # plain text (you can keep this or drop it)
-            raw_text = extract_text(uploaded, uploaded.content_type)
-
-            # if you still want the separate match/MCQ tables:
-            uploaded.seek(0)
-            table_data   = extract_all_tables(uploaded)
-            match_tables = table_data.get("match_tables", [])
-            mcq_tables   = table_data.get("mcq_tables", [])
-
-            # **NEW** structured extraction:
-            uploaded.seek(0)
-            questions = extract_questions_with_metadata(uploaded)
-
-    return render(request, "core/administrator/beta_paper_extractor.html", {
-        "raw_text":     raw_text,
-        "file_url":     file_url,
-        "match_tables": match_tables,
-        "mcq_tables":   mcq_tables,
-        "questions":    questions,      # now a dict keyed by question number
-    })
-
-
-# …make sure you’ve already got:
-# from google import genai
-# from django.conf import settings
-# genai_client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
-@csrf_exempt
-@require_POST
-def clean_questions(request):
-    """
-    POST JSON: { "questions": [ "...", ... ] }
-    Returns   JSON: { "cleaned": [ true, false, ... ] }
-    """
-    try:
-        payload = json.loads(request.body)
-        qs      = payload.get("questions", [])
-        if not isinstance(qs, list):
-            return JsonResponse({"error": "`questions` must be an array"}, status=400)
-
-        system_prompt = (
-            "You will receive a JSON list of question texts. "
-            "Return ONLY a JSON object {\"cleaned\": [...]}, where each entry is "
-            "`true` if that text is a real exam question or `false` otherwise."
-        )
-
-        resp = genai_client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=[system_prompt, json.dumps(qs)]
-        )
-        raw = (resp.text or "").strip()
-
-        if not raw:
-            flags = [True] * len(qs)
-        else:
-            try:
-                data = json.loads(raw)
-                flags = data.get("cleaned") or data.get("valid")
-                if not isinstance(flags, list) or len(flags) != len(qs):
-                    raise ValueError(f"Bad format/length: {flags}")
-            except Exception:
-                flags = [True] * len(qs)
-
-        return JsonResponse({"cleaned": flags})
-
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON body"}, status=400)
-    except Exception as e:
-        return JsonResponse({
-            "error": str(e),
-            "traceback": traceback.format_exc().splitlines()[:5]
-        }, status=500)
-
-#Imports close to functions to makesure import order does not impede the functions.
-from django.shortcuts import redirect, render
-from .models import QuestionBankEntry
-from django.contrib import messages
-
-def save_extracted_questions(request):
-    if request.method == 'POST':
-        counter = 1
-        questions_to_save = []
-
-        while f"question_{counter}" in request.POST:
-            number = request.POST.get(f"number_{counter}")
-            question = request.POST.get(f"question_{counter}")
-            marks = request.POST.get(f"marks_{counter}")
-            status = request.POST.get(f"status_{counter}")
-            case_study = request.POST.get(f"case_study_{counter}")
-
-            if question and number:
-                entry = QuestionBankEntry(
-                    number=number,
-                    text=question,
-                    marks=int(marks) if marks else 0,
-                    status=status,
-                    case_study=case_study or ''
-                )
-                questions_to_save.append(entry)
-            counter += 1
-
-        # Bulk save
-        QuestionBankEntry.objects.bulk_create(questions_to_save)
-        messages.success(request, f"{len(questions_to_save)} questions saved successfully.")
-        return redirect('beta_paper')  # replace with your actual view name
-
-    return redirect('beta_paper')
-
-
-
-from django.shortcuts import render
-from utils import extract_all_tables
-
-def beta_paper_tables_view(request):
-    tables = {}
-    if request.method == "POST":
-        uploaded = request.FILES.get("paper")
-        if uploaded and uploaded.name.endswith(".docx"):
-            tables = extract_all_tables(uploaded)
-    return render(request, "core/administrator/extracted_tables.html", {"tables": tables})
-
-# core/views.py
-
-
-
-
-
-
-
-
-
-import json
-from django.shortcuts  import get_object_or_404, render, redirect
-from django.contrib    import messages
-from django.db         import transaction
-from django.views.decorators.http import require_POST
-from .models           import Qualification, Paper, ExamNode
-from utils             import extract_full_docx_structure, auto_classify_blocks_with_gemini
-from add_ids           import ensure_ids
-import uuid
-
-def paper_as_is_view(request, paper_pk=None):
-    """
-    • GET  (no pk) → show upload form
-    • POST (no pk) → save .docx, create a Paper, redirect to /…/<paper_pk>/
-    • GET  (with pk) → show the pre-parsed blocks for manual editing
-    """
-    # — POST with file and no paper_pk → create & redirect
-    if request.method == "POST" and request.FILES.get("paper") and paper_pk is None:
-        # form inputs
-        paper_number     = (request.POST.get("paper_number") or "").strip() or "1A"
-        qualification_id = (request.POST.get("qualification_id") or "").strip()
-        qualification = (
-            Qualification.objects.filter(code=qualification_id).first()
-            or Qualification.objects.filter(saqa_id=qualification_id).first()
-        )
-
-        # create the Paper row
-        paper = Paper.objects.create(
-            name          = paper_number,
-            qualification = qualification,
-            total_marks   = 0,
-        )
-        # parsing the DOCX
-        blocks = extract_full_docx_structure(request.FILES["paper"])
-        # parsing with gemini
-        blocks = auto_classify_blocks_with_gemini(blocks)
-
-
-        #Tirikuisa ma blocks achiri JSON panapa.  Paper yirimmu session tirikuisa mu database tasati tai flattener.
-        request.session[f"paper_{paper.pk}_structured"] = blocks
-
-
-    
-        questions = _flatten_structure(blocks)
-        ensure_ids(questions)
-        #Terminal Print---Just to show save structure nje..
-        print("\n🟩 Extracted & Flattened Questions:")
-        print(json.dumps(questions, indent=2))
-
-        # update total_marks
-        paper.total_marks = sum(int(q.get("marks") or 0) for q in _walk(questions))
-        paper.save(update_fields=["total_marks"])
-
-        # stash the blocks in the session so that the GET can pick them up also:::
-        # store flat version for frontend
-        request.session[f"paper_{paper.pk}_questions"] = questions
-
-        return redirect("review_paper", paper_pk=paper.pk)
-
-    # — GET with paper_pk → pull questions from session (or re-parse from file if you saved it)
-    qualifications = Qualification.objects.all()
-    questions = []
-    paper     = None
-    if paper_pk is not None:
-        paper     = get_object_or_404(Paper, pk=paper_pk)
-        questions = request.session.get(f"paper_{paper_pk}_questions", [])
-        qualifications = Qualification.objects.all()
-
-
-    return render(request,
-                  "core/administrator/review_paper.html",
-                  {"questions": questions, "paper": paper, "qualifications" : qualifications})
-
-#Flatten is a problem at the moment, might remove if non-distructive to the UI.
-def _flatten_structure(qs):
-    flattened = []
-    for q in qs:
-        flattened.append({
-            "id":       q.get("id"), 
-                                      # make sure ensure_ids ran
-            "type":     q.get("type", ""),
-            "number":   q.get("number", ""),
-            "marks":    q.get("marks", ""),
-            "text":     q.get("text", ""),
-            "content":  q.get("content", []),
-            "children": _flatten_structure(q.get("children", [])),
-            **({"data_uri": q["data_uri"]} if q.get("type") == "figure" else {}),
-        })
-    return flattened
-
-def _walk(nodes):
-    for n in nodes:
-        yield n
-        yield from _walk(n.get("children", []))
-
-
-@require_POST
-def save_blocks(request, paper_pk):
-    print("SAVE BLOCKS TRIGGERED")
-    
-    raw = request.POST.get("nodes_json", "")
-
-
-
-
-    if not raw:
-        messages.error(request, "Nothing to save – no data received.")
-        return redirect("review_paper", paper_pk=paper_pk)
-
-    try:
-        nodes = json.loads(raw)
-    except json.JSONDecodeError:
-        messages.error(request, "Malformed data – cannot decode JSON.")
-        return redirect("review_paper", paper_pk=paper_pk)
-    
-
-        # ✅ Print the full structure in terminal
-    print(f"📄 Paper ID: {paper_pk}")
-    print("🧱 Nodes JSON content:")
-    print(json.dumps(nodes, indent=2))
-
-    # ✅ Also save to file for debugging (in project root)
-    with open(f"saved_blocks_paper_{paper_pk}.txt", "w", encoding="utf-8") as f:
-        f.write(json.dumps(nodes, indent=2))
-    print(f"✅ Saved nodes to: saved_blocks_paper_{paper_pk}.txt\n")
-
-
-    # Normalize IDs
-    for n in nodes:
-        if not n.get("id") or n["id"] in ["None", "", None]:
-            n["id"] = uuid.uuid4().hex
-        else:
-            n["id"] = str(n["id"]).replace("-", "")[:32]
-
-        if n.get("parent_id"):
-            n["parent_id"] = str(n["parent_id"]).replace("-", "")[:32]
-
-    paper = get_object_or_404(Paper, pk=paper_pk)
-
-    with transaction.atomic():
-        id_to_node = {}
-
-        for n in nodes:
-            # Enrich inner content blocks (tables, figures, etc.)
-            content_blocks = n.get("content", [])
-            enriched_content = []
-            for block in content_blocks:
-                block_type = block.get("type")
-                if block_type == "figure":
-                    enriched_content.append({
-                        "type": "figure",
-                        "data_uri": block.get("data_uri", "")
-                    })
-                elif block_type == "table":
-                    enriched_content.append({
-                        "type": "table",
-                        "rows": block.get("rows", [])
-                    })
-                elif block_type == "question_text":
-                    enriched_content.append({
-                        "type": "question_text",
-                        "text": block.get("text", "")
-                    })
-                elif block_type == "case_study":
-                    enriched_content.append({
-                        "type": "case_study",
-                        "text": block.get("text", "")
-                    })
-                else:
-                    enriched_content.append(block)
-
-            # Build payload with enriched blocks
-            payload = {
-                "text": n.get("text", ""),
-                "data_uri": n.get("data_uri", ""),
-                "content": enriched_content
-            }
-
-            is_top = not n.get("parent_id")
-            order_index = nodes.index(n)  # optional but helpful
-
-            node, _ = ExamNode.objects.update_or_create(
-                id=n["id"],
-                defaults={
-                    "paper":     paper,
-                    "number":    n.get("number", ""),
-                    "marks":     n.get("marks", ""),
-                    "node_type": n.get("type", ""),
-                    "payload":   payload,
-                    "is_top_level": is_top,
-                    "order_index":  order_index
-                }
-            )
-            id_to_node[n["id"]] = node
-
-        # Parent-child linking
-        for n in nodes:
-            parent_id = n.get("parent_id")
-            if parent_id and parent_id in id_to_node:
-                node = id_to_node[n["id"]]
-                parent = id_to_node[parent_id]
-                node.parent = parent
-                node.save(update_fields=["parent"])
-
-        from utils import rebuild_nested_structure  # Tirikushedza nested structure...
-        structured = rebuild_nested_structure(nodes)     # nodes must include parent_id
-        paper.structure_json = structured
-        paper.save(update_fields=["structure_json"])
-        print(f"✅ [SAVE COMPLETE] Saved {len(nodes)} blocks to ExamNode model for Paper ID: {paper.pk}")
-
-    
-        populate_examnodes_from_structure_json(paper)
-        print("🚀 Calling save_parent_child_tables_from_structure_json...")
-        save_parent_child_tables_from_structure_json(paper, paper.structure_json)
-
-    messages.success(request, "Manual edits saved.")
-    return redirect("review_paper", paper_pk=paper_pk)
-
-
-#<-----------------------------end------------------------------------>
-
-
-#Below is old logic for potential...
-
-import json
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-from google import genai
-
-# Initialize your gemini client (ensure you've set up api key)
-# from google import genai_client
-# genai_client = genai.GeminiClient()
-
-@require_POST
-@csrf_exempt
-def auto_fix_blocks(request):
-    """
-    Accepts JSON {blocks: [...]}. Returns JSON {fixes: [...]} with suggested corrections
-    for 'mark', 'type', 'text' or 'rows' fields in each block.
-    """
-    try:
-        payload = json.loads(request.body)
-        blocks = payload.get('blocks', [])
-        system_prompt = (
-            "You are an exam formatting assistant. Each block has fields 'type', 'text', 'mark', and optionally 'rows'.\n"
-            "Analyze each block and correct any misplaced marks, refine the type if needed, adjust text formatting, and ensure tables ('rows') stay intact.\n"
-            "Respond with JSON {'fixes': [...]} where each entry matches the input blocks and may include updated 'mark', 'type', 'text', and 'rows'."
-        )
-        # Call Gemini
-        resp = genai_client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=[system_prompt, json.dumps(blocks)]
-        )
-        data = json.loads((resp.text or '').strip())
-        fixes = data.get('fixes', [])
-        if not isinstance(fixes, list) or len(fixes) != len(blocks):
-            raise ValueError("Invalid fixes format")
-    except Exception:
-        # Fallback: echo original fields
-        fixes = []
-        for blk in blocks:
-            fixes.append({
-                'mark': blk.get('mark', ''),
-                'type': blk.get('type', ''),
-                'text': blk.get('text', ''),
-                'rows': blk.get('rows', []),
-            })
-    return JsonResponse({'fixes': fixes})
-
-@require_POST
-@csrf_exempt
-def auto_place_marks(request):
-    """
-    Accepts JSON {blocks: [...]}. Extracts marks from text if present
-    and returns JSON {marks: [...]} aligned by index.
-    """
-    try:
-        payload = json.loads(request.body)
-        blocks = payload.get('blocks', [])
-        system_prompt = (
-            "You are an exam parsing assistant. Each block may contain a marks notation like '(5 marks)' or 'x 10'.\n"
-            "Extract the correct mark value for each block and return JSON {'marks': [...]} aligned to input indices."
-        )
-        resp = genai_client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=[system_prompt, json.dumps(blocks)]
-        )
-        data = json.loads((resp.text or '').strip())
-        marks = data.get('marks', [])
-        if not isinstance(marks, list) or len(marks) != len(blocks):
-            raise ValueError("Invalid marks format")
-    except Exception:
-        marks = [blk.get('mark', '') for blk in blocks]
-    return JsonResponse({'marks': marks})
-
-
-
-
-# core/views.py  This is a future feature for editing not important now....
-import json
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.views.decorators.http import require_POST
-from utils import auto_classify_blocks_with_gemini #  Import the classifier
-
-#Here I was thinking of loading it as a full editable word documement but its unnecccesary, let the feature sleep.
-
-from django.shortcuts import render, get_object_or_404
-from core.models import Paper, ExamNode
-
-def view_paper_as_doc_layout(request, paper_id):
-    paper = get_object_or_404(Paper, pk=paper_id)
-
-    # Fetch top-level questions (you can use your serialize_node if needed)
-    root_nodes = ExamNode.objects.filter(paper=paper, parent__isnull=True).order_by("number")
-
-    return render(request, "core/view_paper_as_word.html", {
-        "paper": paper,
-        "questions": root_nodes,
-    })
-
-
-from django.shortcuts import render, redirect
-from .models import Paper
-
-def review_saved_selector(request):
-    filter_type = request.GET.get("type", "")
-
-    all_papers = Paper.objects.order_by("-id")
-    original_papers = all_papers.filter(is_randomized=False)
-    randomized_papers = all_papers.filter(is_randomized=True)
-    qualifications = Qualification.objects.all()
-
-    if request.method == "POST":
-        sel = request.POST.get("paper_id")
-        if sel:
-            return redirect("load_saved_paper", paper_pk=sel)
-
-    return render(request, "core/administrator/review_saved_selector.html", {
-        "original_papers": original_papers,
-        "randomized_papers": randomized_papers,
-        "papers": all_papers,  # still used for dropdown
-        "qualification": qualifications,
-        "filter_type": filter_type,
-    })
-
-
-from django.shortcuts import render
-from core.models import ExamNode
-
-def new_databank_view(request):
-    """
-    View to display all ExamNodes of type 'question' for databank purposes.
-    This is useful for reviewing all questions extracted and saved to the DB.
-    """
-    question_nodes = ExamNode.objects.filter(node_type='question').order_by('number')
-
-    extracted_questions = []
-    for node in question_nodes:
-        payload = node.payload or {}
-        extracted_questions.append({
-            "number": node.number or payload.get("number", ""),
-            "marks": node.marks or payload.get("marks", ""),
-            "text": payload.get("text", ""),
-            "content": payload.get("content", []),  # Could include tables/figures/etc.
-        })
-
-    return render(request, "core/administrator/new_databank.html", {
-        "questions": extracted_questions
-    })
-
-
-from django.shortcuts import get_object_or_404, render
-from core.models import Paper, ExamNode
-from utils import serialize_node  # make sure this exists
-from django.shortcuts import render, get_object_or_404
-from .models import Paper, ExamNode
-from utils import serialize_node  # make sure serialize_node is defined
-
-from utils import serialize_node, rebuild_nested_structure
-
-def load_saved_paper_view(request, paper_pk):
-    paper = get_object_or_404(Paper, pk=paper_pk)
-    session_data = request.session.get(f"paper_{paper_pk}_questions")
-
-    if session_data:
-        print(f"📦 Using session-stored structure for Paper ID: {paper_pk}")
-        questions = [serialize_node(q) for q in session_data]
-    else:
-        print(f"🛠️ Rebuilding structure from ExamNode DB for Paper ID: {paper_pk}")
-        all_nodes = ExamNode.objects.filter(paper=paper).order_by("order_index")
-        serialized = [serialize_node(n) for n in all_nodes]
-        questions = rebuild_nested_structure(serialized)
-        print(f"✅ Reconstructed {len(questions)} top-level nodes from DB.")
-        print("🔎 First question content:", questions[0].get("content", "NO CONTENT")) if questions else print("❌ No questions")
-
-    return render(request, "core/administrator/review_paper.html", {
-        "paper": paper,
-        "questions": questions,
-    })
-#<-------------End of Save questions to the ancient, yet updated QuestionBankEntry model-------------------------->
-#   #<------------------------------------------------------------------------------------------------>             
-
-# views.py
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.views.decorators.http import require_POST
-import json
-from utils import auto_classify_blocks_with_gemini  
-
-@require_POST
-def auto_classify_blocks(request, paper_pk):
-    try:
-        payload = json.loads(request.body)
-        blocks = payload.get("blocks", [])
-        print(f"📥 [VIEW] Received {len(blocks)} blocks for paper {paper_pk}")
-    except (TypeError, json.JSONDecodeError) as e:
-        print(f"❌ [VIEW] Invalid JSON: {e}")
-        return HttpResponseBadRequest("Invalid JSON")
-
-    try:
-        types = auto_classify_blocks_with_gemini(blocks)
-        print("✅ [VIEW] Classification successful.")
-        return JsonResponse({'types': types})
-    except Exception as e:
-        print(f"❌ [VIEW] AI classification error: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
-#---------------------------------------------------------------------------------------------------------->
-from django.views.decorators.http import require_GET
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse
-import random
-import uuid
-from .models import Paper, ExamNode, Assessment
-
-@login_required
-@require_GET
 def randomize_paper_structure_view(request, paper_pk):
-    paper = get_object_or_404(Paper, pk=paper_pk)
-
-    # ✅: fetch assessment correctly
-    assessment = Assessment.objects.filter(paper_link=paper).first()
-    if not assessment:
-        print("❌ No assessment linked to this paper.")
-        return redirect("admin_dashboard")
-
-    print(f"📄 Randomizing paper ID: {paper_pk} | Name: {paper.name} | Assessment Status: {assessment.status}")
-
-    if assessment.status not in ["uploaded", "approved"]:
-        print("❌ Assessment not eligible for randomization (must be 'uploaded' or 'approved').")
-        return redirect("admin_dashboard")
-
-    # Get top-level nodes
-    top_nodes = list(ExamNode.objects.filter(paper=paper, is_top_level=True).order_by("order_index"))
-    print(f"🔢 Found {len(top_nodes)} top-level nodes for randomization")
-
-    if not top_nodes:
-        print("⚠️ No top-level nodes found — skipping.")
-        return redirect("admin_dashboard")
-
-    # Shuffle
-    random.shuffle(top_nodes)
-    print("🔀 Top-level nodes shuffled")
-
-    # Create new randomized paper
-    new_paper_name = f"{paper.name}-RND-{uuid.uuid4().hex[:4].upper()}"
-    new_paper = Paper.objects.create(
-        name=new_paper_name,
-        qualification=paper.qualification,
-        total_marks=paper.total_marks
-    )
-    print(f"✅ New randomized paper created: {new_paper_name} (ID: {new_paper.pk})")
-
-    # Clone nodes
-    for idx, node in enumerate(top_nodes):
-        ExamNode.objects.create(
-            paper=new_paper,
-            number=node.number,
-            text=node.text,
-            type=node.type,
-            marks=node.marks,
-            order_index=idx,
-            is_top_level=True,
-            payload=node.payload,
-        )
-        print(f"🧩 Cloned node {node.number} to new paper (order_index={idx})")
-
-    # Create linked assessment
-    new_assessment = Assessment.objects.create(
-        eisa_id=f"GEN-{uuid.uuid4().hex[:6].upper()}",
-        qualification=new_paper.qualification,
-        paper=new_paper.name,
-        saqa_id=assessment.saqa_id,
-        created_by=request.user,
-        status="pending",  # ✅ status now set to pending
-        paper_link=new_paper,
-    )
-    print(f"📝 Linked new assessment created: {new_assessment.eisa_id}")
-
-    print("🎯 Redirecting to review page for new paper.")
-    return redirect("review_saved_selector", paper_pk=new_paper.pk)
-
-#------------------------------------------------------------------------------------------------------->
-#------------------------------------------------------------------------------------------------------->
-@login_required
-def load_randomized_papers(request):
-    if request.user.role != 'assessor_dev':
-        return redirect('no_permission')
-
-    papers = Paper.objects.filter(is_randomized=True)
-
-    return render(request, 'papers/randomized_list.html', {
-        'papers': papers
-    })
-
-
-#No permission page...
-def no_permission(request):
-    return render(request, 'errors/no_permission.html')
-
-
-@login_required
-def paper_pool_view(request):
-    papers_by_qualification = {}
-    all_papers = Paper.objects.filter(structure_json__isnull=False)
-
-    for paper in all_papers:
-        key = paper.qualification.name if paper.qualification else "Unassigned"
-        papers_by_qualification.setdefault(key, []).append(paper)
-
-    return render(request, "core/administrator/paper_pool.html", {
-        "papers_by_qualification": papers_by_qualification
-    })
-
-
-@login_required
-def randomize_qualification_papers(request, qualification_id):
-    qualification = get_object_or_404(Qualification, id=qualification_id)
-    source_papers = Paper.objects.filter(qualification=qualification, structure_json__isnull=False)
-
-    print(f"🌀 Randomizing all papers for qualification: {qualification.name} | Count: {source_papers.count()}")
-
-    if source_papers.count() < 2:
-        print("❌ Not enough papers to randomize from.")
-        return redirect("paper_pool")
-
-    # Build prefix map across all papers
-    prefix_map = {}
-    for paper in source_papers:
-        for block in paper.structure_json or []:
-            prefix = block.get("number")
-            if not prefix:
-                print(f"⚠️ Block without number in paper ID {paper.id}, skipping")
-                continue
-            prefix_map.setdefault(prefix, []).append(block)
-
-    for source in source_papers:
-        randomized_blocks = []
-        total_marks = 0
-        for block in source.structure_json or []:
-            prefix = block.get("number")
-            candidates = prefix_map.get(prefix)
-            if candidates:
-                chosen = random.choice(candidates)
-                randomized_blocks.append(chosen)
-                total_marks += int(chosen.get("marks") or 0)
-                print(f"✅ Replaced {prefix} from paper {source.id}.")
-            else:
-                randomized_blocks.append(block)
-                print(f"⚠️ No match for {prefix}, kept original.")
-
-        new_paper = Paper.objects.create(
-            name=f"{source.name} [Randomized {now().strftime('%Y%m%d%H%M%S')}]",
-            qualification=qualification,
-            structure_json=randomized_blocks,
-            total_marks=total_marks
-        )
-
-        output_path = Path(f"new_paper_{new_paper.id}.txt")
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(randomized_blocks, f, indent=2)
-        print(f"📝 Saved: {output_path.resolve()}")
-
-    return redirect("paper_pool")
-
-
-from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
-from core.models import Paper
-from core.randomizer import randomize_paper_via_structure_json_debug
-
-@login_required
-def randomize_single_paper_view(request, paper_id):
+    """View to create a randomized version of an existing paper"""
     try:
-        original = get_object_or_404(Paper, id=paper_id)
-        print(f"🔁 Randomizing paper: {original.name} (ID: {original.id})")
+        # Get original paper
+        original_paper = get_object_or_404(Paper, pk=paper_pk)
+        
+        if original_paper.is_randomized:
+            messages.error(request, "Cannot randomize an already randomized paper")
+            return redirect('review_saved_selector')
 
-        new_paper = randomize_paper_via_structure_json_debug(original.id)
+        # Create new randomized paper
+        randomized_paper = Paper.objects.create(
+            name=f"{original_paper.name} (Randomized)",
+            qualification=original_paper.qualification,
+            is_randomized=True
+        )
 
-        messages.success(request, f"✅ Randomized paper created: {new_paper.name} (ID: {new_paper.id})")
-        return redirect("load_saved_paper", paper_pk=new_paper.id)
+        # Get all question nodes from original paper
+        nodes = ExamNode.objects.filter(
+            paper=original_paper,
+            node_type='question'
+        ).order_by('?')  # Random order
+
+        # Copy nodes to new paper
+        for index, node in enumerate(nodes, 1):
+            ExamNode.objects.create(
+                paper=randomized_paper,
+                node_type=node.node_type,
+                number=f"{index}",  # Sequential numbering
+                text=node.text,
+                marks=node.marks,
+                content=node.content,
+                order_index=index,
+                payload=node.payload
+            )
+
+        messages.success(request, f"Created randomized paper (ID: {randomized_paper.pk})")
+        return redirect('load_saved_paper', paper_pk=randomized_paper.pk)
 
     except Exception as e:
-        print(f"❌ Randomization failed for Paper ID {paper_id}: {e}")
-        messages.error(request, f"❌ Failed to randomize paper: {str(e)}")
-        return redirect("review_saved_selector")
+        messages.error(request, f"Failed to randomize paper: {str(e)}")
+        return redirect('review_saved_selector')
+
+@login_required
+def save_blocks_view(request, paper_id):
+    """Save extracted blocks to database"""
+    try:
+        paper = get_object_or_404(Paper, id=paper_id)
+        blocks = request.session.get('extracted_blocks')
+        
+        if not blocks:
+            messages.error(request, "No blocks found to save")
+            return JsonResponse({'status': 'error', 'message': 'No blocks found'})
+            
+        success = save_nodes_to_db(blocks, paper)
+        
+        if success:
+            messages.success(request, "Blocks saved successfully")
+            return JsonResponse({'status': 'success', 'redirect': reverse('view_paper', args=[paper_id])})
+        else:
+            messages.error(request, "Failed to save blocks")
+            return JsonResponse({'status': 'error', 'message': 'Save failed'})
+            
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)})

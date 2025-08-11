@@ -1,0 +1,2215 @@
+{
+  "source": "tmp4scldf1h.docx",
+  "output_dir": "tmp4scldf1h_extract",
+  "generated_at": 1754943676,
+  "counts": {
+    "blocks": 167,
+    "images": 0,
+    "tables": 28,
+    "questions": 54
+  },
+  "nodes": [
+    {
+      "id": "068319c9-0ec6-435f-b7e0-16bb8a20076c",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 0,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "reconstructed.docx"
+        }
+      ]
+    },
+    {
+      "id": "003ada41-43e7-4b0b-9c60-d269e8547429",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "7abdba3a-8ccb-40b3-8f43-c9182f8d18db",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 2,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Quality Controller"
+        }
+      ]
+    },
+    {
+      "id": "feb9f977-0187-490a-a084-2ca69d9b93dd",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 3,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "d1693685-c984-44d8-9d0d-dbcdc0d6d275",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 4,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "eb707fb4-5074-4b72-9a11-588a0d284a20",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 5,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "555c7bbc-6762-4e1a-b898-6a55a32ce112",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 6,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "1a770147-e7fc-492c-bd32-b82609813864",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 7,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "8eff8165-5cbf-4189-959f-eac2f436166d",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 8,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "EXTERNAL INTERGRATED SUMMATIVE ASSESSMENT Quality Controller, NQF4 EXTERNAL INTERGRATED SUMMATIVE ASSESSMENT Quality Controller, NQF4"
+        }
+      ]
+    },
+    {
+      "id": "64dcc58a-403f-42f6-b8e6-8a2c828ccbc9",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 9,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "3e8bead6-366d-4acf-9377-43dfad540e3d",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 10,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "9c821086-0059-4766-a0cf-c4e26db47dde",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 11,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "27457a3f-e2a0-4bca-891a-da19229a2b7b",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 12,
+      "content": [
+        {
+          "type": "table",
+          "rows": [
+            [
+              "STUDENT NAME & SURNAME",
+              ""
+            ],
+            [
+              "IDENTITY NUMB ER",
+              ""
+            ],
+            [
+              "ASSESSMENT CENTRE",
+              ""
+            ],
+            [
+              "ACCREDITATION NUMBER",
+              ""
+            ],
+            [
+              "QUALIFICATION",
+              "QUALITY CONTROLLER"
+            ],
+            [
+              "QAQA ID",
+              "117309"
+            ],
+            [
+              "NQF LEVEL",
+              "4"
+            ],
+            [
+              "CREDITS",
+              "173"
+            ],
+            [
+              "PAPER NUMBER",
+              "1 A"
+            ],
+            [
+              "DATE OF EISA DD/MM/YYYY",
+              ""
+            ],
+            [
+              "DURATION",
+              "2 HOURS"
+            ],
+            [
+              "TOTAL MARKS",
+              "120"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "11511975-47bf-4070-9a74-2a9a255e855b",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 13,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "11f9a4e1-3085-4cd0-b96b-c647b2591fd3",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 14,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "ce5ab1b5-62b6-49a8-bdad-2809505fea30",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 15,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "6c3a2e1c-bf43-4140-9339-6e4cd561f2d4",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 16,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "EXTERNAL INTEGRATED SUMMATIVE ASSESSMENT"
+        }
+      ]
+    },
+    {
+      "id": "4ff3cc09-0f6f-4465-8ced-6d8685a53270",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 17,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "ccb3a067-dbf0-461c-b30c-f81e7ded77d9",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 18,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "8fc7fb69-f95b-406c-9416-01069cdf3a8d",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 19,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "574452cc-a7e9-4a25-bce5-1733633c9a21",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 20,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "QUALITY CONTROLLER"
+        }
+      ]
+    },
+    {
+      "id": "641fb5de-5eb8-4611-abc6-d607011b6656",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 21,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "f2dbf44e-ee56-49cf-b80b-06a4466f67a5",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 22,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "76c5b037-61fc-448f-919f-f383b9a0ec8c",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 23,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "fd15dba0-8bf1-4d1d-89b2-ea00d6e90345",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 24,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "QUESTION PAPER 1A"
+        }
+      ]
+    },
+    {
+      "id": "06b2c770-d21f-40bb-926a-e2d0e9cbee19",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 25,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "8621d82c-3380-48a7-954b-4b59a63ec6d4",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 26,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "d3e02af9-4838-4c5f-8aa9-74cc86c60b1e",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 27,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "fe42bde9-c0cf-4117-b025-d758d0170ec1",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 28,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "GENERAL EISA RULES"
+        }
+      ]
+    },
+    {
+      "id": "26f62a7e-332d-42c1-afe9-1947ad79156f",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 29,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "8486fedd-65e7-442a-9a73-f3a92fba988a",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 30,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "4deea710-aa4a-4634-af29-1373d57ed50f",
+      "number": "1",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 31,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1"
+        }
+      ]
+    },
+    {
+      "id": "ef8429bf-23af-40ea-a28c-fa8e6eb921d7",
+      "number": "1",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 32,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "1. Students are only allowed to use the supplied EISA booklets."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "cd4da694-bbcd-440c-b5bb-494307a65ea5",
+      "number": "2",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 33,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2"
+        }
+      ]
+    },
+    {
+      "id": "175af558-d600-4709-9bc3-ceab42345ee1",
+      "number": "2",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 34,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2. Students are only allowed to use a black pen for their answers."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "2ce8dff7-5813-40c4-b6e6-30245f2d4f3e",
+      "number": "3",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 35,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 3"
+        }
+      ]
+    },
+    {
+      "id": "a9a88578-c42e-4d63-85ce-74d7189e6b94",
+      "number": "3",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 36,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "3. Students to ensure that their name, surname and EISA registration number appears on the front of your EISA booklet."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "c3afe92d-5443-4778-94a1-50e21e4ea71f",
+      "number": "4",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 37,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 4"
+        }
+      ]
+    },
+    {
+      "id": "e6483e32-0415-47cf-94c6-f7e6b08c853a",
+      "number": "4",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 38,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "4. This is a closed book examination; therefore, no other material or belongings are to be brought into the assessment centre. Should you bring any other material or belongings into the assessment centre, you will be required to leave such at the front of the assessment centre examination room. The assessment centre will not be held liable for any loss or damage to property brought into the assessment centre examination room."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "b068ef0a-ecfe-4f15-a753-7364e0fd88b7",
+      "number": "5",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 39,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 5"
+        }
+      ]
+    },
+    {
+      "id": "0fc90407-45ea-4610-ae2a-7a2a8f9e8e8c",
+      "number": "5",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 40,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "5. All EISA booklets must be handed back to the invigilator intact. No pages may be torn off from the EISA booklet. The removal of EISA booklets from the examination room is prohibited."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "0854a4f3-e7fe-451c-a0c3-2f49786087e5",
+      "number": "6",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 41,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 6"
+        }
+      ]
+    },
+    {
+      "id": "7d88ef63-2c9e-44c0-9bef-01e834c56dab",
+      "number": "6",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 42,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "6. Students may make use of a calculator in this EISA."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "d6d3167e-bccc-4bf9-aaed-677fafcc01c9",
+      "number": "7",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 43,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 7"
+        }
+      ]
+    },
+    {
+      "id": "50612bc8-4bf1-44b3-97ce-b8094f30c307",
+      "number": "7",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 44,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "7. Unless this is an online examination where access to a computer will be made available to you; the use of any communication devices, including smart watches, cell phones, tablets, iPads, headphones and laptops are prohibited."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "b2e13fad-1b73-4f55-bb64-23e7b4c1fbcf",
+      "number": "8",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 45,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 8"
+        }
+      ]
+    },
+    {
+      "id": "786e2b2f-f222-4a70-85b7-cde3750b7e65",
+      "number": "8",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 46,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "8. All cell phones are to be switched off for the duration of the EISA."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "c5911b87-e4c9-4766-a6ec-53c9abf95f4a",
+      "number": "9",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 47,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 9"
+        }
+      ]
+    },
+    {
+      "id": "ddabc413-346b-4077-9f64-a55f4f52e11b",
+      "number": "9",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 48,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "9. The invigilator will not assist you with the explanation of questions related to the EISA."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "526c3cf1-c040-4a11-aeae-f842e7f81d18",
+      "number": "10",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 49,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 10"
+        }
+      ]
+    },
+    {
+      "id": "68c60701-aca2-4a90-9ce3-ca5653602274",
+      "number": "10",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 50,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "10. Students are prohibited from conversing in any manner with other students."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "72289bbd-1c6d-4888-b5ac-c86ae4faa0c0",
+      "number": "11",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 51,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 11"
+        }
+      ]
+    },
+    {
+      "id": "bae0c650-b1e2-4a3f-a423-6bbe6d71ca84",
+      "number": "11",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 52,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "11. Students may not leave the examination venue within one hour of the start of the examination and in the last 10 minutes of the allotted examination period."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "1beff384-8770-4bd6-87f6-28add63b5ffc",
+      "number": "12",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 53,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 12"
+        }
+      ]
+    },
+    {
+      "id": "29530807-9af2-405c-8a60-629fd24714f9",
+      "number": "12",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 54,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "12. Students who are found to be disruptive and unruly in the assessment centre will be requested to leave the assessment centre by the invigilator."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        },
+        {
+          "type": "paragraph",
+          "text": "I HEREBY CONFIRM THAT I HAVE READ THE ABOVE EISA RULES AND DECLARE THAT I UNDERSTAND AND ACCEPT THE RULES."
+        },
+        {
+          "type": "paragraph",
+          "text": "________________________"
+        },
+        {
+          "type": "paragraph",
+          "text": "SIGNATURE OF STUDENT"
+        },
+        {
+          "type": "paragraph",
+          "text": "CANDIDATE INSTRUCTIONS"
+        },
+        {
+          "type": "paragraph",
+          "text": "Candidate must complete all question s in the EISA"
+        },
+        {
+          "type": "paragraph",
+          "text": "Candidates must ensure that they use only a black pen when completing this EISA."
+        },
+        {
+          "type": "paragraph",
+          "text": "Should you require additional space to complete your answer, please request additional paper from your invigilator."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ensure that you indicate your name, surname and EISA registration number at the top of the additional paper."
+        },
+        {
+          "type": "paragraph",
+          "text": "Also ensure that the question number is clearly marked on your additional paper."
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "22aa5326-7a65-49d4-822f-2cb7c510106c",
+      "number": "1.1",
+      "type": "question",
+      "marks": null,
+      "parent_id": "ef8429bf-23af-40ea-a28c-fa8e6eb921d7",
+      "order": 55,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1"
+        }
+      ]
+    },
+    {
+      "id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "number": "1.1",
+      "type": "question",
+      "marks": null,
+      "parent_id": "ef8429bf-23af-40ea-a28c-fa8e6eb921d7",
+      "order": 56,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1"
+        }
+      ]
+    },
+    {
+      "id": "40976d2c-beff-4058-9c3e-841ddad57ba3",
+      "number": "1.1.1",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 57,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.1 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "21f21050-db88-4a41-8f0a-50307a881e1c",
+      "number": "1.1.1",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 58,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.1 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Complete a quality inspection checklist for input, inline and endline for product or service"
+        },
+        {
+          "type": "paragraph",
+          "text": "ur Sayzwani Abd Suki;Elmi Abu Bakar , Shahrul Kamaruddin / A Case Study on Improvement of Outgoing Quality Control Works for Manufacturing Products 4(1), pp. 12-21, 2015"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.1 Case StudyAllocate one mark each for number 1 to 10Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Company ‘A’ strives to be very competitive company , however low productivity is the main challenge which is due to high inspection time and high handling time. In order to overcome this challenge , a methodology for inspecting input, inline and endline for product/service need to be developed , then validated according to the guidelines."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Quality Inspection Checklist",
+              "Corrective Action",
+              "Marks"
+            ],
+            [
+              "1",
+              "Sample delivered by",
+              "",
+              "1"
+            ],
+            [
+              "2",
+              "Delivery date of samples",
+              "",
+              "1"
+            ],
+            [
+              "3",
+              "Quantity / number of samples received",
+              "",
+              "1"
+            ],
+            [
+              "4",
+              "Name of sample",
+              "",
+              "1"
+            ],
+            [
+              "5",
+              "Sample batch number",
+              "",
+              "1"
+            ],
+            [
+              "6",
+              "Type of sample",
+              "",
+              "1"
+            ],
+            [
+              "7",
+              "Sample received by",
+              "",
+              "1"
+            ],
+            [
+              "8",
+              "Storage condition of the sample",
+              "",
+              "1"
+            ],
+            [
+              "9",
+              "Storage location inside the laboratory",
+              "",
+              "1"
+            ],
+            [
+              "10",
+              "Testing date and comments",
+              "",
+              "1"
+            ],
+            [
+              "Total",
+              "10",
+              "",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9080e3be-2e89-43ad-bfbb-30dc4f2e3e04",
+      "number": "1.1.2",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 59,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.2 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "9bec6414-4c72-4df9-b5ac-c2e670e274a5",
+      "number": "1.1.2",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 60,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.2 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.2 Constructive ResponseAllocate one mark each for number 1 to 10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1efc35f8-6dad-4ddb-994b-b910c8286b03",
+      "number": "1.1.3",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 61,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.3 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "ee307cab-9abc-4d04-83cd-9b78ccf47084",
+      "number": "1.1.3",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 62,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.3 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Match column A with column B and write correct answer in the space provided ."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Column A",
+              "Column B",
+              "Answer",
+              "Marks"
+            ],
+            [
+              "Incoming Inspection",
+              "P lan is a statistical method of determining whether to accept or reject a batch of material that is being produced.",
+              "",
+              "1"
+            ],
+            [
+              "Inspection Checklist",
+              "To ensure that the part, material, or component confirms the established standard.",
+              "",
+              "1"
+            ],
+            [
+              "Quality Parameter",
+              "V alidates the quality of purchased raw materials based on set acceptance criteria",
+              "",
+              "1"
+            ],
+            [
+              "Sampling Plan",
+              "P lan is a statistical method of determining whether to accept or reject a batch of material that is being produced.",
+              "",
+              "1"
+            ],
+            [
+              "Quality Specification",
+              "I s used by quality assurance personnel to validate the quality of purchased raw materials based on set acceptance criteria",
+              "",
+              "1"
+            ],
+            [
+              "The need to inspect in an industry",
+              "T he inspector walks around the workplace floor and checks machine to machine, samples of the work of various workers, and machines.",
+              "",
+              "1"
+            ],
+            [
+              "The objective of a quality inspection",
+              "Is used when inspection equipment and tools cannot on the workplace.be brought",
+              "",
+              "1"
+            ],
+            [
+              "The purpose of Quality Inspection",
+              "R efer to the size characterizing the quality level of the final product/service.",
+              "",
+              "1"
+            ],
+            [
+              "Revolving Inspection",
+              "W ould refer to the predetermined characteristics of a product as compared against reference standard",
+              "",
+              "1"
+            ],
+            [
+              "Fixed Inspection",
+              "To collect information regarding the performance of the product with established standards for the use of engineering production, purchasing, and quality control, etc.",
+              "",
+              "1"
+            ],
+            [
+              "Total",
+              "10",
+              "",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3cb72dad-7e0b-4513-b508-871ea3eb4284",
+      "number": "1.1.4",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 63,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.4 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "bfe0f59f-6165-46fc-b1a9-9a17f6275aab",
+      "number": "1.1.4",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 64,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.4 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Complete a testing checklist for a product or service across all processes (input, inline and endline )"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.4 Case StudyAllocate one mark each for number 1 to 10Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "A sample has been brought to the quality control department and as a quality controller, you are expected to perform test /s according to the guidelines. Before performing any test, you are expected to complete a checklist to test the effectiveness of the process ."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Quality Inspection Checklist",
+              "Corrective Action",
+              "Marks"
+            ],
+            [
+              "1",
+              "Humidity",
+              "",
+              "1"
+            ],
+            [
+              "2",
+              "Temperature",
+              "",
+              "1"
+            ],
+            [
+              "3",
+              "Weather",
+              "",
+              "1"
+            ],
+            [
+              "4",
+              "People",
+              "",
+              "1"
+            ],
+            [
+              "5",
+              "Methods",
+              "",
+              "1"
+            ],
+            [
+              "6",
+              "Process",
+              "",
+              "1"
+            ],
+            [
+              "7",
+              "Testing Device",
+              "",
+              "1"
+            ],
+            [
+              "8",
+              "Measuring Resources",
+              "",
+              "1"
+            ],
+            [
+              "9",
+              "Testing Resources",
+              "",
+              "1"
+            ],
+            [
+              "10",
+              "Protective clothing",
+              "",
+              "1"
+            ],
+            [
+              "Total",
+              "10",
+              "",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "93c7b9ae-e4f4-493b-b41d-74cf064a472f",
+      "number": "1.1.5",
+      "type": "question",
+      "marks": 15,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 65,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.5 (15 marks)"
+        }
+      ]
+    },
+    {
+      "id": "bf659d43-886b-4b38-8bc4-10f95a26fc69",
+      "number": "1.1.5",
+      "type": "question",
+      "marks": 15,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 66,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.5 (15 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.5 Case StudyAllocate ten Marks for number 1 and 5 Marks for number 2Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "In manufacturing / service industry, quality means meeting requirement s , meeting customer needs, which means a defect free product/service from both the producers and the customer’s viewpoint. Quality performance plays an important role for many manufacturing/ service companies in gaining competitive advantage and business survival. In a manufacturing/service environment, quality improves reliability, increases productivity and customer satisfactions ( Mohd N. et al., 2009). Therefore, to have a good product/service, good qualit y products/ services are important to satisfy the customer needs and improve the productivity performance of companies."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "Mark"
+            ],
+            [
+              "1",
+              "Define the concept of conformance and non-conformances and how the cost of quality is derived.Conformance –Non conformance –Cost of performance –Prevention cost -Appraisal cost -Cost of non-conformance –Internal failure cost –External failure cost –",
+              "10"
+            ],
+            [
+              "2",
+              "The most effective strategy to use in implementation of remedial measures is the use of the Shewhart PDCA cycle. Draw and label the PDCA cycle",
+              "5"
+            ],
+            [
+              "Total",
+              "15",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4e6dd382-fb16-4025-86d2-eb6558f81776",
+      "number": "1.1.6",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 67,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.6 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "e2bd8695-cb18-4f7e-96d9-c8301ad9ce2c",
+      "number": "1.1.6",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 68,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.6 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.6 Constructive ResponseAllocate 10 marks for number 1"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answers",
+              "Marks"
+            ],
+            [
+              "1",
+              "It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products.D iscuss the 5 p’s of GMP",
+              "10"
+            ],
+            [
+              "Total",
+              "10",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d1b725a5-46b6-46d4-9492-be6dfd2b8e7e",
+      "number": "1.1.7",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 69,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.7 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "bc3a8838-a894-4dd2-a28a-e6b1b73d4d3b",
+      "number": "1.1.7",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 70,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.7 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Apply different testing methods for different characteristics to test for product/service quality applicable in their environment"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.7 Case StudyAllocate two marks each for number 1 to 5Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Testing methodologies are applied in different types of industries. The types of tests conducted depend on the products/services being produced, these tests are important for a company to grow and to be competitive."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answers",
+              "Marks"
+            ],
+            [
+              "1",
+              "Integration testing –",
+              "2"
+            ],
+            [
+              "2",
+              "Unit Testing –",
+              "2"
+            ],
+            [
+              "3",
+              "System Testing –",
+              "2"
+            ],
+            [
+              "4",
+              "Performance testing –",
+              "2"
+            ],
+            [
+              "5",
+              "Stress Testing –",
+              "2"
+            ],
+            [
+              "Total",
+              "10",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a24cd288-5e1b-4a94-8fb4-606b92d09069",
+      "number": "1.1.8",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 71,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.8 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "e9e3d96f-402e-4105-bbfb-f467668e0880",
+      "number": "1.1.8",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 72,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.8 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Apply knowledge of testing procedures of a product or service."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.8 Constructive ResponseAllocate two marks each for number 1 to 3 and four marks for number 4Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "When completing the tests of controls, it is important note how evidence is collected for inspection . To be able to rely on evidence obtained, the inspector must be ensuring that the evidence is sufficient, reliable and accurate. This can be accomplished by observing the audit report directly from the person responsible for compiling the report ."
+        },
+        {
+          "type": "paragraph",
+          "text": "Study the attached SOP template and answer questions that follows:"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "What is the purpose of an effective SOP in a work environment?",
+              "2"
+            ],
+            [
+              "2.",
+              "What information should be covered in the scope",
+              "2"
+            ],
+            [
+              "3.",
+              "Give two reasons why the SOP should have a review date",
+              "2"
+            ],
+            [
+              "4",
+              "Which information will validate the effectiveness of an SOP?Name at least 4 and give a reason to support your answer",
+              "4"
+            ],
+            [
+              "Total",
+              "10",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e402c31f-033b-4233-ad48-c543bafe5b36",
+      "number": "1.1.9",
+      "type": "question",
+      "marks": 5,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 73,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.9 (5 marks)"
+        }
+      ]
+    },
+    {
+      "id": "1955810e-3b9a-44a0-bdcb-48c5a9ee3a6f",
+      "number": "1.1.9",
+      "type": "question",
+      "marks": 5,
+      "parent_id": "a58b38ab-adc1-439c-a106-6eb0b157d8de",
+      "order": 74,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1.9 (5 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Test if product/service conforms to the required standard"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.9 Multiple Choice QuestionsAllocate 1 mark each for number 1 to 5"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Multiple Choice Questions",
+              "Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "Which of the following statement is true?Non-conformance is part of quality control issuesNon-conformance does not affect customer relationshipA non- conforming product does not incur cost of qualityNone of the above",
+              "",
+              "1"
+            ],
+            [
+              "2.",
+              "The poor service can be caused by the following:Overworked staffUnsatisfactory wagesPoor managementAll of the above",
+              "",
+              "1"
+            ],
+            [
+              "3",
+              "Advantages of tracing non-conformance is to ensure that:Persons responsible for non-conformance may not reveal all information during the investigationsThe records on which tracing is based may be lot or biased.Ensure that preventative measures are always implementedTraceability may cause the organization reputational damage.",
+              "",
+              "1"
+            ],
+            [
+              "4",
+              "A concession can be defined asD etermining and finding mitigating strategies to reduce the impact of risksA n agreement or settlement of a dispute that is reached by each side making compromise for an acceptance of a situationN ew raw material that has never been used beforeFinding the solution with the least amount of risk and implementing it",
+              "",
+              "1"
+            ],
+            [
+              "5",
+              "Product or service quality can be overlooked in terms of the following:Suitability from customer’s viewpointDegree to which it conforms to the product specificationsProduct design or planned qualityAll of the above",
+              "",
+              "1"
+            ],
+            [
+              "Total",
+              "5",
+              "",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        }
+      ]
+    },
+    {
+      "id": "77a55544-7a9b-4ee8-968c-d5e344cac219",
+      "number": "2.1",
+      "type": "question",
+      "marks": null,
+      "parent_id": "175af558-d600-4709-9bc3-ceab42345ee1",
+      "order": 75,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1"
+        }
+      ]
+    },
+    {
+      "id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "number": "2.1",
+      "type": "question",
+      "marks": null,
+      "parent_id": "175af558-d600-4709-9bc3-ceab42345ee1",
+      "order": 76,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1"
+        }
+      ]
+    },
+    {
+      "id": "c4bf85a6-6509-43df-b98a-d115356c6479",
+      "number": "2.1.1",
+      "type": "question",
+      "marks": 5,
+      "parent_id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "order": 77,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1.1 (5 marks)"
+        }
+      ]
+    },
+    {
+      "id": "990e28f9-1ea2-43a6-b5bd-93f5fe5c7b7e",
+      "number": "2.1.1",
+      "type": "question",
+      "marks": 5,
+      "parent_id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "order": 78,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1.1 (5 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Identify tools (what) and method (how) to use in processing information during manufacturing and service rendering"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.1 Multiple Choice QuestionAllocate one mark each for number 1 to 5"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Multiple Choice Questions",
+              "Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "Some of the main objectives of an organization’s documented information is toHide evidence that what planned has been doneNot used as a tool for information sharingTo disseminate and preserve the organization’s experiencesKeeping sensitive information secrete",
+              "",
+              "1"
+            ],
+            [
+              "2.",
+              "Documented information needs to be maintained by the organization to establishThe scope of the quality management system.The information which will not support the operation of processes .Measure to hide the quality policy and procedures.None of the above",
+              "",
+              "1"
+            ],
+            [
+              "3",
+              "Information maintained by the organization effectively may include:Tests and work instructionsDocuments for internal communicationsThe list of suppliersAll of the above",
+              "",
+              "1"
+            ],
+            [
+              "4",
+              "The documented information may be controlled as follows:When there are no safeguards in place to prevent employees from incorrectly accessing and using obsolete informationThe controls for “preservation” are very similar to the controls for “protection,” described above.The organization is not expected to specify where the documented information is located.Keeping the records which must be disposed off after the retention times have elapsed",
+              "",
+              "1"
+            ],
+            [
+              "5",
+              "The external documents that may require control include:Standards from industrial organizations applicable to the organizationEvidence of fitness for the purpose of monitoring and measuring resources.Design and development records of inputs and outputs.Records of design and development controls.",
+              "",
+              "1"
+            ],
+            [
+              "Total",
+              "5",
+              "",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "21c3f949-3e3f-4158-9e18-9220d33875c4",
+      "number": "2.1.2",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "order": 79,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1.2 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "4f74e67a-5792-4e53-a635-ae9eac5f0bcb",
+      "number": "2.1.2",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "order": 80,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1.2 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Gather information using tools from samples taken and data from statistical process control (SPC)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.2 Case StudyAllocate 10 marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "The diagram below shows the statistical process control chart which is used for gathering information. With the aid of the tool below, an organization will retain information in order to provide evidence for the records of the results achieved."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "",
+              "Marks"
+            ],
+            [
+              "1",
+              "Discuss the 10 records which an organization will need to provide evidence for collected data for the results achieved using SPC",
+              "",
+              "10"
+            ],
+            [
+              "Total",
+              "10",
+              "",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0eb6317d-35d5-44a6-8f36-e8f4520deb35",
+      "number": "2.1.3",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "order": 81,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1.3 (10 marks)"
+        }
+      ]
+    },
+    {
+      "id": "7933d627-7e5b-48eb-bab2-40105dbfc1a0",
+      "number": "2.1.3",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "order": 82,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1.3 (10 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Analyse sample results and data collected from service delivered or manufacturing process"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.3 Constructive RespondAllocate 5 marks each for both number 1 and 2Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answer",
+              "Marks"
+            ],
+            [
+              "1",
+              "Briefly discuss the 2 types of data collection methods and give relevant industry exampleQualitative Data –Quantitative Data –",
+              "5"
+            ],
+            [
+              "2",
+              "Data Analysis is a process of inspecting, cleansing, transforming, and modelling data with the goal of discovering useful information, suggesting conclusions, and supporting decision-making.Discuss how you will analyse data collected by using any 5 of the 7 essential principle of data collection.",
+              "5"
+            ],
+            [
+              "Total",
+              "10",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "692c128d-6125-4756-857b-f77fceea100a",
+      "number": "2.1.4",
+      "type": "question",
+      "marks": 15,
+      "parent_id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "order": 83,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1.4 (15 marks)"
+        }
+      ]
+    },
+    {
+      "id": "9317826b-5e12-4db8-99f2-3f017c9f4e0e",
+      "number": "2.1.4",
+      "type": "question",
+      "marks": 15,
+      "parent_id": "8fa646a6-6f30-4488-b657-39c47739c951",
+      "order": 84,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1.4 (15 marks)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Make recommendation for process improvements based on the analysis"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.4 Constructive RespondAllocate 15 marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "",
+              "Marks"
+            ],
+            [
+              "1",
+              "Discuss the 8 principles of problem solving‘",
+              "",
+              "15"
+            ],
+            [
+              "Total",
+              "15",
+              "",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        },
+        {
+          "type": "paragraph",
+          "text": "Marks Allocation Grid (For use by Assessor Only)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Question",
+              "Marks",
+              "Allocated Marks"
+            ],
+            [
+              "1.1.1",
+              "10",
+              ""
+            ],
+            [
+              "1.1.2",
+              "10",
+              ""
+            ],
+            [
+              "1.1.3",
+              "10",
+              ""
+            ],
+            [
+              "1.1.4",
+              "10",
+              ""
+            ],
+            [
+              "1.1.5",
+              "15",
+              ""
+            ],
+            [
+              "1.1.6",
+              "10",
+              ""
+            ],
+            [
+              "1.1.7",
+              "10",
+              ""
+            ],
+            [
+              "1.1.8",
+              "10",
+              ""
+            ],
+            [
+              "1.1.9",
+              "5",
+              ""
+            ],
+            [
+              "Total Question 1.1",
+              "80",
+              ""
+            ],
+            [
+              "2.1.1",
+              "5",
+              ""
+            ],
+            [
+              "2.1.2",
+              "10",
+              ""
+            ],
+            [
+              "2.1.3",
+              "10",
+              ""
+            ],
+            [
+              "2.1.4",
+              "15",
+              ""
+            ],
+            [
+              "Total Question 2.1",
+              "40",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        },
+        {
+          "type": "paragraph",
+          "text": "Assessor Details"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Assessor Name and Surname",
+              ""
+            ],
+            [
+              "Registration Number",
+              ""
+            ],
+            [
+              "Signature",
+              ""
+            ],
+            [
+              "Date",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Instruction"
+        },
+        {
+          "type": "paragraph",
+          "text": "Moderator Details"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Moderator Name and Surname",
+              ""
+            ],
+            [
+              "Registration Number",
+              ""
+            ],
+            [
+              "Signature",
+              ""
+            ],
+            [
+              "Date",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "pagebreak"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "paper_name": null,
+    "module": null,
+    "tags": []
+  }
+}

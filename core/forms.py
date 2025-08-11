@@ -57,26 +57,25 @@ class EmailRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+from django import forms
+from .models import Qualification, Assessment
 
 class QualificationForm(forms.ModelForm):
     class Meta:
         model = Qualification
-        fields = ['name', 'qualification_type', 'saqa_id', 'code', 'description', 'level']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'qualification_type': forms.Select(attrs={
-                'class': 'form-control',
-                'id': 'qualificationType'  # 👈 JS will hook onto this
-            }),
-            'saqa_id': forms.TextInput(attrs={
-                'class': 'form-control',
-                'readonly': 'readonly',
-                'id': 'saqaId'  # 👈 JS will update this
-            }),
-            'code': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'level': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}),
-         }
+        fields = ['name', 'saqa_id']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].choices = Qualification.QUALIFICATION_TYPES
+        self.fields['saqa_id'].widget.attrs['readonly'] = True
+
+class AssessmentForm(forms.ModelForm):
+    def __init__(self, *args, qualification_type=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if qualification_type:
+            self.fields['module_number'].choices = \
+                Qualification.get_module_choices_for_type(qualification_type)
 
 # ----------------------------------------
 # 🔁 Manual Question Entry Form for Builder

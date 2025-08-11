@@ -122,16 +122,30 @@
   {% csrf_token %}
 
   <div class="form-section">
-  <label for="qualification">Qualification</label>
-<select name="qualification" required>
-  <option value="">-- Select Qualification --</option>
-  {% for q in qualifications %}
-    <option value="{{ q.id }}" {% if q.id == request.user.qualification.id %}selected{% endif %}>
-      {{ q.name }}
-    </option>
-  {% endfor %}
-</select>
+    <label for="qualification">Qualification</label>
+    <select name="qualification" id="qualification" required>
+      <option value="">-- Select Qualification --</option>
+      {% for q in qualifications %}
+        <option value="{{ q.id }}" {% if q.id == request.user.qualification.id %}selected{% endif %}>
+          {{ q.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
 
+  <div class="form-section">
+    <label for="moduleNumber">Module Number</label>
+    <select name="module_number" id="moduleNumber" required>
+      <option value="">-- Select Module Number --</option>
+      {% for code, name in module_choices %}
+        <option value="{{ code }}">{{ name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-section">
+    <label for="moduleName">Module Name</label>
+    <input type="text" id="moduleName" name="module_name" placeholder="e.g. Chemical Operations" required>
   </div>
 
   <div class="form-section">
@@ -140,18 +154,18 @@
   </div>
 
   <div class="form-section">
-  <label for="saqaID">SAQA ID</label>
-  <input type="text" id="saqaID" name="saqa_id" value="{{ request.user.qualification.saqa_id }}" readonly required>
-</div>
-
-  <div class="form-section">
-    <label for="fileInput">Upload EISA Assessment</label>
-    <input type="file" id="fileInput" name="file_input" accept=".pdf,.doc,.docx required>
+    <label for="saqaID">SAQA ID</label>
+    <input type="text" id="saqaID" name="saqa_id" value="{{ request.user.qualification.saqa_id }}" readonly required>
   </div>
 
   <div class="form-section">
-    <label for="memoFile">Upload Memo</label>
-    <input type="file" id="memoFile" name="memo_file">
+    <label for="fileInput">Upload EISA Assessment</label>
+    <input type="file" id="fileInput" name="file_input" accept=".pdf,.doc,.docx" required>
+  </div>
+
+  <div class="form-section">
+    <label for="memoFile">Upload Memo (Required)</label>
+    <input type="file" id="memoFile" name="memo_file" accept=".pdf" required>
   </div>
 
   <div class="form-section">
@@ -208,5 +222,31 @@
 
     </div>
   </div>
+
+  <script>
+document.getElementById('moduleNumber').addEventListener('change', function() {
+    // Auto-fill paper number based on module number
+    const paperInput = document.getElementById('paperNumber');
+    paperInput.value = this.value;
+});
+
+// Form validation
+document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    const memoFile = document.getElementById('memoFile').files[0];
+    const assessmentFile = document.getElementById('fileInput').files[0];
+    
+    if (!memoFile) {
+        e.preventDefault();
+        alert('Please upload a memo file');
+        return;
+    }
+
+    if (!assessmentFile) {
+        e.preventDefault();
+        alert('Please upload an assessment file');
+        return;
+    }
+});
+</script>
 </body>
 </html>

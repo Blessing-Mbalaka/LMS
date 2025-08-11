@@ -90,6 +90,13 @@
           <span>Assessment Centres</span>
         </a>
       </li>
+
+          <li class="nav-item">
+        <a href="{% url 'review_saved_selector' %}" class="nav-link{% if request.resolver_match.url_name == 'review_saved_selector' %} active{% endif %}">
+            <i class="fa fa-book"></i>
+            <span>Question Bank</span>
+        </a>
+    </li>
       
       <li class="nav-item">
         <a href="{% url 'user_management' %}" class="nav-link{% if request.resolver_match.url_name == 'user_management' %} active{% endif %}">
@@ -159,37 +166,49 @@
 <div class="card mb-4">
   <div class="card-header">Upload New Assessment</div>
   <div class="card-body">
-    <form method="post" enctype="multipart/form-data" class="row g-3">
+    <form method="post" enctype="multipart/form-data" class="row g-3" id="uploadForm">
       {% csrf_token %}
-      
+
+      <!-- Qualification Dropdown -->
       <div class="col-md-4">
         <label for="qual" class="form-label">Qualification</label>
         <select id="qual" name="qualification_id" class="form-select form-select-sm" required>
           <option value="">— Select Qualification —</option>
           {% for q in qualifications %}
-            <option value="{{ q.id }}">{{ q.name }} ({{ q.code }})</option>
+            <option value="{{ q.id }}" data-name="{{ q.name }}" data-saqa="{{ q.saqa_id }}">
+              {{ q.name }}
+            </option>
           {% endfor %}
         </select>
       </div>
 
-      <div class="col-md-2">
-        <label for="paper" class="form-label">Paper #</label>
-        <input type="text" id="paper" name="paper_number" class="form-control form-control-sm" placeholder="e.g. 1A" required>
-      </div>
 
-      <div class="col-md-2">
+
+
+      <!-- Auto-filled SAQA ID -->
+      <div class="col-md-3">
         <label for="saqa" class="form-label">SAQA ID</label>
-        <input type="text" id="saqa" name="saqa_id" class="form-control form-control-sm" placeholder="e.g. 123456">
+        <input type="text" id="saqa" name="saqa_id"
+               class="form-control form-control-sm"
+               placeholder="Auto-filled" readonly>
       </div>
 
-      <div class="col-md-2">
+      <!-- Assessment File -->
+      <div class="col-md-6">
         <label for="file" class="form-label">Assessment File</label>
-        <input type="file" id="file" name="file_input" class="form-control form-control-sm" accept=".docx" required>
+        <input type="file" id="file" name="file_input"
+               class="form-control form-control-sm"
+               accept=".docx,.pdf" required>
+        <small class="text-muted">Upload DOCX or PDF file</small>
       </div>
 
-      <div class="col-md-2">
-        <label for="memo" class="form-label">Memo (optional)</label>
-        <input type="file" id="memo" name="memo_file" class="form-control form-control-sm" accept=".docx,.pdf">
+      <!-- Memo File -->
+      <div class="col-md-6">
+        <label for="memo" class="form-label">Memo File (Required)</label>
+        <input type="file" id="memo" name="memo_file"
+               class="form-control form-control-sm"
+               accept=".docx,.pdf" required>
+        <small class="text-muted">Upload assessment memo</small>
       </div>
 
       <div class="col-12 text-end">
@@ -199,59 +218,78 @@
   </div>
 </div>
 
-
-        <!-- ========= List of Uploaded Assessments ========= -->
-        <div class="card mb-4">
-          <div class="card-header">Assessment Tool Management</div>
-          <div class="card-body">
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th>Qualification</th>
-                  <th>Paper</th>
-                  <th>Status</th>
-                  <th>Uploaded By</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for tool in tools %}
-                <tr>
-                  <td>{{ tool.qualification.name }}</td>
-                  <td>{{ tool.paper }}</td>
-                  <td>{{ tool.status }}</td>
-                  <td>
-                    {% if tool.created_by %}
-                    {% if tool.created_by.get_full_name %}
-                    {{ tool.created_by.get_full_name }}
-                    {% else %}
-                    {{ tool.created_by.email }}
-                    {% endif %}
-                    {% else %}
-                    &mdash;
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if tool.file %}
-                    <a href="{{ tool.file.url }}" target="_blank">Download</a>
-                    {% else %}
-                    —
-                    {% endif %}
-                  </td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="5" class="text-center">No assessments uploaded yet.</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </div>
+<!-- ========= List of Uploaded Assessments ========= -->
+<div class="card mb-4">
+  <div class="card-header">Assessment Tool Management</div>
+  <div class="card-body">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Qualification</th>
+          <th>Paper</th>
+          <th>Status</th>
+          <th>Uploaded By</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tool in tools %}
+        <tr>
+          <td>{{ tool.qualification.name }}</td>
+          <td>{{ tool.paper }}</td>
+          <td>{{ tool.status }}</td>
+          <td>
+            {% if tool.created_by %}
+              {{ tool.created_by.get_full_name|default:tool.created_by.email }}
+            {% else %}
+              &mdash;
+            {% endif %}
+          </td>
+          <td>
+            {% if tool.file %}
+              <a href="{{ tool.file.url }}" target="_blank">Download</a>
+            {% else %}
+              &mdash;
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center">No assessments uploaded yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-</body>
+</div>
 
-</html>
+<!-- ========= JavaScript for Auto-fill & Validation ========= -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const qualSelect = document.getElementById("qual");
+    const saqaInput = document.getElementById("saqa");
+    const moduleNumber = document.getElementById("moduleNumber");
+    const moduleName = document.getElementById("moduleName");
+
+    if (qualSelect && saqaInput) {
+      qualSelect.addEventListener("change", () => {
+        const selected = qualSelect.options[qualSelect.selectedIndex];
+        saqaInput.value = selected.getAttribute("data-saqa") || "";
+      });
+    }
+
+    if (moduleNumber && moduleName) {
+      moduleNumber.addEventListener("change", () => {
+        const text = moduleNumber.options[moduleNumber.selectedIndex].text;
+        moduleName.value = text.replace('Module ', '');
+      });
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', function (e) {
+      if (!document.getElementById('memo').files[0]) {
+        e.preventDefault();
+        alert('Please upload a memo file - this is required.');
+      }
+    });
+  });
+</script>
