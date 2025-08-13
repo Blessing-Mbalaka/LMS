@@ -1,4 +1,5 @@
 {% load static %}
+{% load exam_extras %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -38,24 +39,18 @@
             {% csrf_token %}
             <input type="hidden" name="attempt_number" value="{{ attempt_number }}" />
 
-            {% if nodes %}
-            {% for q in nodes %}
+            {% if questions %}
+            {% for q in questions %}
             <div class="question-card">
-                <h5 class="card-title">Question {{ forloop.counter }}{% if q.marks %} ({{ q.marks }} marks){% endif %}
+                <h5 class="card-title">
+                    Question {{ forloop.counter }}{% if q.marks %} ({{ q.marks }} marks){% endif %}
                 </h5>
 
                 {% if q.text %}<p>{{ q.text }}</p>{% endif %}
 
+                {# Render each structured content block (tables, figures/images, case studies, etc.) #}
                 {% for item in q.content %}
-                {% if item.type == "question_text" %}
-                <p>{{ item.text }}</p>
-                {% elif item.type == "table" %}
-                <div class="table-responsive">{{ item.html|default:item|safe }}</div>
-                {% elif item.type == "case_study" %}
-                <div class="case-study">{{ item.text }}</div>
-                {% elif item.type == "figure" %}
-                <div class="my-2"><em>[Figure/Image available]</em></div>
-                {% endif %}
+                {{ item|render_block }}
                 {% endfor %}
 
                 <label for="answer_node_{{ q.id }}" class="form-label mt-3">Your Answer:</label>
@@ -64,7 +59,7 @@
             </div>
             {% endfor %}
             {% else %}
-            <div class="alert alert-warning">This paper has no question nodes yet.</div>
+            <div class="alert alert-warning">This paper has no questions yet.</div>
             {% endif %}
 
             <div class="text-center">

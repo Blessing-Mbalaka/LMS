@@ -610,6 +610,42 @@ def calculate_total_marks_from_manifest(nodes):
     
     print(f"💯 Total calculated marks: {total_marks}")
     return total_marks
+
+# core/views.py (near your other helpers)
+def build_questions_tree_for_paper(paper):
+    nodes = list(
+        ExamNode.objects.filter(paper=paper)
+        .select_related('parent')
+        .order_by('order_index')
+    )
+
+    questions = []
+    node_map = {}
+
+    # pass 1: shape dicts
+    for node in nodes:
+        node_dict = {
+            'id': str(node.id),
+            'type': node.node_type,
+            'number': node.number or '',
+            'text': node.text or '',
+            'marks': node.marks or '',
+            'content': node.content or [],   # keep JSON as-is
+            'children': []
+        }
+        node_map[str(node.id)] = node_dict
+        if node.node_type == 'question':
+            questions.append(node_dict)
+
+    # pass 2: wire parents/children
+    for node in nodes:
+        if node.parent and str(node.parent.id) in node_map:
+            parent_dict = node_map[str(node.parent.id)]
+            child_dict  = node_map[str(node.id)]
+            parent_dict['children'].append(child_dict)
+
+    return questions
+
 #===================================================================================
 
 @login_required
@@ -2124,20 +2160,19 @@ def papers_demo(request):
     })
 
 
+
+
 @login_required
 def write_paper_simple(request, paper_id):
-    """
-    Write page for a single Paper (no Assessment dependency).
-    Renders top-level question nodes; collects answers by ExamNode UUID.
-    """
     paper = get_object_or_404(Paper.objects.select_related('qualification'), id=paper_id)
-    nodes = (paper.nodes
-                  .filter(node_type='question', parent__isnull=True)
-                  .order_by('order_index'))
+
+    # ⬇ Instead of nodes = paper.nodes.filter(...), build the same rich structure:
+    questions = build_questions_tree_for_paper(paper)
+
     return render(request, 'core/student/write_paper_simple.html', {
         'paper': paper,
-        'nodes': nodes,
-        'attempt_number': 1,  # demo hardcode
+        'questions': questions,   # ← same shape as review page
+        'attempt_number': 1,
     })
 
 
