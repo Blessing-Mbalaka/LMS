@@ -32,6 +32,8 @@ from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional, Tuple, Any
 from xml.etree import ElementTree as ET
 
+from normalize_content import normalize_content_and_copy_media
+
 
 # -----------------------------
 # Optional Django integration (safe to import even if Django not configured)
@@ -74,7 +76,9 @@ try:
 except Exception:
     GEMINI_AVAILABLE = False
 
-import requests  # used for Gemma (Ollama) fallback — optional
+import requests  # used for Gemma (Ollama) fallback — 
+from normalize_content_and_copy_media import normalize_content
+
 
 # -----------------------------
 # Logging / console helpers (no third‑party deps)
@@ -1326,7 +1330,9 @@ def save_robust_extraction_to_db(docx_file, paper_name, qualification, user, use
                     number=node_data.get('number', ''),
                     marks=str(node_data.get('marks', '') or ''),
                     text=extract_node_text(node_data),
-                    content=node_data.get('content', []),
+                    content= normalize_content_and_copy_media(node_data.get('content', [])),
+                    manifest_output_dir=manifest.get('output_dir', ''),
+                    paper_id=paper.id,
                     order_index=order
                 )
                 

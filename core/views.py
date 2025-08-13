@@ -14,7 +14,7 @@ import re
 from .forms import EmailRegistrationForm
 import uuid
 import csv
-from django.conf import settings
+
 from django.http import JsonResponse,  HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -44,19 +44,19 @@ from django.db.models import Sum
 from utils import populate_examnodes_from_structure_json, save_nodes_to_db
 from .forms import CustomUserForm
 from django.contrib import admin
-from django.conf import settings
+
 from django.contrib.auth.admin import UserAdmin
 from .forms import AssessmentCentreForm
 from .models import (
     QuestionBankEntry, CaseStudy, Assessment, GeneratedQuestion,
-    Qualification, CustomUser, AssessmentCentre, Feedback
-)
+    Qualification, CustomUser, AssessmentCentre, Feedback)
+
 from .forms import AssessmentCentreForm, CustomUserForm
 from .question_bank import QUESTION_BANK
 from google import genai
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from robustexamextractor import save_robust_extraction_to_db
+from robustexamextractor import save_robust_extraction_to_db, extract_docx
 
 
 # Initialize AI client
@@ -376,103 +376,84 @@ def handle_robust_image_content(node: dict, paper_obj) -> list:
 # --------------------------------------------------------------------
 
 def save_robust_manifest_to_db(nodes, paper_obj):
-    """Convert robust extractor manifest nodes to ExamNode rows (defensive)."""
-    print(f"💾 Converting {len(nodes)} robust nodes to ExamNodes...")
-    TYPE_MAP = {
-        'figure': 'image',
-        'question_header': 'question',
-        'paragraph': 'instruction',  # adjust if your model supports 'paragraph'
-    }
-    ALLOWED = {'question', 'table', 'image', 'case_study', 'instruction'}
-
-    from django.db import transaction
-    errors = []
-
+    """Save robust extraction nodes to database with better content handling"""
     try:
-        with transaction.atomic():
-            # clear existing nodes for this paper
-            ExamNode.objects.filter(paper=paper_obj).delete()
-
-            node_map = {}     # number -> ExamNode (parents only if numbered)
-            created_objs = [] # keep for optional auditing
-            for order, node_data in enumerate(nodes):
-                try:
-                    # normalize type
-                    raw_type = (node_data.get('type') or 'instruction').strip().lower()
-                    node_type = TYPE_MAP.get(raw_type, raw_type)
-                    if node_type not in ALLOWED:
-                        # fallback to closest safe bucket
-                        node_type = 'instruction' if node_type not in ('table', 'image') else node_type
-
-                    # extract text and marks
-                    text_val = extract_node_text_from_robust(node_data) or ''
-                    marks_val = extract_marks_from_robust_data(node_data)
-                    if marks_val == 0 and node_type == 'question':
-                        marks_val = find_marks_in_following_tables(nodes, order)
-
-                    # keep content JSON-safe and lightweight
-                    content_data = {
-                        'raw_type': raw_type,
-                        'extracted_text': text_val[:2000],  # avoid megabytes
-                        'extracted_marks': marks_val,
-                    }
-                    if node_type in ['image']:
-                        image_paths = []
-                        for item in node_data.get('content', []):
-                            if isinstance(item, dict) and item.get('type') == 'figure':
-                                if 'images' in item:
-                                    image_paths.extend(item.get('images', []))
-                        content_data['images'] = image_paths
-
-                    if node_type == 'table' or 'table' in (node_data.get('type') or '').lower():
-                        for item in node_data.get('content', []):
-                            if isinstance(item, dict) and item.get('type') == 'table':
-                                content_data['table_data'] = item.get('rows', [])
-
-                    number_str = str(node_data.get('number') or '')
-
-                    obj = ExamNode.objects.create(
-                        id=uuid.uuid4().hex,
-                        paper=paper_obj,
-                        node_type=node_type,          # 👉 if your field is block_type, rename here
-                        number=number_str[:64],       # keep within DB limits
-                        marks= int(marks_val or 0),
-                        text=  text_val,
-                        content=content_data,
-                        order_index=order
-                    )
-                    created_objs.append(obj)
-                    if obj.number:
-                        node_map[obj.number] = obj
-
-                    if node_type == 'question':
-                        print(f"📝 Q{obj.number or '?'} ⇒ {obj.marks} marks")
-
-                except Exception as e:
-                    errors.append(f"row {order}: {e.__class__.__name__}: {e}")
-                    # keep going to save as much as possible
-                    continue
-
-            # second pass: link parents by dotted number
-            for number, node in node_map.items():
-                if '.' in number:
-                    parent_number = '.'.join(number.split('.')[:-1])
-                    parent = node_map.get(parent_number)
-                    if parent:
-                        node.parent = parent
-                        node.save(update_fields=['parent'])
-
-        if errors:
-            # surface the first few errors in logs so we can fix quickly
-            print("⚠️ Some nodes failed to save:")
-            for line in errors[:10]:
-                print("   ", line)
-            return False  # keep your banner behavior
-        print(f"✅ Converted {len(created_objs)} nodes")
+        # Track mapping from node numbers to DB records
+        node_map = {}
+        order_index = 0
+        
+        # First pass: create all nodes
+        for node_data in nodes:
+            # Extract basic node data
+            node_type = node_data.get('type', 'unknown')
+            node_number = node_data.get('number', '')
+            node_text = node_data.get('text', '')
+            node_marks = node_data.get('marks', '')
+            
+            # Process content properly based on type
+            content_items = []
+            
+            # Handle content items
+            for item in node_data.get('content', []):
+                if isinstance(item, dict):
+                    # Handle table content
+                    if item.get('type') == 'table' and 'rows' in item:
+                        content_items.append({
+                            'type': 'table',
+                            'rows': item['rows']
+                        })
+                    # Handle image content
+                    elif item.get('type') == 'figure':
+                        image_data = {}
+                        if 'images' in item:
+                            image_data['images'] = item['images']
+                        if 'data_uri' in item:
+                            image_data['data_uri'] = item['data_uri']
+                        content_items.append({
+                            'type': 'figure',
+                            **image_data
+                        })
+                    # Other content
+                    else:
+                        content_items.append(item)
+            
+            # Create the node
+            node = ExamNode.objects.create(
+                paper=paper_obj,
+                node_type=node_type,
+                number=node_number,
+                text=node_text,
+                marks=node_marks,
+                content=content_items,  # Store as proper JSON
+                order_index=order_index
+            )
+            
+            # Track in map for parent relationships
+            if node_number:
+                node_map[node_number] = node
+                
+            order_index += 1
+            
+        # Second pass: establish parent-child relationships
+        for node_data in nodes:
+            node_number = node_data.get('number', '')
+            if not node_number or node_number not in node_map:
+                continue
+                
+            # Find parent if exists
+            parts = node_number.split('.')
+            if len(parts) > 1:
+                parent_number = '.'.join(parts[:-1])
+                if parent_number in node_map:
+                    node = node_map[node_number]
+                    node.parent = node_map[parent_number]
+                    node.save()
+                    
         return True
-
+        
     except Exception as e:
-        print(f"❌ Robust manifest conversion failed: {e}")
+        print(f"Error saving manifest to DB: {str(e)}")
+        import traceback
         print(traceback.format_exc())
         return False
 
@@ -633,153 +614,131 @@ def calculate_total_marks_from_manifest(nodes):
 
 @login_required
 def admin_dashboard(request):
-    if request.method == "POST":
-        print("🟢 [admin_dashboard] POST received, beginning upload flow")
+    """Administrator dashboard view - handles file uploads and paper selection"""
 
-        q_id = request.POST.get("qualification_id")
-        saqa = request.POST.get("saqa_id", "").strip()
-        file_obj = request.FILES.get("file_input")
-        memo_obj = request.FILES.get("memo_file")
+    # Handle file upload
+    if request.method == 'POST' and request.FILES.get('file_input'):
+        file_obj = request.FILES['file_input']
+        paper_number = request.POST.get('paper_number', 'Unnamed Paper')
+        qual_pk = (request.POST.get('qualification') or '').strip()
+        if not qual_pk:
+            messages.error(request, "Please select a qualification.")
+            return redirect('admin_dashboard')
+        try:
+            qualification_obj = Qualification.objects.get(pk=int(qual_pk))
+        except (ValueError, Qualification.DoesNotExist):
+            messages.error(request, "Invalid qualification selected.")
+            return redirect('admin_dashboard')
 
-        # Debug logging
-        print("▶️ qualification_id:", q_id)
-        print("▶️ file_input present:", bool(file_obj))
+        # Create temp directory
+        temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp_uploads')
+        os.makedirs(temp_dir, exist_ok=True)
 
-        if not q_id or not file_obj or not memo_obj:
-            print("🔴 [admin_dashboard] Missing required fields")
-            messages.error(request, "Please fill all required fields.")
-            return redirect("admin_dashboard")
+        # Create a unique filename for this upload
+        unique_filename = f"upload_{uuid.uuid4().hex}.docx"
+        temp_path = os.path.join(temp_dir, unique_filename)
 
-        # Lookup qualification
-        qual = get_object_or_404(Qualification, pk=q_id)
-        print(f"🟢 [admin_dashboard] Qualification selected: {qual}")
+        # DEBUG: Print file information
+        print(f"📄 Processing file: {file_obj.name} ({file_obj.size} bytes)")
 
-        # Auto-generate paper name
-        paper_name = f"{qual.name} - Paper"
-        paper_obj, created = Paper.objects.get_or_create(
-            name=paper_name,
-            qualification=qual,
-            defaults={"total_marks": 0}
-        )
-        print(f"🟢 [admin_dashboard] Paper {'created' if created else 'fetched'}: {paper_obj}")
+        # Write file to disk
+        with open(temp_path, 'wb+') as destination:
+            for chunk in file_obj.chunks():
+                destination.write(chunk)
 
-        # Create Assessment
-        assessment = Assessment.objects.create(
-            eisa_id=f"EISA-{uuid4().hex[:8].upper()}",
-            qualification=qual,
-            paper=paper_name,
-            saqa_id=saqa,
-            file=file_obj,
-            memo=memo_obj,
-            created_by=request.user,
-            paper_link=paper_obj,
-            status="uploaded"
-        )
-        print(f"🟢 [admin_dashboard] Assessment created: {assessment.eisa_id}")
-
-        # ROBUST EXTRACTOR - Enhanced error handling
-        if file_obj.name.lower().endswith(".docx"):
-            try:
-                print("🟢 [admin_dashboard] Starting ROBUST extraction...")
-                
-                # Save uploaded file temporarily
-                import tempfile
-                temp_path = None
-                try:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp:
-                        for chunk in file_obj.chunks():
-                            tmp.write(chunk)
-                        temp_path = tmp.name
-
-                    # Use robust extractor
-                    from robustexamextractor import extract_docx
-                    
-
-                    manifest = extract_docx(
-                        temp_path,
-                        out_dir=None,      # Auto-generate output directory
-                        use_gemini=False,  # Disable since API having issues
-                        use_gemma=False    # Disable since memory issues
-                    )
-                    
-                finally:
-                    # Ensure cleanup even if extraction fails
-                    if temp_path and os.path.exists(temp_path):
-                        os.unlink(temp_path)
-                
-                # Validate extraction results
-                if not manifest:
-                    print("❌ [admin_dashboard] Robust extraction returned None")
-                    messages.error(request, "Document extraction failed - no data returned")
-                    return redirect("admin_dashboard")
-                    
-                if not manifest.get('nodes'):
-                    print("❌ [admin_dashboard] Robust extraction returned no nodes")
-                    messages.error(request, "Document extraction failed - no content found")
-                    return redirect("admin_dashboard")
-
-                # Log extraction success
-                counts = manifest.get('counts', {})
-                print(f"🟢 [admin_dashboard] ROBUST EXTRACTOR SUCCESS:")
-                print(f"   📝 {counts.get('questions', 0)} questions")
-                print(f"   📊 {counts.get('tables', 0)} tables") 
-                print(f"   🖼️ {counts.get('figures', 0)} figures")
-                print(f"   📄 {len(manifest['nodes'])} total nodes")
-
-                # Save manifest to paper
-                paper_obj.structure_json = manifest
-                
-                # Calculate total marks from manifest - enhanced calculation
-                total_marks = 0
-                for node in manifest['nodes']:
-                    if node.get('type') == 'question':
-                        marks_value = node.get('marks', 0)
-                        try:
-                            if isinstance(marks_value, str):
-                                # Extract numeric from strings like "10 Marks"
-                                import re
-                                numbers = re.findall(r'\d+', marks_value)
-                                marks_value = int(numbers[0]) if numbers else 0
-                            total_marks += int(marks_value or 0)
-                        except (ValueError, TypeError):
-                            continue
-                
-                paper_obj.total_marks = total_marks
-                paper_obj.save()
-
-                # Convert robust extractor nodes to ExamNodes
-                conversion_success = save_robust_manifest_to_db(manifest['nodes'], paper_obj)
-                
-                if conversion_success:
-                    print("🟢 [admin_dashboard] Robust extraction and storage complete.")
-                    
-                    # Enhanced success message
-                    messages.success(request, 
-                        f"🎉 ROBUST EXTRACTION SUCCESS!\n"
-                        f"📝 {counts.get('questions', 0)} questions extracted\n"
-                        f"📊 {counts.get('tables', 0)} tables preserved\n"
-                        f"🖼️ {counts.get('figures', 0)} figures captured\n"
-                        f"💯 {total_marks} total marks calculated"
-                    )
-                else:
-                    messages.warning(request, "Extraction succeeded but database save had issues")
-
-            except Exception as e:
-                print(f"🔴 [admin_dashboard] Robust extraction error: {e}")
-                import traceback
-                print(traceback.format_exc())
-                messages.error(request, f"❌ Robust extraction failed: {str(e)}")
+        # After writing file to disk
+        file_size = os.path.getsize(temp_path)
+        if file_size == 0:
+            print("❌ ERROR: File was saved with 0 bytes!")
         else:
-            messages.error(request, "Please upload a .docx file")
+            print(f"✅ File saved with {file_size} bytes")
 
-        return redirect("admin_dashboard")
+        # Process the document - ENSURE THIS RUNS
+        print("🔍 Starting robust extraction...")
+        manifest = extract_docx(
+            temp_path,
+            out_dir=None,
+            use_gemini=False,
+            use_gemma=False
+        )
 
-    # GET: render dashboard
+        # DEBUG: Check manifest structure
+        node_count = len(manifest.get('nodes', []))
+        print(f"📊 Extraction found {node_count} nodes")
+
+        # After extraction
+        if not manifest:
+            print("❌ Extraction returned None!")
+        elif not manifest.get('nodes'):
+            print("❌ Extraction returned no nodes!")
+        else:
+            print(f"✅ Extraction found {len(manifest['nodes'])} nodes")
+            # Print first node structure
+            if manifest['nodes']:
+                print(f"First node: {manifest['nodes'][0]}")
+
+        if not manifest or 'nodes' not in manifest or not manifest['nodes']:
+            messages.error(request, "Extraction failed: No content found in document")
+            return redirect('admin_dashboard')
+
+        # Create paper object
+        paper_obj = Paper.objects.create(
+            name=paper_number,
+            qualification=qualification_obj,
+            created_by=request.user,
+            is_randomized=False
+        )
+
+        # CRITICAL: Save extracted content to database
+        print("💾 Saving nodes to database...")
+        conversion_success = save_robust_manifest_to_db(manifest, paper_obj)
+
+        if not conversion_success:
+            messages.error(request, "Failed to save extracted content to database")
+            paper_obj.delete()  # Clean up failed paper
+            return redirect('admin_dashboard')
+
+        # Count extracted elements
+        questions = sum(1 for n in manifest['nodes'] if n.get('type') == 'question')
+        tables = sum(1 for n in manifest['nodes'] for c in n.get('content', [])
+                     if isinstance(c, dict) and c.get('type') == 'table')
+        images = sum(1 for n in manifest['nodes'] for c in n.get('content', [])
+                     if isinstance(c, dict) and c.get('type') == 'figure')
+
+        # Calculate total marks
+        total_marks = sum(
+            int(node.get('marks', 0) or 0)
+            for node in manifest['nodes']
+            if node.get('type') == 'question' and node.get('marks')
+        )
+
+        # Update paper with marks
+        paper_obj.total_marks = total_marks
+        paper_obj.save()
+
+        messages.success(request,
+            f"🎉 EXTRACTION SUCCESS!\n"
+            f"📝 {questions} questions extracted\n"
+            f"📊 {tables} tables preserved\n"
+            f"🖼️ {images} images captured\n"
+            f"💯 {total_marks} total marks calculated"
+        )
+
+        # Clean up temp file
+        try:
+            os.unlink(temp_path)
+        except:
+            pass
+
+        # Redirect to paper review page
+        return redirect('load_saved_paper', paper_pk=paper_obj.id)
+
+    # Continue with rest of the view...
     tools = Assessment.objects.select_related("qualification", "created_by")\
                              .order_by("-created_at")
     total_users = CustomUser.objects.filter(is_superuser=False).count()
     quals = Qualification.objects.all()
-    
+
     return render(request, "core/administrator/admin_dashboard.html", {
         "tools": tools,
         "total_users": total_users,
@@ -1248,7 +1207,7 @@ def generate_tool(request):
             "error": str(e),
             "traceback": traceback.format_exc().splitlines()[:5]  # send first few lines
         }, status=500)
-
+#================End of Generate Tool==============================================
 
 
 def assessor_reports(request):
@@ -1662,37 +1621,7 @@ def qcto_latest_assessment_detail(request):
         "generated_questions": questions,
     })
 
-#______________________________________________________________________________________________________
-#______________________________________________________________________________________________________
-# Log-Out View_________________________________________________________________________________________
-#______________________________________________________________________________________________________
 
- # LOGOUT VIEW
-def custom_logout(request):
-     logout(request)
-     return redirect('custom_login')
-#Creating Users
-
-def register(request):
-    if request.method == "POST":
-        form = EmailRegistrationForm(request.POST)
-        if form.is_valid():
-            # Build user but do not log in yet
-            user = form.save(commit=False)
-            user.role = 'default'               # Assign default role
-            user.qualification = Qualification.objects.get(id='default')
-            user.is_active = True
-            user.is_staff = False               # Default users are not staff
-            user.save()
-
-            # Show success message and redirect to login
-            messages.success(request, "Registered. Pending approval.")
-            return redirect('custom_login')  # or 'login' if your URL is named that
-
-    else:
-        form = EmailRegistrationForm()
-
-    return render(request, "core/login/login.html", {"form": form})
 
 #****************************************************************************
 #Default Page is added here...
@@ -1804,23 +1733,45 @@ def etqa_dashboard(request):
 @login_required 
 def review_saved_selector(request):
     """View to select a saved paper for review"""
-    
+
     filter_type = request.GET.get("type", "")
-    
+
     # Get papers query
     all_papers = Paper.objects.order_by("-created_at")
-    
+
     # Filter papers
     original_papers = all_papers.filter(is_randomized=False)
     randomized_papers = all_papers.filter(is_randomized=True)
-    
+
     # Get qualifications for filtering
     qualifications = Qualification.objects.all()
+
+    selected_paper = None
+    question_nodes = []
+    questions_count = tables_count = images_count = 0
 
     if request.method == "POST":
         paper_id = request.POST.get("paper_id")
         if paper_id:
-            return redirect("load_saved_paper", paper_pk=paper_id)
+            selected_paper = Paper.objects.filter(pk=paper_id).first()
+            if selected_paper:
+                nodes = ExamNode.objects.filter(paper=selected_paper)
+                question_nodes = nodes.filter(node_type='question').order_by('order_index')
+                questions_count = question_nodes.count()
+                tables_count = nodes.filter(node_type='table').count()
+                images_count = nodes.filter(node_type='image').count()
+            return render(request, "core/administrator/review_saved_selector.html", {
+                "original_papers": original_papers,
+                "randomized_papers": randomized_papers,
+                "papers": all_papers,  # For dropdown
+                "qualifications": qualifications,
+                "filter_type": filter_type,
+                "selected_paper": selected_paper,
+                "question_nodes": question_nodes,
+                "questions_count": questions_count,
+                "tables_count": tables_count,
+                "images_count": images_count,
+            })
 
     return render(request, "core/administrator/review_saved_selector.html", {
         "original_papers": original_papers,
@@ -1828,72 +1779,95 @@ def review_saved_selector(request):
         "papers": all_papers,  # For dropdown
         "qualifications": qualifications,
         "filter_type": filter_type,
+        "selected_paper": selected_paper,
+        "question_nodes": question_nodes,
+        "questions_count": questions_count,
+        "tables_count": tables_count,
+        "images_count": images_count,
     })
 
 @login_required
 def load_saved_paper_view(request, paper_pk):
     """View for loading and reviewing a saved paper"""
     try:
-        # Add debug logging
-        print(f"🔍 Loading paper ID: {paper_pk}")
-        
-        # Get paper with related data
+        # Get paper with optimized query
         paper = get_object_or_404(Paper.objects.select_related('qualification'), id=paper_pk)
-        print(f"📄 Found paper: {paper.name}")
         
-        # Get all nodes for this paper
-        nodes = ExamNode.objects.filter(
+        # Get all nodes with parent relationships
+        nodes = list(ExamNode.objects.filter(
             paper=paper
-        ).select_related('parent').order_by('order_index')
+        ).select_related('parent').order_by('order_index'))
         
-        print(f"📑 Found {nodes.count()} nodes")
-        
-        # Build hierarchical structure
-        questions = []
-        parent_map = {}  # Track parent-child relationships
-        
+        # Debug information
+        node_types = {}
         for node in nodes:
-            node_data = {
-                'id': node.id,
+            node_type = node.node_type
+            node_types[node_type] = node_types.get(node_type, 0) + 1
+        
+        print(f"Found {len(nodes)} nodes: {node_types}")
+        
+        # Build node hierarchy for template
+        questions = []
+        node_map = {}
+        
+        # Create dictionaries for each node
+        for node in nodes:
+            # Process content to ensure it's a list
+            content = node.content or []
+            
+            # Create node dict for template
+            node_dict = {
+                'id': str(node.id),
                 'type': node.node_type,
-                'number': node.number,
-                'text': node.text,
-                'marks': node.marks or 0,
-                'content': node.content or {},
+                'number': node.number or '',
+                'text': node.text or '',
+                'marks': node.marks or '',
+                'content': content,  # Already JSON from db
                 'children': []
             }
             
-            if node.parent:
-                # Add to parent's children
-                if node.parent.id in parent_map:
-                    parent_map[node.parent.id]['children'].append(node_data)
-                else:
-                    print(f"⚠️ Warning: Parent {node.parent.id} not found for node {node.id}")
-            else:
-                # Top level node
-                questions.append(node_data)
+            # Store in map for parent relationships
+            node_map[str(node.id)] = node_dict
             
-            parent_map[node.id] = node_data
-            
-        print(f"✅ Built structure with {len(questions)} top-level questions")
-
+            # Add top-level nodes to questions list
+            if node.node_type == 'question':
+                questions.append(node_dict)
+        
+        # Build parent-child relationships
+        for node in nodes:
+            if node.parent and str(node.parent.id) in node_map:
+                parent_dict = node_map[str(node.parent.id)]
+                child_dict = node_map[str(node.id)]
+                parent_dict['children'].append(child_dict)
+        
+        # Get question stats
+        question_nodes = [n for n in nodes if n.node_type == 'question']
+        tables_count = sum(1 for n in nodes if n.node_type == 'table')
+        images_count = sum(1 for n in nodes if n.node_type == 'image')
+        
+        print(f"Prepared {len(questions)} top-level questions with {len(question_nodes)} total questions")
+        
         # Get linked assessment if any
         assessment = Assessment.objects.filter(paper_link=paper).first()
-
-        context = {
-            "paper": paper,
-            "questions": questions,
-            "assessment": assessment,
-            "total_marks": paper.total_marks,
-            "node_count": nodes.count()
-        }
         
-        print("✅ Rendering template")
-        return render(request, "core/administrator/review_paper.html", context)
-
+        context = {
+            'paper': paper,
+            'questions': questions,
+            'assessment': assessment,
+            'total_marks': paper.total_marks,
+            'node_count': len(nodes),
+            'question_nodes': question_nodes,
+            'questions_count': len(question_nodes),
+            'tables_count': tables_count,
+            'images_count': images_count,
+        }
+        print(f"Questions passed to template: {len(questions)}")
+        return render(request, 'core/administrator/review_paper.html', context)
+        
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
-        print(f"Traceback: {traceback.format_exc()}")
+        print(f"Error in load_saved_paper_view: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
         messages.error(request, f"Error loading paper: {str(e)}")
         return redirect('review_saved_selector')
 
@@ -1959,6 +1933,7 @@ def randomize_paper_structure_view(request, paper_pk):
         randomized_paper = Paper.objects.create(
             name=f"{original_paper.name} (Randomized)",
             qualification=original_paper.qualification,
+            created_by=original_paper.created_by,
             is_randomized=True
         )
 
@@ -2011,3 +1986,4 @@ def save_blocks_view(request, paper_id):
     except Exception as e:
         messages.error(request, f"Error: {str(e)}")
         return JsonResponse({'status': 'error', 'message': str(e)})
+

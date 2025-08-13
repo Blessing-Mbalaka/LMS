@@ -1,0 +1,804 @@
+{
+  "source": "upload_55f2082687b845bfbf07e8e010cb3395.docx",
+  "output_dir": "upload_55f2082687b845bfbf07e8e010cb3395_extract",
+  "generated_at": 1755041577,
+  "counts": {
+    "blocks": 68,
+    "images": 0,
+    "tables": 27,
+    "questions": 9
+  },
+  "nodes": [
+    {
+      "id": "e12b7976-c4ae-47ac-8231-46d098b228b4",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 0,
+      "content": [
+        {
+          "type": "pagebreak"
+        }
+      ]
+    },
+    {
+      "id": "d936628b-777d-4785-acfa-d7cc9d7580c4",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "ur Sayzwani Abd Suki;Elmi Abu Bakar ,Shahrul Kamaruddin/ A Case Study on Improvement of Outgoing Quality Control Works for Manufacturing"
+        }
+      ]
+    },
+    {
+      "id": "b6bbbfc7-07c9-445e-9dde-dc0b3b674126",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 2,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Products 4(1), pp. 12-21, 2015"
+        }
+      ]
+    },
+    {
+      "id": "61613d8e-648a-4a7f-bfb0-6449472d9083",
+      "number": "1.1",
+      "type": "question",
+      "marks": 10,
+      "parent_id": null,
+      "order": 3,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1"
+        },
+        {
+          "type": "paragraph",
+          "text": "Complete a quality inspection checklist for input, inline and endline for product or service"
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.1 Case StudyAllocate ten mark each for number 1 Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Looking at the example above, generate a checklist that is associated with the Quality Inspection activities you will perform as a quality inspector to ensure that the above client product specifications are met."
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.2 Constructive Response Allocate ten marks Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "One of the cornerstones to achieving continuous improvement is a command of the quality inspection process. Criteria based inspection plans are created to meet specific regulatory requirements and workflows, depending upon where the product is in the manufacturing lifecycle. Online visibility and real-time tracking of incoming raw materials, parts, and subassemblies are critical to successful inspections. An effective quality management solution can manage all the information related to inspections, and thus deliver a unified view of inspection criteria and results to key company personnel."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Discuss the 10 industry needs to perform testing / inspection for either a service or a product."
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3678ee83-dad9-40c0-9daa-d83e4e52c76a",
+      "number": "1.1.3",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "61613d8e-648a-4a7f-bfb0-6449472d9083",
+      "order": 4,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "1.1.3 Complete a testing checklist for a product or service across all processes (input, inline and endline)"
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.3 Case StudyAllocate ten mark for number 1 Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Limit Sample",
+              "Master Sample"
+            ],
+            [
+              "Limit sample is the reference sample of testing and inspection",
+              "It is the reference sample of production"
+            ],
+            [
+              "It is approved by customer quality person",
+              "It is approved by customer engineering."
+            ],
+            [
+              "It allows permissible visual inspection variation without affecting part quality",
+              "It does not allow permissible visual inspection beyond design"
+            ],
+            [
+              "It does not fulfil the customer specific requirements.",
+              "It fulfils the specific customer requirements."
+            ],
+            [
+              "Looking at the 2 scenarios above for the Limit Sample and the Master Sample, create 2 testing checklists for a service or a product which will ensure that the two samples meets customer requirements."
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3169be69-913f-4776-bec7-0790ae887759",
+      "number": "1.1.4",
+      "type": "question",
+      "marks": 15,
+      "parent_id": "61613d8e-648a-4a7f-bfb0-6449472d9083",
+      "order": 5,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "1.1.4 Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations."
+        },
+        {
+          "type": "paragraph",
+          "text": "(15 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.4 Case Study Allocate fifteen Marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "In order to establish why a process/product/service is not conforming to the standard, one needs to do a root cause analysis and make recommendation to prevent occurrence. The attached diagram can be used to assist in identifying a problem during the input, inline and the end line."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "Mark"
+            ],
+            [
+              "1",
+              "With the aid of the above diagram, do a root cause analysis for problem identification of the input, inline and endline to prevent non-conformance and make recommendation. Note:Briefly explain the problem you are trying to solve.Discuss the root cause for either the input, the inline or the endline of the process.5 why’s will be appropriate.Make recommendation to prevent the problem for occurring again.",
+              "15"
+            ],
+            [
+              "Total",
+              "15",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.5 Constructive Response Allocate 10 marks for number 1"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answers",
+              "Marks"
+            ],
+            [
+              "1",
+              "Study the picture above and discuss how you will ensure adherence to good manufacturing principles of the 5P’s",
+              "10"
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d7fc7318-99ae-427b-a89f-95ae460391ee",
+      "number": "1.1.6",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "61613d8e-648a-4a7f-bfb0-6449472d9083",
+      "order": 6,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "1.1.6 Apply different testing methods for different characteristics to test for product/service quality applicable in their environment"
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.6 Case Study Allocate ten marks for no1 Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Testing is used to reveal the degree of a given quality in something by means of a test. For example, the experiment performed to test the rats' ability to solve spatial problems. It is also a procedure of using a method to identify the defects or bugs. For testing an application or software, product or service, certain principles need to be followed to make the software, product or service defects free."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "Discuss any five of the seven different testing principles listed below:Testing shows the presence of defects, not their absenceExhaustive testing is not possibleEarly testing saves time and moneyDefect clustering togetherBeware of the pesticide paradoxTesting is context-dependentAbsence of errors is a fallacy",
+              "10"
+            ],
+            [
+              "Total",
+              "10",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Apply knowledge of testing procedures of a product or service."
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.7 Constructive Response Allocate ten marks for no1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "In an organisation there are controls that need to be implemented, these controls will demonstrate to the organisation clients that the products/services they are providing or their operational environment is safe and secure. Once these controls are identified, they must be tested to ensure that they are working properly and that is where a test of control comes in. There are a number of different ways to confirm, or test that a control is working using the five main methods to walk through and test each control in place at the organization."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "Discuss five main methods to walk through and test each control in place in an organization.EnquiryObservationExamination and Inspection of evidenceRe-performanceComputer assisted audit technique",
+              "10"
+            ],
+            [
+              "Total",
+              "",
+              "10"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Test if product/service conforms to the required standard"
+        },
+        {
+          "type": "paragraph",
+          "text": "(5 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.8 Multiple Choice Questions Allocate 1 mark each for number 1 to 5"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Multiple Choice Questions",
+              "Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "The quality of the product/service is underpinned by the following principles.The product/service must meet customer requirementsThe product/service needs to have its specifications definedThe packaging of the product/service is taken into considerations.All of the above",
+              "",
+              "1"
+            ],
+            [
+              "2.",
+              "The process development principles will be as follows:Stakeholders must be involved at the final stage of the development phases.It is necessary for the process developed to meet none of the standards as determined by the stakeholders.The process must be easy to follow and understood.All of the above",
+              "",
+              "1"
+            ],
+            [
+              "3",
+              "The key features of service performance are:The design of a service in such a way that it meets customer expectations.       B.Customer care limited to after service       C.Turnaround time to deliver a service not followed trough       D.A vague procedure to deliver a service.",
+              "",
+              "1"
+            ],
+            [
+              "4",
+              "Which one of the following is not a representation of a specification limit:Voice of the CustomerVoice of the processValues defined by userApply to subgroups",
+              "",
+              "1"
+            ],
+            [
+              "5",
+              "Which one of the following is a representation of a control limit:Voice of the CustomerVoice of the processValues defined by userApply to subgroups",
+              "",
+              "1"
+            ],
+            [
+              "Total",
+              "",
+              "5"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f46ada87-b49b-4fa3-8a61-dc419dc16c79",
+      "number": "2.1",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 7,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1"
+        }
+      ]
+    },
+    {
+      "id": "0fe034ea-d420-4e21-a84e-0324abd164f2",
+      "number": "2.1.1",
+      "type": "question",
+      "marks": 5,
+      "parent_id": "f46ada87-b49b-4fa3-8a61-dc419dc16c79",
+      "order": 8,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2.1.1 Identify tools (what) and method (how) to use in processing information during manufacturing and service rendering"
+        },
+        {
+          "type": "paragraph",
+          "text": "(5 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.1 Multiple Choice Question Allocate one mark each for number 1 to 5"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Multiple Choice Questions",
+              "Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "These devices are not part of the storage devicesHard Drives, Soft DrivesOptical Drives Flash Drives",
+              "",
+              "1"
+            ],
+            [
+              "2.",
+              "For the decision to be meaningful, the processed data must qualify for the following characteristicsInformation should be available when required. Less information should be accurate.Some information should be complete.All of the above",
+              "",
+              "1"
+            ],
+            [
+              "3",
+              "They can be used to identify a set of priorities so you can determine what parameters have the biggest impact on the specific area of concern.Control ChartsFlow ChartsPareto ChartsAll of the above",
+              "",
+              "1"
+            ],
+            [
+              "4",
+              "They can be used in any field to break down complex processes in a way that is easy to understand.Control ChartsFlow ChartsPareto ChartsAll of the above",
+              "",
+              "1"
+            ],
+            [
+              "5",
+              "allow you to identify the stability and predictability of the process and identify common causes of variation.Control ChartsFlow ChartsPareto ChartsAll of the above",
+              "",
+              ""
+            ],
+            [
+              "Total",
+              "5"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "05decc5f-577d-487e-91fd-18fc7958b8aa",
+      "number": "2.1.2",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "f46ada87-b49b-4fa3-8a61-dc419dc16c79",
+      "order": 9,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2.1.2 Gather information using tools from samples taken and data from statistical process control (SPC)(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.2 Case Study Allocate 10 marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "An investor created his trend line from the historical stock prices, and he used the information to predict the future movement of the stock price. The trend can be associated with the given information. Cause and effect relationships must be studied before concluding the trend analysis. Trend analysis also involves finding patterns that are occurring over time, like a cup and handle pattern, head and shoulder pattern or reverse head and shoulder pattern. In technical analysis, it can be used in the foreign exchange market, stock market, or derivative market. With slight changes, the same analysis can be used in all markets."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "",
+              "Marks"
+            ],
+            [
+              "1",
+              "Discuss example where the investor can use the trend analysis for (4)Discuss the significant of trend analysis (6)",
+              "",
+              "10"
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "5c2a2320-24e7-45e2-9bae-1eb76133b540",
+      "number": "2.1.3",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "f46ada87-b49b-4fa3-8a61-dc419dc16c79",
+      "order": 10,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2.1.3 Analyse sample results and data collected from service delivered or manufacturing process(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.3 Constructive Respond Allocate 10 marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answer",
+              "Marks"
+            ],
+            [
+              "1",
+              "Discuss the 5 steps of the Data Analysis process using the problem you used for root cause analysis in 1.1.4",
+              "10"
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "35a5f2dc-bc61-4daf-a70a-ce8fc065a8c7",
+      "number": "2.1.4",
+      "type": "question",
+      "marks": 15,
+      "parent_id": "f46ada87-b49b-4fa3-8a61-dc419dc16c79",
+      "order": 11,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2.1.4 Make recommendation for process improvements based on the analysis (15 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.4 Constructive Respond (Cognitive Category – Medium Order = 10 and High Order = 5)Allocate 15 marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "During monitoring and evaluation, deviations will be found, when that occurs there must be corrective measures taken to bring the deviation under control."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "Marks"
+            ],
+            [
+              "1",
+              "Discuss the problem solving process using industry example to substantiate your answer.‘",
+              "15"
+            ],
+            [
+              "Total",
+              "15"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Marks Allocation Grid (For use by Assessor Only)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Question",
+              "Marks",
+              "Allocated Marks"
+            ],
+            [
+              "1.1.1",
+              "10",
+              ""
+            ],
+            [
+              "1.1.2",
+              "10",
+              ""
+            ],
+            [
+              "1.1.3",
+              "10",
+              ""
+            ],
+            [
+              "1.1.4",
+              "15",
+              ""
+            ],
+            [
+              "1.1.5",
+              "10",
+              ""
+            ],
+            [
+              "1.1.6",
+              "10",
+              ""
+            ],
+            [
+              "1.1.7",
+              "10",
+              ""
+            ],
+            [
+              "1.1.8",
+              "5",
+              ""
+            ],
+            [
+              "Total Question 1.1",
+              "80",
+              ""
+            ],
+            [
+              "2.1.1",
+              "5",
+              ""
+            ],
+            [
+              "2.1.2",
+              "10",
+              ""
+            ],
+            [
+              "2.1.3",
+              "10",
+              ""
+            ],
+            [
+              "2.1.4",
+              "15",
+              ""
+            ],
+            [
+              "Total Question 2.1",
+              "40",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Assessor Details"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Assessor Name and Surname",
+              ""
+            ],
+            [
+              "Registration Number",
+              ""
+            ],
+            [
+              "Signature",
+              ""
+            ],
+            [
+              "Date",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Moderator Details"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Moderator Name and Surname",
+              ""
+            ],
+            [
+              "Registration Number",
+              ""
+            ],
+            [
+              "Signature",
+              ""
+            ],
+            [
+              "Date",
+              ""
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "paper_name": null,
+    "module": null,
+    "tags": []
+  }
+}

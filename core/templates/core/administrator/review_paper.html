@@ -67,7 +67,39 @@
         {% endfor %}
       </div>
     </form>
+  {% else %}
+    <div class="alert alert-warning">
+        No questions found for this paper. 
+        Paper ID: {{ paper.id }}
+    </div>
   {% endif %}
+
+  <!-- Debug Info -->
+  <div class="alert alert-info mt-4">
+    <h5>Debug Info:</h5>
+    <p>Paper ID: {{ paper.pk }}</p>
+    <p>Paper Name: {{ paper.name }}</p>
+    <p>Questions count: {{ questions|length }}</p>
+    <p>Questions object type: 
+  {% if questions %}
+    {% if questions|length > 0 %}List with {{ questions|length }} items{% else %}Empty list{% endif %}
+  {% else %}
+    None
+  {% endif %}
+</p>
+    
+    {% if questions %}
+      <ul>
+      {% for q in questions %}
+        <li>Q{{ q.number }}: {{ q.type }} - {{ q.marks }} marks 
+          (Content items: {{ q.content|length }})
+        </li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p><strong>No questions found!</strong></p>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}
 
@@ -155,15 +187,22 @@ document.addEventListener('DOMContentLoaded', () => {
                   || '';
 
         const content = Array.from(b.querySelectorAll('.block-content')).map(el => {
-          if (el.tagName === 'IMG') {
-            return { type: 'figure', data_uri: el.src };
-          }
-          if (el.tagName === 'TABLE') {
-            const rows = Array.from(el.querySelectorAll('tr')).map(row =>
+          // Check for table inside block-content
+          const table = el.querySelector('table');
+          if (table) {
+            const rows = Array.from(table.querySelectorAll('tr')).map(row =>
               Array.from(row.querySelectorAll('td')).map(cell => cell.innerText.trim())
             );
             return { type: 'table', rows };
           }
+          
+          // Check for image inside block-content
+          const img = el.querySelector('img');
+          if (img) {
+            return { type: 'figure', images: [img.src.split('/').pop()] };
+          }
+          
+          // Other content types
           if (el.closest('.border.bg-light')) {
             return { type: 'case_study', text: el.innerText.trim() };
           }

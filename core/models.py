@@ -493,12 +493,16 @@ class Paper(models.Model):
     qualification = models.ForeignKey(Qualification, on_delete=models.CASCADE)
     is_randomized = models.BooleanField(default=False)
     structure_json = models.JSONField(default=dict, blank=True)
-    
-    # Add total_marks field
     total_marks = models.IntegerField(default=0)
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="papers_created"
+    )
 
     def __str__(self):
         return f"{self.name} ({self.qualification})"
@@ -507,125 +511,40 @@ class Paper(models.Model):
 
 
 class ExamNode(models.Model):
-    """Single source of truth for all question/content storage"""
-    BLOCK_TYPES = [
+    """Model for storing question/content nodes of a paper"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    paper = models.ForeignKey(Paper, on_delete=models.CASCADE, related_name='nodes')
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
+    node_type = models.CharField(max_length=20, choices=[
         ('question', 'Question'),
         ('table', 'Table'),
         ('image', 'Image'),
-        ('case_study', 'Case Study'),
-        ('instruction', 'Instruction')
-    ]
-
-    id = models.CharField(
-        primary_key=True, 
-        max_length=32,
-        default=uuid.uuid4().hex
-    )
-    paper = models.ForeignKey(
-        Paper, 
-        on_delete=models.CASCADE,
-        null=True,  # Allow null temporarily for migration
-        default=None
-    )
-    parent = models.ForeignKey(
-        'self', 
-        null=True, 
-        blank=True,
-        on_delete=models.CASCADE
-    )
-    
-    # Core fields with defaults
-    node_type = models.CharField(
-        max_length=50, 
-        choices=BLOCK_TYPES,
-        default='question'
-    )
-    number = models.CharField(max_length=20, blank=True, default='')
-    marks = models.CharField(max_length=10, blank=True, default='0')
-    text = models.TextField(blank=True, default='')
-    
-    # Structured content
-    content = models.JSONField(
-        default=dict,
-        help_text="Structured content like tables, case studies"
-    )
-    
-    # Binary content
-    binary_content = models.BinaryField(
-        null=True, 
-        blank=True,
-        help_text="For storing binary data like images"
-    )
-    content_type = models.CharField(
-        max_length=50,
-        blank=True,
-        default='',
-        help_text="MIME type for binary_content"
-    )
-    
-    # Metadata with defaults
+        ('text', 'Text'),
+        ('instruction', 'Instruction'),
+    ])
+    number = models.CharField(max_length=20, blank=True, null=True)
+    text = models.TextField(blank=True, null=True)
+    marks = models.CharField(max_length=10, blank=True, null=True)
+    content = models.JSONField(default=list, blank=True)
     order_index = models.IntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(
-        
-        auto_now_add=True  # Then add auto_now_add
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['order_index']
         indexes = [
-            models.Index(fields=['paper', 'order_index']),
-            models.Index(fields=['node_type']),
-            models.Index(fields=['parent', 'order_index'])
+            models.Index(fields=['paper', 'node_type']),
+            models.Index(fields=['paper', 'number']),
         ]
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(node_type__in=['question', 'table', 'image', 
-                                            'case_study', 'instruction']),
-                name='valid_node_type'
-            )
-        ]
-
-    def clean(self):
-        """Validate content based on node_type"""
-        if self.node_type == 'image' and not self.binary_content:
-            raise ValidationError("Images require binary content")
-        if self.node_type == 'table' and not self.content:
-            raise ValidationError("Tables require content")
-
-    def get_full_structure(self):
-        """Get complete nested structure including children"""
-        structure = {
-            'id': self.id,
-            'type': self.node_type,
-            'number': self.number,
-            'marks': self.marks,
-            'text': self.text,
-            'content': self.get_content(),
-            'order': self.order_index,
-            'children': []
-        }
         
-        for child in self.examnode_set.order_by('order_index'):
-            structure['children'].append(child.get_full_structure())
-            
-        return structure
-
-    def get_content(self):
-        """Return appropriate content based on type"""
-        if self.node_type == 'image' and self.binary_content:
-            # Changed from data_uri to proper base64 encoding
-            return {
-                'type': 'image',
-                'content_type': self.content_type,
-                'data': base64.b64encode(self.binary_content).decode()
-            }
-        return self.content  # Return JSON content field, not content1
-    
-
     def __str__(self):
-        return f"{self.paper.name} - {self.node_type} {self.number or ''}"
-
+        return f"{self.node_type}: {self.number or 'No number'} ({self.id})"
+        
+    def clean_content(self):
+        """Ensure content is a list"""
+        if self.content is None:
+            self.content = []
+        return self.content
 
 class Feedback(models.Model):
     assessment = models.ForeignKey(

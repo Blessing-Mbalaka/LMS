@@ -172,7 +172,8 @@
       <!-- Qualification Dropdown -->
       <div class="col-md-4">
         <label for="qual" class="form-label">Qualification</label>
-        <select id="qual" name="qualification_id" class="form-select form-select-sm" required>
+        <select id="qual" name="qualification" class="form-select form-select-sm" required>
+
           <option value="">— Select Qualification —</option>
           {% for q in qualifications %}
             <option value="{{ q.id }}" data-name="{{ q.name }}" data-saqa="{{ q.saqa_id }}">
