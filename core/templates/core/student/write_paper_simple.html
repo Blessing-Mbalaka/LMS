@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Write Paper: {{ paper.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .question-card {
+            margin-bottom: 20px;
+            border-left: 4px solid #552a74;
+            padding: 15px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
+        }
+
+        .card-title {
+            color: #552a74;
+            font-weight: bold;
+        }
+
+        .case-study {
+            background: #f6f6f6;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <h2 class="mb-3 text-center">Write Paper: {{ paper.name }}</h2>
+        <p class="text-center text-muted mb-4">{{ paper.qualification.name }} • Total Marks: {{ paper.total_marks }}</p>
+
+        <form method="post" action="{% url 'submit_paper_simple' paper_id=paper.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="attempt_number" value="{{ attempt_number }}" />
+
+            {% if nodes %}
+            {% for q in nodes %}
+            <div class="question-card">
+                <h5 class="card-title">Question {{ forloop.counter }}{% if q.marks %} ({{ q.marks }} marks){% endif %}
+                </h5>
+
+                {% if q.text %}<p>{{ q.text }}</p>{% endif %}
+
+                {% for item in q.content %}
+                {% if item.type == "question_text" %}
+                <p>{{ item.text }}</p>
+                {% elif item.type == "table" %}
+                <div class="table-responsive">{{ item.html|default:item|safe }}</div>
+                {% elif item.type == "case_study" %}
+                <div class="case-study">{{ item.text }}</div>
+                {% elif item.type == "figure" %}
+                <div class="my-2"><em>[Figure/Image available]</em></div>
+                {% endif %}
+                {% endfor %}
+
+                <label for="answer_node_{{ q.id }}" class="form-label mt-3">Your Answer:</label>
+                <textarea name="answer_node_{{ q.id }}" id="answer_node_{{ q.id }}" rows="4" class="form-control"
+                    required></textarea>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="alert alert-warning">This paper has no question nodes yet.</div>
+            {% endif %}
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success px-5">Submit Answers</button>
+                <a href="{% url 'papers_demo' %}" class="btn btn-outline-secondary ms-2">Back</a>
+            </div>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

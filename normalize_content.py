@@ -3,7 +3,7 @@ from django.conf import settings
 def normalize_content_and_copy_media(node_content, src_media_dir, paper_id):
     """Normalize tables/paragraphs; copy figures to MEDIA and emit {type:'image', src:...}"""
     normalized = []
-    dest_media_dir = os.path.join(settings.MEDIA_ROOT, 'exam_media', str(paper_id))
+    dest_media_dir = os.path.join(settings.MEDIA_ROOT, 'media', str(paper_id))
     os.makedirs(dest_media_dir, exist_ok=True)
 
     for item in (node_content or []):
@@ -33,7 +33,7 @@ def normalize_content_and_copy_media(node_content, src_media_dir, paper_id):
                         dst = os.path.join(dest_media_dir, fn)
                         if not os.path.exists(dst):
                             shutil.copyfile(src, dst)
-                        web_src = f"{settings.MEDIA_URL.rstrip('/')}/exam_media/{paper_id}/{fn}"
+                        web_src = f"{settings.MEDIA_URL.rstrip('/')}/media/{paper_id}/{fn}"
                     else:
                         # fallback if file missing (older manifests)
                         web_src = f"media/{fn}"

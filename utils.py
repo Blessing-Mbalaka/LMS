@@ -1250,5 +1250,23 @@ def post_process_blocks(blocks):
         
     return processed
 
+import os
+import shutil
+from django.conf import settings
 
+def copy_images_to_media_folder(extract_media_dir):
+    """
+    Copies all images from the extraction media folder to Django's MEDIA_ROOT.
+    Returns a mapping of original filenames to new filenames (to update DB if needed).
+    """
+    if not os.path.isdir(extract_media_dir):
+        return {}
+
+    copied = {}
+    for fname in os.listdir(extract_media_dir):
+        src = os.path.join(extract_media_dir, fname)
+        dst = os.path.join(settings.MEDIA_ROOT, fname)
+        shutil.copy2(src, dst)
+        copied[fname] = fname  # If you want to rename, do it here
+    return copied
 

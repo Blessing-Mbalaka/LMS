@@ -61,6 +61,13 @@ urlpatterns = [
     # Student URLs
     path('student/', views.student_dashboard, name='student_dashboard'),
     path('student/approved-assessments/', views.approved_assessments_for_learners, name='approved_assessments_for_learners'),
+    path('student/assessments/<int:assessment_id>/write/', views.write_exam, name='write_exam'),
+    path('student/assessments/<int:assessment_id>/submit/', views.submit_exam, name='submit_exam'),
+    
+    #Demo Student URLS to be robusted later
+    path('student/papers/', views.papers_demo, name='papers_demo'),
+    path('student/papers/<int:paper_id>/write/', views.write_paper_simple, name='write_paper_simple'),
+    path('student/papers/<int:paper_id>/submit/', views.submit_paper_simple, name='submit_paper_simple'),
 
     # Tracking URLs
     path('track/', views.assessment_progress_tracker, name='assessment_progress_tracker'),

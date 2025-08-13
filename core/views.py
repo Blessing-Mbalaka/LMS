@@ -1871,31 +1871,34 @@ def load_saved_paper_view(request, paper_pk):
         messages.error(request, f"Error loading paper: {str(e)}")
         return redirect('review_saved_selector')
 
-
 @login_required
 def student_dashboard(request):
     """Dashboard view for students/learners to see their available assessments"""
-    
-    # Get user's qualification
+
     user_qualification = request.user.qualification
 
-    # Get assessments that:
-    # 1. Are approved by ETQA
-    # 2. Match the user's qualification
-    # 3. Include related questions
+    # Only include assessments with papers and nodes
     assessments = Assessment.objects.filter(
-        status="Approved by ETQA",
-        qualification=user_qualification
+        status="etqa_approved",  # note: make sure this matches your STATUS_CHOICES value
+        qualification=user_qualification,
+        paper_link__isnull=False
     ).select_related(
-        'qualification', 
+        'qualification',
         'paper_link'
-    ).prefetch_related(
-        'generated_questions'
     ).order_by('-created_at')
 
-    # Get attempt counts for each assessment
     assessment_data = []
     for assessment in assessments:
+        paper = assessment.paper_link
+
+        has_nodes = paper.nodes.filter(
+            node_type='question',
+            parent__isnull=True
+        ).exists() if paper else False
+
+        if not has_nodes:
+            continue  # skip assessments with no real questions
+
         attempt_count = ExamAnswer.objects.filter(
             question__assessment=assessment,
             user=request.user
@@ -1913,6 +1916,7 @@ def student_dashboard(request):
         'user': request.user,
         'qualification': user_qualification
     })
+
 
 def custom_logout(request):
      logout(request)
@@ -1987,3 +1991,185 @@ def save_blocks_view(request, paper_id):
         messages.error(request, f"Error: {str(e)}")
         return JsonResponse({'status': 'error', 'message': str(e)})
 
+@login_required
+def write_exam(request, assessment_id):
+    """
+    Render the write page for a single assessment.
+    - Old pipeline: GeneratedQuestion
+    - New pipeline: ExamNode-based paper
+    """
+    assessment = get_object_or_404(
+        Assessment.objects.select_related('paper_link', 'qualification'),
+        id=assessment_id
+    )
+
+    # Optional safety: only show assessments matching the learner’s qualification
+    if request.user.qualification and assessment.qualification_id != request.user.qualification_id:
+        messages.error(request, "This assessment is not assigned to your qualification.")
+        return redirect('student_dashboard')
+
+    paper = assessment.paper_link  # may be None for old pipeline
+    generated_qs = assessment.generated_questions.all().order_by('id')  # old
+
+    # new: only if there's a paper with nodes
+    exam_nodes = (
+        paper.nodes.filter(node_type='question', parent__isnull=True)
+        .order_by('order_index')
+        if paper else []
+    )
+
+    context = {
+        'assessment': assessment,
+        'generated_qs': generated_qs,   # old pipeline
+        'exam_nodes': exam_nodes,       # new pipeline
+        'attempt_number': 1,            # demo; bump if you track attempts
+    }
+    return render(request, 'write_exam.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def submit_exam(request, assessment_id):
+    """
+    Accepts both:
+      - answer_<GeneratedQuestion.id>          (old pipeline)
+      - answer_node_<ExamNode.uuid>           (new pipeline)
+
+    Old: creates ExamAnswer rows (your existing flow).
+    New: collects node answers; optionally save into StudentWrittenPaper if present.
+    """
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+    attempt_number = int(request.POST.get('attempt_number', 1))
+
+    # --- OLD PIPELINE: GeneratedQuestion → ExamAnswer ---
+    saved_count_old = 0
+    for key, value in request.POST.items():
+        if not key.startswith('answer_'):
+            continue
+        # ignore the new pipeline prefix
+        if key.startswith('answer_node_'):
+            continue
+
+        # key is "answer_<gq_id>"
+        try:
+            gq_id = int(key.split('_', 1)[1])
+        except (IndexError, ValueError):
+            continue
+
+        gq = GeneratedQuestion.objects.filter(id=gq_id, assessment=assessment).first()
+        if not gq:
+            continue
+
+        try:
+            with transaction.atomic():
+                ExamAnswer.objects.create(
+                    user=request.user,
+                    question=gq,
+                    answer_text=value.strip(),
+                    attempt_number=attempt_number
+                )
+                saved_count_old += 1
+        except IntegrityError:
+            # If unique_together blocks dupes, you can update instead:
+            ans = ExamAnswer.objects.get(
+                user=request.user, question=gq, attempt_number=attempt_number
+            )
+            ans.answer_text = value.strip()
+            ans.save(update_fields=['answer_text'])
+
+    # --- NEW PIPELINE: ExamNode → collect answers ---
+    node_answers = {}
+    for key, value in request.POST.items():
+        # keys like: answer_node_<uuid>
+        if not key.startswith('answer_node_'):
+            continue
+        node_uuid = key.replace('answer_node_', '', 1).strip()
+        node_answers[node_uuid] = (value or '').strip()
+
+    saved_new = len(node_answers)
+
+    # OPTIONAL: persist node answers if you’ve added StudentWrittenPaper
+    # if node_answers:
+    #     paper = assessment.paper_link
+    #     if paper:
+    #         swp, _ = StudentWrittenPaper.objects.get_or_create(
+    #             learner=request.user,
+    #             paper=paper,
+    #         )
+    #         # merge into existing JSON (so multiple submits don’t clobber)
+    #         existing = swp.answers_json or {}
+    #         existing.update(node_answers)
+    #         swp.answers_json = existing
+    #         swp.save(update_fields=['answers_json', 'last_updated'])
+
+    messages.success(
+        request,
+        f"Submitted: {saved_count_old} legacy answers"
+        + (f", {saved_new} structured answers." if saved_new else ".")
+    )
+    return redirect('student_dashboard')
+
+    #Views for the Demo 
+
+@login_required
+def papers_demo(request):
+    """
+    Simple demo page: list ALL papers from the DB in a table.
+    No status/qualification filtering (for now).
+    """
+    papers = Paper.objects.select_related('qualification').order_by('-created_at')
+    return render(request, 'core/student/papers_demo.html', {
+        'papers': papers,
+        'user': request.user,
+    })
+
+
+@login_required
+def write_paper_simple(request, paper_id):
+    """
+    Write page for a single Paper (no Assessment dependency).
+    Renders top-level question nodes; collects answers by ExamNode UUID.
+    """
+    paper = get_object_or_404(Paper.objects.select_related('qualification'), id=paper_id)
+    nodes = (paper.nodes
+                  .filter(node_type='question', parent__isnull=True)
+                  .order_by('order_index'))
+    return render(request, 'core/student/write_paper_simple.html', {
+        'paper': paper,
+        'nodes': nodes,
+        'attempt_number': 1,  # demo hardcode
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def submit_paper_simple(request, paper_id):
+    """
+    Accepts answer_node_<ExamNode.uuid> fields. For now we just count & confirm.
+    If you’ve added StudentWrittenPaper, uncomment the persistence block.
+    """
+    paper = get_object_or_404(Paper, id=paper_id)
+
+    # Gather answers
+    node_answers = {}
+    for key, val in request.POST.items():
+        if key.startswith('answer_node_'):
+            node_uuid = key.replace('answer_node_', '', 1)
+            node_answers[node_uuid] = (val or '').strip()
+
+    saved_new = len(node_answers)
+
+    # OPTIONAL: Persist to StudentWrittenPaper
+    # if node_answers:
+    #     swp, _ = StudentWrittenPaper.objects.get_or_create(
+    #         learner=request.user,
+    #         paper=paper,
+    #     )
+    #     existing = swp.answers_json or {}
+    #     existing.update(node_answers)
+    #     swp.answers_json = existing
+    #     swp.save(update_fields=['answers_json', 'last_updated'])
+
+    messages.success(request, f"Submitted {saved_new} answers for '{paper.name}'.")
+    return redirect('papers_demo')
+#end of demo views

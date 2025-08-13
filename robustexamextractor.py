@@ -27,6 +27,7 @@ Author: Blessing Mbalaka(2025‑08‑08)
 from __future__ import annotations
 
 import tempfile 
+
 import base64, mimetypes
 from pathlib import Path
 import os, io, re, json, time, math, uuid, zipfile, hashlib, argparse, traceback
@@ -35,6 +36,7 @@ from typing import List, Dict, Optional, Tuple, Any
 from xml.etree import ElementTree as ET
 
 from normalize_content import normalize_content_and_copy_media
+from utils import copy_images_to_media_folder
 
 
 # -----------------------------
@@ -1430,9 +1432,11 @@ def save_robust_extraction_to_db(docx_file, paper_name, qualification, user, use
             temp_path, 
             out_dir=None,  # Let it auto-generate
             use_gemini=use_gemini, 
-            use_gemma=use_gemma
+            use_gemma=use_gemma,
+            # media_dir=os.path.join(extract_dir, "media")
         )
-        
+
+        #copy_images_to_media_folder(media_dir)
         # Clean up temp file
         os.unlink(temp_path)
         

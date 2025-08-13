@@ -51,12 +51,12 @@
           <div class="mt-3 block-content">
             {% if item.images %}
               {% for img in item.images %}
-                <img src="/media/exam_images/{{ img }}" class="img-fluid mb-2" alt="Question image">
+                <img src="/media2/{{ img }}" class="img-fluid mb-2" alt="Question image">
               {% endfor %}
             {% elif item.data_uri %}
               <img src="{{ item.data_uri }}" class="img-fluid mb-2" alt="Question image">
             {% elif item.image %}
-              <img src="/media/exam_images/{{ item.image }}" class="img-fluid mb-2" alt="Question image">
+              <img src="/media/{{ item.image }}" class="img-fluid mb-2" alt="Question image">
             {% endif %}
           </div>
         {% endif %}

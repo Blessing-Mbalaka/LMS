@@ -9,6 +9,6 @@ VALID_NODE_TYPES = {'question', 'table', 'image', 'case_study', 'instruction'}
 
 @receiver(pre_save, sender=ExamNode)
 def enforce_valid_node_type(sender, instance, **kwargs):
-    """Ensure node_type is always one of the valid options."""
-    if instance.node_type not in VALID_NODE_TYPES:
-        instance.node_type = 'question'
+        """Ensure node_type is always one of the valid options."""
+        if instance.node_type not in VALID_NODE_TYPES:
+            instance.node_type = 'question'
