@@ -2,6 +2,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
+from django.conf import settings
 
 register = template.Library()
 
@@ -72,30 +73,76 @@ def _render_table(item):
 
     return "".join(out)
 
+
+def _is_abs_url(s: str) -> bool:
+    s = str(s).lower()
+    return s.startswith("http://") or s.startswith("https://") or s.startswith("data:")
+
+def _join_media(url_part: str, default_folder: str = "") -> str:
+    """
+    Convert 'foo.png' -> '/media/foo.png' (or '/media/<default_folder>/foo.png').
+    Keeps absolute URLs and '/...' paths unchanged.
+    """
+    if _is_abs_url(url_part):
+        return url_part
+    if url_part.startswith("/"):
+        return url_part
+    base = getattr(settings, "MEDIA_URL", "/media/")
+    if not base.endswith("/"):
+        base += "/"
+    default_folder = (default_folder or "").strip("/")
+    return f"{base}{default_folder + '/' if default_folder else ''}{url_part}".replace("//", "/")
+
 def _render_figure(item):
     """
     Supports:
       - {'type':'figure','data_uri':'data:image/png;base64,...'}
-      - {'type':'figure','images':['filename.png', ...]}
-      - {'type':'image', ...} as an alias
+      - {'type':'figure','url':'/media/.../img.png'}
+      - {'type':'figure','images':['filename.png', 'nested/f1.jpg']}
+      - {'type':'figure','images':[{'path':'x.png'}, {'url':'https://...'}, {'data_uri':'data:...'}]}
+      - {'type':'image', ...} as alias
     """
+    # inline data uri on the item itself
     data_uri = item.get("data_uri")
     if isinstance(data_uri, str) and data_uri.startswith("data:"):
         return f"<div class='my-2'><img src='{data_uri}' class='img-fluid' /></div>"
 
+    # direct url on the item
+    if isinstance(item.get("url"), str):
+        return f"<div class='my-2'><img src='{escape(item['url'])}' class='img-fluid' /></div>"
+
+    # images can be many shapes
     images = item.get("images") or item.get("image") or []
-    if isinstance(images, str):
+    if isinstance(images, (str, bytes)):
+        images = [images]
+    elif not isinstance(images, (list, tuple)):
         images = [images]
 
+    DEFAULT_FIG_FOLDER = ""  # e.g. "extracted/figures" if you store under MEDIA_ROOT/extracted/figures
+
     tags = []
-    for src in images:
-        src = str(src)
-        # You can adapt this to your media path if these are stored files
-        tags.append(f"<img src='{escape(src)}' class='img-fluid me-2 mb-2' />")
+    for im in images:
+        # dict form with possible keys
+        if isinstance(im, dict):
+            if isinstance(im.get("data_uri"), str) and im["data_uri"].startswith("data:"):
+                tags.append(f"<img src='{im['data_uri']}' class='img-fluid me-2 mb-2' />")
+                continue
+            if isinstance(im.get("url"), str):
+                tags.append(f"<img src='{escape(im['url'])}' class='img-fluid me-2 mb-2' />")
+                continue
+            path_like = im.get("path") or im.get("filename") or im.get("name")
+            if path_like:
+                url = _join_media(str(path_like), DEFAULT_FIG_FOLDER)
+                tags.append(f"<img src='{escape(url)}' class='img-fluid me-2 mb-2' />")
+                continue
+        else:
+            # string/bytes
+            src = im.decode() if isinstance(im, bytes) else str(im)
+            url = src if _is_abs_url(src) or src.startswith("/") else _join_media(src, DEFAULT_FIG_FOLDER)
+            tags.append(f"<img src='{escape(url)}' class='img-fluid me-2 mb-2' />")
 
     if tags:
         return "<div class='my-2'>" + "".join(tags) + "</div>"
-
     return "<div class='text-muted'><em>[Figure/Image available]</em></div>"
 
 @register.filter
@@ -107,7 +154,6 @@ def render_block(item):
       - text / rows / html / data_uri / images
     """
     if not isinstance(item, dict):
-        # If extractor pushed raw strings into content by mistake
         return mark_safe(f"<p>{escape(str(item))}</p>")
 
     t = (item.get("type") or "").lower()
@@ -120,11 +166,11 @@ def render_block(item):
         txt = item.get("text", "")
         return mark_safe(f"<div class='case-study'>{escape(txt)}</div>")
 
-    if t in ("table",):
+    if t == "table":
         return mark_safe(_render_table(item))
 
     if t in ("figure", "image"):
         return mark_safe(_render_figure(item))
 
-    # Unknown type fallback
+    # Fallback for unknown types
     return mark_safe(f"<p>{escape(str(item))}</p>")
