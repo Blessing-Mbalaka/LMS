@@ -691,7 +691,7 @@ def admin_dashboard(request):
 
         # CRITICAL: Save extracted content to database
         print("💾 Saving nodes to database...")
-        conversion_success = save_robust_manifest_to_db(manifest, paper_obj)
+        conversion_success = save_robust_manifest_to_db(manifest['nodes'], paper_obj)
 
         if not conversion_success:
             messages.error(request, "Failed to save extracted content to database")

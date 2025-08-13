@@ -2,14 +2,14 @@
 """
 robustexamextraction.py — ONE FILE to rule exam paper extraction
 
-Design goals
+Design
 ------------
 • Parse any .docx at the XML layer to preserve the exact order of content.
 • Extract paragraphs, tables, images/figures, page/section breaks, equations placeholders.
 • Detect questions of many styles (1, 1.1, 1.1.1, Q1, A1, 1), tail marks like "(10 Marks)".
 • Attach trailing tables/figures/paragraphs to the active question until the next peer header.
 • Parent/child relationship via dotted numbering (1.1 → parent 1), with robust backfill when numbers are missing or skipped.
-• Gemini 2.5 Flash (optional) for validation/backfill; Gemma 3 (optional) local fallback.
+• Gemini 2.5 Flash  for validation/backfill; Gemma 3  local fallback.
 • Randomization‑ready output (structure_json) + console pretty print of tables & storage.
 • Conservative ETA and verbose logging; tolerant of malformed docs.
 
@@ -26,7 +26,9 @@ Author: Blessing Mbalaka(2025‑08‑08)
 """
 from __future__ import annotations
 
-import tempfile
+import tempfile 
+import base64, mimetypes
+from pathlib import Path
 import os, io, re, json, time, math, uuid, zipfile, hashlib, argparse, traceback
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional, Tuple, Any
@@ -77,7 +79,7 @@ except Exception:
     GEMINI_AVAILABLE = False
 
 import requests  # used for Gemma (Ollama) fallback — 
-from normalize_content_and_copy_media import normalize_content
+
 
 
 # -----------------------------
@@ -98,12 +100,15 @@ def err(msg):   print(f"{RED}✖{RESET} {msg}")
 # Namespaces & regexes
 # -----------------------------
 NS = {
-    'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
-    'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
-    'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
-    'wp': 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
-    'pic': 'http://schemas.openxmlformats.org/drawingml/2006/picture',
+    'w':  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+    'r':  'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+    'a':  'http://schemas.openxmlformats.org/drawingml/2006/main',
+    'wp': 'http://schemas.openxmlformats.org/wordprocessingml/2006/wordprocessingDrawing',
+    'pic':'http://schemas.openxmlformats.org/drawingml/2006/picture',
+    'pr': 'http://schemas.openxmlformats.org/package/2006/relationships',   
+    'v':  'urn:schemas-microsoft-com:vml',                                   
 }
+
 
 # Add missing regex patterns that are referenced but not defined
 PAGE_TRASH_RE = re.compile(r'^(page\s+\d+|©|\s*$)', re.IGNORECASE)
@@ -492,57 +497,114 @@ class DocxParser:
 
         
     def _parse_image_relationships(self, docx_zip) -> Dict[str, str]:
-        """Parse image relationships from DOCX"""
+        """Parse image relationships from DOCX (namespace-safe)."""
         image_rels = {}
         try:
             rels_xml = docx_zip.read('word/_rels/document.xml.rels')
             rels_root = ET.fromstring(rels_xml)
-            
-            # Fix: Search all relationships without namespace constraints
-            for rel in rels_root.findall('.//Relationship'):
+
+            # Properly query with the package rels namespace
+            for rel in rels_root.findall('.//pr:Relationship', NS):
                 rel_type = rel.get('Type', '')
-                if 'image' in rel_type:
+                # match any image relationship
+                if rel_type.endswith('/image'):
                     rel_id = rel.get('Id')
-                    target = rel.get('Target')
+                    target = rel.get('Target') or ''
                     if rel_id and target:
+                        # Normalize target like '../media/image1.png'
+                        target = target.lstrip('./')
+                        if not target.startswith('word/'):
+                            target = os.path.normpath(os.path.join('word', target))
                         image_rels[rel_id] = target
                         print(f"🖼️ Found image relationship: {rel_id} → {target}")
-                    
         except Exception as e:
             warn(f"Image relationships parsing failed: {e}")
-            
+
         return image_rels
+
         
     def _parse_paragraph(self, para_elem, docx_zip, image_rels) -> Optional[Block]:
-        """Parse paragraph element"""
+        """Parse a paragraph: collect text, DrawingML images, and VML images."""
         block_id = str(uuid.uuid4())
-        text_parts = []
-        images = []
-        
-        # Extract text
-        for text_elem in para_elem.findall('.//w:t', NS):
-            if text_elem.text:
-                text_parts.append(text_elem.text)
-                
-        # Extract images
+        text_chunks = []
+        images: list[str] = []
+        captions: list[str] = []
+
+        # -------- text collection (preserve tabs/linebreaks) --------
+        for node in para_elem.iter():
+            tag = node.tag
+            # text runs
+            if tag.endswith('}t'):
+                if node.text:
+                    # remove soft hyphen and normalize nbsp
+                    txt = node.text.replace('\u00AD', '').replace('\u00A0', ' ')
+                    text_chunks.append(txt)
+            # tab
+            elif tag.endswith('}tab'):
+                text_chunks.append('\t')
+            # line breaks and carriage returns
+            elif tag.endswith('}br') or tag.endswith('}cr'):
+                text_chunks.append('\n')
+
+        # -------- DrawingML images (w:drawing) --------
         for drawing in para_elem.findall('.//w:drawing', NS):
-            img_filename = self._extract_image(drawing, docx_zip, image_rels)
-            if img_filename:
-                images.append(img_filename)
-                
-        text = ''.join(text_parts).strip()
-        
+            fname = self._extract_image(drawing, docx_zip, image_rels)
+            if fname:
+                images.append(fname)
+                # try to capture alt/descr from docPr
+                try:
+                    dp = drawing.find('.//wp:docPr', NS)
+                    if dp is not None:
+                        alt = (dp.get('descr') or dp.get('name') or '').strip()
+                        if alt:
+                            captions.append(alt)
+                except Exception:
+                    pass
+
+        # -------- VML images (legacy: w:pict/v:imagedata) --------
+        for pict in para_elem.findall('.//w:pict', NS):
+            for im in pict.findall('.//v:imagedata', NS):
+                rid = im.get('{%s}id' % NS['r']) or im.get('{%s}link' % NS['r'])
+                if rid and rid in image_rels:
+                    try:
+                        image_path = image_rels[rid]  # already normalized in rels parser
+                        data = docx_zip.read(image_path)
+                        ext = os.path.splitext(image_path)[1] or '.png'
+                        filename = f"image_{hashlib.md5(data).hexdigest()[:8]}{ext}"
+                        with open(os.path.join(self.media_dir, filename), 'wb') as f:
+                            f.write(data)
+                        images.append(filename)
+                        # alt from Office namespace: o:title
+                        alt = im.get('{urn:schemas-microsoft-com:office:office}title')
+                        if alt:
+                            captions.append(alt.strip())
+                    except Exception as e:
+                        warn(f"VML image extraction failed: {e}")
+
+        # dedupe images while preserving order
+        if images:
+            images = list(dict.fromkeys(images))
+
+        # assemble and normalize text
+        text = ''.join(text_chunks)
+        # collapse multiple spaces (keep tabs/newlines intact)
+        text = re.sub(r'[ \u00A0]+', ' ', text).strip()
+
+        # if no visible text but we do have captions, use them as a caption
+        if not text and captions:
+            text = ' '.join(dict.fromkeys(captions))
+
         if not text and not images:
             return None
-            
+
         block_type = 'image' if images else 'paragraph'
-        
         return Block(
             id=block_id,
             type=block_type,
             text=text,
             images=images
         )
+
         
     def _parse_table(self, table_elem) -> Optional[Block]:
         """Parse table element"""
@@ -570,38 +632,85 @@ class DocxParser:
         )
         
     def _extract_image(self, drawing_elem, docx_zip, image_rels) -> Optional[str]:
-        """Extract and save image from drawing element"""
+        """Extract and save image from a w:drawing element with robust path + type handling."""
         try:
-            # Find image reference
-            blip_elem = drawing_elem.find('.//a:blip', NS)
-            if blip_elem is None:
+            blip = drawing_elem.find('.//a:blip', NS)
+            if blip is None:
                 return None
-                
-            embed_id = blip_elem.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
-            if not embed_id or embed_id not in image_rels:
+
+            rid = blip.get(f'{{{NS["r"]}}}embed') or blip.get(f'{{{NS["r"]}}}link')
+            if not rid:
                 return None
-                
-            image_path = image_rels[embed_id]
-            if not image_path.startswith('media/'):
-                image_path = f'word/{image_path}'
-                
-            # Extract image data
-            image_data = docx_zip.read(image_path)
-            
-            # Generate filename
-            ext = os.path.splitext(image_path)[1] or '.png'
-            filename = f"image_{hashlib.md5(image_data).hexdigest()[:8]}{ext}"
-            
-            # Save image
+
+            target = image_rels.get(rid)
+            if not target:
+                return None
+
+            # Skip external links (cannot read from zip)
+            if target.startswith(('http://', 'https://')):
+                warn(f"Skipping external image link: {target}")
+                return None
+
+            # Normalize to a zip path under word/
+            # Relationship targets in document.xml.rels are relative to 'word/'
+            target = target.lstrip('/')  # strip leading slash if present
+            if not target.startswith('word/'):
+                target = os.path.normpath(os.path.join('word', target)).replace('\\', '/')
+
+            # Collapse any ../ and ensure we stay under word/
+            target = os.path.normpath(target).replace('\\', '/')
+            if not target.startswith('word/'):
+                # last-ditch: drop to media folder with basename only
+                target = f"word/media/{os.path.basename(target)}"
+
+            # Read bytes from docx
+            try:
+                data = docx_zip.read(target)
+            except KeyError:
+                # Some writers store just 'media/x' (already under word/)
+                alt_target = target.replace('word/word/', 'word/')
+                if alt_target != target:
+                    try:
+                        data = docx_zip.read(alt_target)
+                        target = alt_target
+                    except KeyError:
+                        warn(f"Image not found in zip: {target}")
+                        return None
+                else:
+                    warn(f"Image not found in zip: {target}")
+                    return None
+
+            # Guess extension from magic bytes (fallback to path ext → .png)
+            def guess_ext(b: bytes, path_hint: str) -> str:
+                if b.startswith(b'\x89PNG\r\n\x1a\n'): return '.png'
+                if b[:3] == b'\xff\xd8\xff':            return '.jpg'
+                if b.startswith(b'GIF8'):               return '.gif'
+                if b.startswith(b'BM'):                 return '.bmp'
+                if b[:4] in (b'II*\x00', b'MM\x00*'):   return '.tif'
+                if b[:4] == b'\x00\x00\x01\x00':        return '.ico'
+                if b[:4] == b'\xd7\xcd\xc6\x9a':        return '.wmf'  # heuristic
+                ext = os.path.splitext(path_hint)[1]
+                return ext if ext else '.png'
+
+            ext = guess_ext(data, target)
+
+            # Name by content hash to dedupe across repeats
+            hexd = hashlib.md5(data).hexdigest()[:16]
+            filename = f"image_{hexd}{ext}"
             output_path = os.path.join(self.media_dir, filename)
-            with open(output_path, 'wb') as f:
-                f.write(image_data)
-                
+
+            # Write once
+            if not os.path.exists(output_path):
+                os.makedirs(self.media_dir, exist_ok=True)
+                with open(output_path, 'wb') as f:
+                    f.write(data)
+
             return filename
-            
+
         except Exception as e:
             warn(f"Image extraction failed: {e}")
             return None
+
 
 
 # -----------------------------
@@ -904,33 +1013,62 @@ class Extractor:
         print(f"  {DIM}-- table end --{RESET}")
 
     # ---------- preview ----------
-    def _preview_html(self, manifest: Dict[str, Any]) -> str:
+   
+
+    def _preview_html(self, manifest: Dict[str, Any], *, embed_images: bool=False) -> str:
+        out_dir = manifest.get('output_dir') or '.'
+        media_dir = os.path.join(out_dir, 'media')
+        base_uri = Path(out_dir).resolve().as_uri() + '/'  # ensures 'media/...' resolves
+
+        def img_src(fname: str) -> str:
+            if not embed_images:
+                return f"media/{fname}"
+            # inline as data URI
+            p = os.path.join(media_dir, fname)
+            try:
+                with open(p, 'rb') as f:
+                    b64 = base64.b64encode(f.read()).decode('ascii')
+                mime = mimetypes.guess_type(p)[0] or "application/octet-stream"
+                return f"data:{mime};base64,{b64}"
+            except Exception:
+                # fallback to relative path if inlining fails
+                return f"media/{fname}"
+
         buf = io.StringIO()
-        buf.write("<html><head><meta charset='utf-8'><title>Preview</title></head><body>")
-        buf.write(f"<h2>Preview — {manifest['source']}</h2>")
-        for n in manifest['nodes']:
-            label = n['number'] or n['type']
+        buf.write("<html><head><meta charset='utf-8'><title>Preview</title>")
+        buf.write(f"<base href='{base_uri}'>")  # make relative img URLs work
+        buf.write("</head><body>")
+        buf.write(f"<h2>Preview — {manifest.get('source','')}</h2>")
+
+        for n in manifest.get('nodes', []):
+            label = n.get('number') or n.get('type', '')
             buf.write(f"<h3>{label}</h3>")
-            for c in n['content']:
-                t = c['type']
-                if t in ('question_text','paragraph'):
+            for c in n.get('content', []):
+                t = c.get('type')
+                if t in ('question_text', 'paragraph'):
                     buf.write(f"<p>{c.get('text','')}</p>")
                 elif t == 'table':
+                    rows = c.get('rows') or []
                     buf.write("<table border='1' cellspacing='0' cellpadding='4'>")
-                    for row in c['rows']:
+                    for row in rows:
                         buf.write('<tr>')
                         for cell in row:
                             buf.write(f"<td>{(cell or '').replace('\n','<br/>')}</td>")
                         buf.write('</tr>')
                     buf.write('</table>')
                 elif t == 'figure':
-                    for img in c.get('images', []):
-                        buf.write(f"<div><img src='media/{img}' style='max-width:600px'><br/>")
-                    if c.get('caption'):
-                        buf.write(f"<em>{c['caption']}</em>")
-                        buf.write('</div>')
+                    images = c.get('images') or []
+                    caption = c.get('caption') or ''
+                    for img in images:
+                        src = img_src(img)
+                        buf.write("<div>")
+                        buf.write(f"<img src='{src}' style='max-width:600px'>")
+                        if caption:
+                            buf.write("<br/><em>{}</em>".format(caption))
+                        buf.write("</div>")
                 elif t == 'pagebreak':
                     buf.write("<hr/>")
+
         buf.write("</body></html>")
         return buf.getvalue()
 
