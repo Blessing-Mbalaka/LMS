@@ -1,54 +1,58 @@
-{% extends "core/base.html" %}
-{% load static %}
 
-{% block content %}
-<div class="container mt-5">
-  <h2>Select a Saved Paper</h2>
+  {% extends "core/base.html" %}
+  {% load static %}
+  {% load smart_media %}
+  
 
-  <!-- Filter by paper type -->
-  <form method="get" class="mb-4">
-    <label for="type" class="form-label">Filter by Type:</label>
-    <select name="type" id="type" onchange="this.form.submit()" class="form-select w-auto d-inline-block ms-2">
-      <option value="">All Papers</option>
-      <option value="original" {% if filter_type == 'original' %}selected{% endif %}>Original</option>
-      <option value="randomized" {% if filter_type == 'randomized' %}selected{% endif %}>Randomized</option>
-    </select>
-  </form>
-
-  <!-- Paper selector -->
-  <form method="post">
-    {% csrf_token %}
-    <div class="row g-2">
-      <div class="col-sm-8">
-        <select name="paper_id" id="paper-select" class="form-select">
-        <label for="paper-select" class="form-label">Select a Paper to Load or Randomize:</label>
-
-          <option value="">-- Choose a Paper --</option>
-          {% for paper in papers %}
+  {% load static %}
+  {% load smart_media %}
+  
+  {% block content %}
+  <div class="container mt-5">
+    <h2>Select a Saved Paper</h2>
+  
+    <!-- Filter by paper type -->
+    <form method="get" class="mb-4">
+      <label for="type" class="form-label">Filter by Type:</label>
+      <select name="type" id="type" onchange="this.form.submit()" class="form-select w-auto d-inline-block ms-2">
+        <option value="">All Papers</option>
+        <option value="original" {% if filter_type == 'original' %}selected{% endif %}>Original</option>
+        <option value="randomized" {% if filter_type == 'randomized' %}selected{% endif %}>Randomized</option>
+      </select>
+    </form>
+  
+    <!-- Paper selector -->
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-2">
+        <div class="col-sm-8">
+          <select name="paper_id" id="paper-select" class="form-select">
+            <label for="paper-select" class="form-label">Select a Paper to Load or Randomize:</label>
+  
+            <option value="">-- Choose a Paper --</option>
+            {% for paper in papers %}
             <option value="{{ paper.pk }}">
               {{ paper.name }}
-              {% if paper.is_randomized %}
-                [RANDOMIZED]
-              {% endif %}
+              {% if paper.is_randomized %}[RANDOMIZED]{% endif %}
               – {{ paper.qualification.code|default:"No Code" }} (ID: {{ paper.pk }})
             </option>
-          {% endfor %}
-        </select>
-      </div>
-      
-      <div class="col-sm-4 d-grid gap-2">
-        <button type="submit" class="btn btn-primary mb-2">Load Paper</button>
-        {% if papers %}
+            {% endfor %}
+          </select>
+        </div>
+  
+        <div class="col-sm-4 d-grid gap-2">
+          <button type="submit" class="btn btn-primary mb-2">Load Paper</button>
+          {% if papers %}
           <button type="button" class="btn btn-warning" id="randomize-btn">
             🔁 Randomize Selected Paper
           </button>
-        {% endif %}
+          {% endif %}
+        </div>
       </div>
-    </div>
-  </form>
-
-  <!-- NEW SECTION: Selected Paper Details (if a paper is selected) -->
-  {% if selected_paper %}
+    </form>
+  
+    <!-- Selected Paper Details -->
+    {% if selected_paper %}
     <div class="card mt-4 mb-4">
       <div class="card-header bg-primary text-white">
         <h4 class="mb-0">📄 Selected Paper: {{ selected_paper.name }}</h4>
@@ -90,47 +94,68 @@
             </ul>
           </div>
         </div>
-        
-        <!-- NEW: Question Marks Summary -->
+  
+        <!-- Question Marks Summary -->
         {% if question_nodes %}
-          <h5 class="mt-4">Question Marks</h5>
-          <div class="table-responsive">
-            <table class="table table-striped table-sm">
-              <thead class="table-dark">
-                <tr>
-                  <th>Question</th>
-                  <th>Marks</th>
-                  <th>Question Text</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for node in question_nodes %}
-                <tr>
-                  <td>Q{{ node.number }}</td>
-                  <td class="text-center fw-bold">{{ node.marks }}</td>
-                  <td>{{ node.text|truncatechars:80 }}</td>
-                </tr>
-                {% endfor %}
-                <tr class="table-success">
-                  <td colspan="1"><strong>Total</strong></td>
-                  <td class="text-center fw-bold">{{ selected_paper.total_marks }}</td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <h5 class="mt-4">Question Marks</h5>
+        <div class="table-responsive">
+          <table class="table table-striped table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th>Question</th>
+                <th>Marks</th>
+                <th>Question Text</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for node in question_nodes %}
+              <tr>
+                <td>Q{{ node.number }}</td>
+                <td class="text-center fw-bold">{{ node.marks }}</td>
+                <td>
+                  {{ node.text|truncatechars:80 }}
+  
+                  {# Images directly on the node #}
+                  {% if node.images %}
+                  {% for image in node.images %}
+                  <img src="{{ image|smart_src }}" alt="Question image" style="max-width:120px;">
+                  {% endfor %}
+                  {% endif %}
+  
+                  {# Images inside node.content blocks #}
+                  {% if node.content %}
+                  {% for block in node.content %}
+                  {% if block.type == 'figure' and block.images %}
+                  {% for image in block.images %}
+                  <img src="{{ image|smart_src }}" alt="Question image" style="max-width:120px;">
+                  {% endfor %}
+                  {% endif %}
+                  {% endfor %}
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+  
+              <tr class="table-success">
+                <td colspan="1"><strong>Total</strong></td>
+                <td class="text-center fw-bold">{{ selected_paper.total_marks }}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         {% else %}
-          <div class="alert alert-warning mt-3">
-            No questions found for this paper.
-          </div>
+        <div class="alert alert-warning mt-3">
+          No questions found for this paper.
+        </div>
         {% endif %}
       </div>
     </div>
-  {% endif %}
-
-  <hr class="my-5">
-  <h4>📄 All Original Papers</h4>
-  {% if original_papers %}
+    {% endif %}
+  
+    <hr class="my-5">
+    <h4>📄 All Original Papers</h4>
+    {% if original_papers %}
     <table class="table table-bordered table-striped table-sm">
       <thead>
         <tr>
@@ -145,30 +170,30 @@
       </thead>
       <tbody>
         {% for paper in original_papers %}
-          <tr>
-            <td>{{ paper.name }}</td>
-            <td>{{ paper.qualification.name|default:"—" }}</td>
-            <td>{{ paper.total_marks }}</td>
-            <td>{{ paper.question_count|default:"—" }}</td>
-            <td>{{ paper.id }}</td>
-            <td>{{ paper.created_at|date:"Y-m-d H:i" }}</td>
-            <td>
-              <a href="{% url 'load_saved_paper' paper.pk %}" class="btn btn-sm btn-outline-primary">
-                View and update
-              </a>
-            </td>
-          </tr>
+        <tr>
+          <td>{{ paper.name }}</td>
+          <td>{{ paper.qualification.name|default:"—" }}</td>
+          <td>{{ paper.total_marks }}</td>
+          <td>{{ paper.question_count|default:"—" }}</td>
+          <td>{{ paper.id }}</td>
+          <td>{{ paper.created_at|date:"Y-m-d H:i" }}</td>
+          <td>
+            <a href="{% url 'load_saved_paper' paper.pk %}" class="btn btn-sm btn-outline-primary">
+              View and update
+            </a>
+          </td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
-  {% else %}
+    {% else %}
     <p class="text-muted">No original papers yet.</p>
-  {% endif %}
-
-  <hr class="my-5">
-
-  <h4>🌀 Randomized Papers</h4>
-  {% if randomized_papers %}
+    {% endif %}
+  
+    <hr class="my-5">
+  
+    <h4>🌀 Randomized Papers</h4>
+    {% if randomized_papers %}
     <table class="table table-bordered table-striped table-sm">
       <thead>
         <tr>
@@ -182,215 +207,218 @@
       </thead>
       <tbody>
         {% for paper in randomized_papers %}
-          <tr>
-            <td>{{ paper.name }}</td>
-            <td>{{ paper.qualification.name|default:"—" }}</td>
-            <td>{{ paper.total_marks }}</td>
-            <td>{{ paper.id }}</td>
-             <td>
-              <a href="{% url 'load_saved_paper' paper.pk %}" class="btn btn-sm btn-outline-primary">
-                View or update
-              </a>
-            </td>
-            <td>{{ paper.created_at|date:"Y-m-d H:i" }}</td>
-          </tr>
+        <tr>
+          <td>{{ paper.name }}</td>
+          <td>{{ paper.qualification.name|default:"—" }}</td>
+          <td>{{ paper.total_marks }}</td>
+          <td>{{ paper.id }}</td>
+          <td>
+            <a href="{% url 'load_saved_paper' paper.pk %}" class="btn btn-sm btn-outline-primary">
+              View or update
+            </a>
+          </td>
+          <td>{{ paper.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
-  {% else %}
+    {% else %}
     <p class="text-muted">No randomized papers yet.</p>
-  {% endif %}
-{% endblock %}
+    {% endif %}
+  </div>
+  {% endblock %}
 
-<!-- {% block extra_js %}
-<script>
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";").map(c => c.trim());
-    for (const cookie of cookies) {
-      if (cookie.startsWith(name + "=")) {
-        cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-        break;
+  
+  
+  
+  
+  {% block extra_js %}
+  <script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";").map(c => c.trim());
+        for (const cookie of cookies) {
+          if (cookie.startsWith(name + "=")) {
+            cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+            break;
+          }
+        }
       }
-    }
-  }
-  return cookieValue;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const blocks = Array.from(document.querySelectorAll('.block'));
-  const mapByQn = {};
-  const parents = {};
-  const childrenCount = {};
-
-  // Map question numbers to DOM blocks
-  blocks.forEach(b => {
-    const qn = b.dataset.qn;
-    if (qn) mapByQn[qn] = b;
-  });
-
-  // Build parent-child structure
-  blocks.forEach(b => {
-    if (b.dataset.type !== 'question') return;
-    const parts = (b.dataset.qn || "").split('.');
-    if (parts.length < 2) return;
-
-    const parentKey = parts.slice(0, -1).join('.');
-    const parentEl = mapByQn[parentKey];
-    if (!parentEl) return;
-
-    parents[b.dataset.id] = parentEl.dataset.id;
-    childrenCount[parentEl.dataset.id] = (childrenCount[parentEl.dataset.id] || 0) + 1;
-
-    let wrap = parentEl.querySelector('.children');
-    if (!wrap) {
-      wrap = document.createElement('div');
-      wrap.className = 'children ms-4 mt-2';
-      parentEl.appendChild(wrap);
+      return cookieValue;
     }
 
-    wrap.appendChild(b);
-  });
+    document.addEventListener('DOMContentLoaded', () => {
+      const blocks = Array.from(document.querySelectorAll('.block'));
+      const mapByQn = {};
+      const parents = {};
+      const childrenCount = {};
 
-  // Add "Parent of X" and "Child of Y" badges
-  blocks.forEach(b => {
-    const id = b.dataset.id;
-    const header = b.querySelector('.d-flex') || b;
-    let badge = null;
+      // Map question numbers to DOM blocks
+      blocks.forEach(b => {
+        const qn = b.dataset.qn;
+        if (qn) mapByQn[qn] = b;
+      });
 
-    if (childrenCount[id]) {
-      badge = document.createElement('span');
-      badge.textContent = `Parent of ${childrenCount[id]}`;
-      badge.className = 'badge bg-primary text-white ms-2';
-    } else if (parents[id]) {
-      const pEl = document.querySelector(`.block[data-id="${parents[id]}"]`);
-      const pQn = pEl?.dataset.qn || '';
-      badge = document.createElement('span');
-      badge.textContent = `Child of ${pQn}`;
-      badge.className = 'badge bg-secondary text-white ms-2';
-    }
+      // Build parent-child structure
+      blocks.forEach(b => {
+        if (b.dataset.type !== 'question') return;
+        const parts = (b.dataset.qn || "").split('.');
+        if (parts.length < 2) return;
 
-    if (badge) header.appendChild(badge);
-  });
+        const parentKey = parts.slice(0, -1).join('.');
+        const parentEl = mapByQn[parentKey];
+        if (!parentEl) return;
 
-  // Serialize all blocks on form submit
-  const form = document.getElementById('blocks-form');
-  if (form) {
-    form.addEventListener('submit', () => {
-      const blocksData = Array.from(document.querySelectorAll('.block')).map(b => {
-        const type = b.dataset.type || '';
+        parents[b.dataset.id] = parentEl.dataset.id;
+        childrenCount[parentEl.dataset.id] = (childrenCount[parentEl.dataset.id] || 0) + 1;
+
+        let wrap = parentEl.querySelector('.children');
+        if (!wrap) {
+          wrap = document.createElement('div');
+          wrap.className = 'children ms-4 mt-2';
+          parentEl.appendChild(wrap);
+        }
+
+        wrap.appendChild(b);
+      });
+
+      // Add "Parent of X" and "Child of Y" badges
+      blocks.forEach(b => {
         const id = b.dataset.id;
-        const text = b.querySelector('.block-text')?.value?.trim()
-                  || b.querySelector('.block-text')?.textContent?.trim()
-                  || '';
+        const header = b.querySelector('.d-flex') || b;
+        let badge = null;
 
-        const content = Array.from(b.querySelectorAll('.block-content')).map(el => {
-          if (el.tagName === 'IMG') {
-            return { type: 'figure', data_uri: el.src };
+        if (childrenCount[id]) {
+          badge = document.createElement('span');
+          badge.textContent = `Parent of ${childrenCount[id]}`;
+          badge.className = 'badge bg-primary text-white ms-2';
+        } else if (parents[id]) {
+          const pEl = document.querySelector(`.block[data-id="${parents[id]}"]`);
+          const pQn = pEl?.dataset.qn || '';
+          badge = document.createElement('span');
+          badge.textContent = `Child of ${pQn}`;
+          badge.className = 'badge bg-secondary text-white ms-2';
+        }
+
+        if (badge) header.appendChild(badge);
+      });
+
+      // Serialize all blocks on form submit
+      const form = document.getElementById('blocks-form');
+      if (form) {
+        form.addEventListener('submit', () => {
+          const blocksData = Array.from(document.querySelectorAll('.block')).map(b => {
+            const type = b.dataset.type || '';
+            const id = b.dataset.id;
+            const text = b.querySelector('.block-text')?.value?.trim()
+              || b.querySelector('.block-text')?.textContent?.trim()
+              || '';
+
+            const content = Array.from(b.querySelectorAll('.block-content')).map(el => {
+              if (el.tagName === 'IMG') {
+                return { type: 'figure', data_uri: el.src };
+              }
+              if (el.tagName === 'TABLE') {
+                const rows = Array.from(el.querySelectorAll('tr')).map(row =>
+                  Array.from(row.querySelectorAll('td')).map(cell => cell.innerText.trim())
+                );
+                return { type: 'table', rows };
+              }
+              if (el.closest('.border.bg-light')) {
+                return { type: 'case_study', text: el.innerText.trim() };
+              }
+              return { type: 'question_text', text: el.innerText.trim() };
+            });
+
+            return {
+              id,
+              number: b.dataset.qn || '',
+              type,
+              marks: b.dataset.marks || '',
+              parent_id: parents[id] || null,
+              text,
+              content,
+              ...(type === 'figure' ? { data_uri: b.querySelector('img')?.src || '' } : {})
+            };
+          });
+
+          const outputField = document.getElementById('nodes-json');
+          if (outputField) {
+            outputField.value = JSON.stringify(blocksData);
           }
-          if (el.tagName === 'TABLE') {
-            const rows = Array.from(el.querySelectorAll('tr')).map(row =>
-              Array.from(row.querySelectorAll('td')).map(cell => cell.innerText.trim())
-            );
-            return { type: 'table', rows };
+        });
+      }
+
+      // Optional: handle delete-block buttons
+      document.querySelectorAll('.delete-block-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const block = btn.closest('.block');
+          const hasChildren = block.querySelector('.children');
+          if (hasChildren) {
+            const confirmed = confirm('This block has child questions. Delete all?');
+            if (!confirmed) return;
+            hasChildren.remove();
           }
-          if (el.closest('.border.bg-light')) {
-            return { type: 'case_study', text: el.innerText.trim() };
-          }
-          return { type: 'question_text', text: el.innerText.trim() };
+          block.remove();
+        });
+      });
+
+      // Auto-Classify with AI button
+      document.getElementById('ai-classify-btn').addEventListener('click', () => {
+        const blocks = Array.from(document.querySelectorAll('.block')).map(b => {
+          return {
+            id: b.dataset.id,
+            text: b.querySelector('.block-text')?.value?.trim() || b.querySelector('.block-text')?.textContent?.trim() || '',
+            type: b.dataset.type || 'paragraph'
+          };
         });
 
-        return {
-          id,
-          number: b.dataset.qn || '',
-          type,
-          marks: b.dataset.marks || '',
-          parent_id: parents[id] || null,
-          text,
-          content,
-          ...(type === 'figure' ? { data_uri: b.querySelector('img')?.src || '' } : {})
-        };
+        const paperPk = window.location.pathname.match(/\/review-paper\/(\d+)\//)?.[1];
+        if (!paperPk) {
+          alert("❌ Error: paper ID not found in URL.");
+          return;
+        }
+
+        fetch(`/administrator/review-paper/${paperPk}/classify/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+          },
+          body: JSON.stringify({ blocks })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) throw new Error(data.error);
+            const types = data.types;
+            if (!Array.isArray(types)) throw new Error("Response format invalid");
+
+            // Update DOM with new types
+            document.querySelectorAll('.block').forEach((b, i) => {
+              b.dataset.type = types[i] || 'paragraph';
+              const badge = b.querySelector('.type-badge');
+              if (badge) badge.textContent = types[i];
+            });
+
+            alert("✅ Classification updated.");
+          })
+          .catch(err => {
+            console.error(err);
+            alert("❌ Classification failed.");
+          });
       });
 
-      const outputField = document.getElementById('nodes-json');
-      if (outputField) {
-        outputField.value = JSON.stringify(blocksData);
-      }
-    });
-  }
+      // Randomize button
+      document.getElementById('randomize-btn').addEventListener('click', () => {
+        const paperId = document.getElementById('paper-select').value;
+        if (!paperId) {
+          alert('Please select a paper first');
+          return;
+        }
 
-  // Optional: handle delete-block buttons
-  document.querySelectorAll('.delete-block-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const block = btn.closest('.block');
-      const hasChildren = block.querySelector('.children');
-      if (hasChildren) {
-        const confirmed = confirm('This block has child questions. Delete all?');
-        if (!confirmed) return;
-        hasChildren.remove();
-      }
-      block.remove();
-    });
-  });
-
-  // Auto-Classify with AI button
-  document.getElementById('ai-classify-btn').addEventListener('click', () => {
-    const blocks = Array.from(document.querySelectorAll('.block')).map(b => {
-      return {
-        id: b.dataset.id,
-        text: b.querySelector('.block-text')?.value?.trim() || b.querySelector('.block-text')?.textContent?.trim() || '',
-        type: b.dataset.type || 'paragraph'
-      };
-    });
-
-    const paperPk = window.location.pathname.match(/\/review-paper\/(\d+)\//)?.[1];
-    if (!paperPk) {
-      alert("❌ Error: paper ID not found in URL.");
-      return;
-    }
-
-    fetch(`/administrator/review-paper/${paperPk}/classify/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken")
-      },
-      body: JSON.stringify({ blocks })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) throw new Error(data.error);
-      const types = data.types;
-      if (!Array.isArray(types)) throw new Error("Response format invalid");
-
-      // Update DOM with new types
-      document.querySelectorAll('.block').forEach((b, i) => {
-        b.dataset.type = types[i] || 'paragraph';
-        const badge = b.querySelector('.type-badge');
-        if (badge) badge.textContent = types[i];
+        window.location.href = `/randomize/paper_structure/${paperId}/`;
       });
-
-      alert("✅ Classification updated.");
-    })
-    .catch(err => {
-      console.error(err);
-      alert("❌ Classification failed.");
     });
-  });
-
-  // Randomize button
-  document.getElementById('randomize-btn').addEventListener('click', () => {
-    const paperId = document.getElementById('paper-select').value;
-    if (!paperId) {
-      alert('Please select a paper first');
-      return;
-    }
-    
-    window.location.href = `/randomize/paper/${paperId}/`;
-  });
-});
-</script>
-{% endblock %}
-
- -->
+  </script>
+  {% endblock %}

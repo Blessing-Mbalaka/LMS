@@ -81,7 +81,52 @@ except Exception:
     GEMINI_AVAILABLE = False
 
 import requests  # used for Gemma (Ollama) fallback — 
+import filetype
+import os
 
+def guess_ext(b: bytes, path_hint: str = '') -> str:
+    # Primary detection using filetype
+    kind = filetype.guess(b)
+    if kind:
+        print(f"🔍 Detected via filetype: {kind.mime}")
+        return f".{kind.extension}"
+
+    # Heuristic byte signatures for fallback
+    signatures = [
+        (b'\x89PNG\r\n\x1a\n', '.png'),
+        (b'\xff\xd8\xff', '.jpg'),
+        (b'GIF87a', '.gif'),
+        (b'GIF89a', '.gif'),
+        (b'BM', '.bmp'),
+        (b'II*\x00', '.tif'),
+        (b'MM\x00*', '.tif'),
+        (b'\x00\x00\x01\x00', '.ico'),
+        (b'\x00\x00\x02\x00', '.cur'),
+        (b'\xd7\xcd\xc6\x9a', '.wmf'),
+        (b'\x01\x00\x09\x00', '.emf'),
+        (b'\x50\x4B\x03\x04', '.docx'),  # ZIP: could be .docx/.xlsx/.pptx
+        (b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1', '.doc'),  # Word 97–2003 binary
+        (b'%PDF-', '.pdf'),
+        (b'\x25\x21', '.eps'),
+        (b'\x52\x49\x46\x46', '.webp'),  # RIFF header (check needed)
+        (b'\x38\x42\x50\x53', '.psd'),   # Photoshop
+        (b'<?xml', '.xml'),
+    ]
+
+    for sig, ext in signatures:
+        if b.startswith(sig):
+            print(f"🧠 Matched signature for {ext} → {sig[:4].hex()}")
+            return ext
+
+    # Fallback to extension from filename hint
+    ext = os.path.splitext(path_hint)[1]
+    if ext:
+        print(f"⚠️ Fallback to path extension: {ext}")
+        return ext
+
+    # Final fallback
+    print("⚠️ Unknown file type — defaulting to .bin")
+    return '.bin'
 
 
 # -----------------------------
@@ -681,18 +726,6 @@ class DocxParser:
                 else:
                     warn(f"Image not found in zip: {target}")
                     return None
-
-            # Guess extension from magic bytes (fallback to path ext → .png)
-            def guess_ext(b: bytes, path_hint: str) -> str:
-                if b.startswith(b'\x89PNG\r\n\x1a\n'): return '.png'
-                if b[:3] == b'\xff\xd8\xff':            return '.jpg'
-                if b.startswith(b'GIF8'):               return '.gif'
-                if b.startswith(b'BM'):                 return '.bmp'
-                if b[:4] in (b'II*\x00', b'MM\x00*'):   return '.tif'
-                if b[:4] == b'\x00\x00\x01\x00':        return '.ico'
-                if b[:4] == b'\xd7\xcd\xc6\x9a':        return '.wmf'  # heuristic
-                ext = os.path.splitext(path_hint)[1]
-                return ext if ext else '.png'
 
             ext = guess_ext(data, target)
 
@@ -1433,11 +1466,11 @@ def save_robust_extraction_to_db(docx_file, paper_name, qualification, user, use
             out_dir=None,  # Let it auto-generate
             use_gemini=use_gemini, 
             use_gemma=use_gemma,
-            # media_dir=os.path.join(extract_dir, "media")
+            media_dir=os.path.join(extract_dir, "media")
         )
 
-        #copy_images_to_media_folder(media_dir)
-        # Clean up temp file
+        copy_images_to_media_folder(media_dir)
+        #Clean up temp file
         os.unlink(temp_path)
         
         if not manifest:

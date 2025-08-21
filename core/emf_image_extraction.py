@@ -3,10 +3,13 @@ import docx
 import docx2txt
 import shutil
 import subprocess
+import win32com.client as win32
+from core.emf_image_extraction import extract_images_with_emf_fallback
 
 def extract_images_with_emf_fallback(docx_path, output_folder):
     os.makedirs(output_folder, exist_ok=True)
     doc = docx.Document(docx_path)
+    
     rels = doc.part._rels
 
     extracted_images = []
@@ -22,6 +25,9 @@ def extract_images_with_emf_fallback(docx_path, output_folder):
 
                 with open(img_path, "wb") as f:
                     f.write(img_data)
+                    print("Saving image to:", img_path)  # After f.write(img_data)
+                    print("Copying fallback image from:", fallback_file_path)
+                    print("Copying fallback image to:", output_folder)
 
                 print(f"[✓] Extracted image: {img_filename}")
                 extracted_images.append(img_filename)
@@ -51,7 +57,29 @@ def extract_images_with_emf_fallback(docx_path, output_folder):
                 print(f"[✓] Copied fallback file: {filename}")
 
 def convert_emf_to_png(emf_path, output_path):
+    # 1. Try Word COM (best on Windows with Office installed)
+    try:
+        import win32com.client as win32
+        word = win32.gencache.EnsureDispatch("Word.Application")
+        word.Visible = False
+        doc = word.Documents.Add()
+        shp = doc.Shapes.AddPicture(FileName=str(emf_path),
+                                    LinkToFile=False, SaveWithDocument=True)
+        shp.SaveAsPicture(str(output_path))
+        doc.Close(False)
+        word.Quit()
+        return True
+    except Exception as e:
+        print(f"[!] Word conversion failed: {e}")
+
+    # 2. Fallback to ImageMagick if installed
     try:
         subprocess.run(["magick", emf_path, output_path], check=True)
+        return True
     except Exception as e:
-        print(f"[✗] Failed to convert EMF: {emf_path} - {e}")
+        print(f"[!] ImageMagick conversion failed: {e}")
+
+    return False
+
+
+

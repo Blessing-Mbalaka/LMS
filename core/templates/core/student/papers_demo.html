@@ -17,7 +17,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Name</th>
+                   
                     <th>Qualification</th>
                     <th>Total Marks</th>
                     <th>Created</th>
@@ -28,7 +28,7 @@
                 {% for p in papers %}
                 <tr>
                     <td>{{ p.id }}</td>
-                    <td>{{ p.name }}</td>
+                 
                     <td>{{ p.qualification.name }}</td>
                     <td>{{ p.total_marks }}</td>
                     <td>{{ p.created_at|date:"Y-m-d H:i" }}</td>

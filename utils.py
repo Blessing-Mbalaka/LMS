@@ -4,6 +4,7 @@ import traceback
 from PyPDF2 import PdfReader
 import docx
 from docx import Document
+from core.extractor_images import convert_emf_to_png
 from core.gemmaAI_classification import classify_with_local_gemma
 import json
 import google.generativeai as genai
@@ -1250,6 +1251,10 @@ def post_process_blocks(blocks):
         
     return processed
 
+
+
+
+
 import os
 import shutil
 from django.conf import settings
@@ -1257,12 +1262,70 @@ from django.conf import settings
 def copy_images_to_media_folder(extract_media_dir):
     """
     Copies all images from the extraction media folder to Django's MEDIA_ROOT.
+    Converts .emf images to .png using fallback if needed.
     """
-    target_dir = settings.MEDIA_ROOT  # No subfolder
+    target_dir = settings.MEDIA_ROOT
     os.makedirs(target_dir, exist_ok=True)
 
     for fname in os.listdir(extract_media_dir):
         src = os.path.join(extract_media_dir, fname)
+        ext = os.path.splitext(fname)[1].lower()
         dst = os.path.join(target_dir, fname)
-        shutil.copy2(src, dst)
 
+        if ext == ".emf":
+            # Convert EMF to PNG
+            png_name = fname.replace(".emf", ".png")
+            png_dst = os.path.join(target_dir, png_name)
+            success = convert_emf_to_png(src, png_dst)
+            if success:
+                print(f"[✓] Converted {fname} to {png_name}")
+            else:
+                print(f"[✗] Failed to convert {fname} to PNG")
+        else:
+            print(f"[✓] Copying {fname} to media folder")
+            print(f"   From: {src}")
+            print(f"   To: {dst}")
+            shutil.copy2(src, dst)
+
+
+
+def load_or_init_json(path: str):
+    m = re.search(r'upload_([a-f0-9]+)_extract', path, re.I)
+    upload_id = m.group(1) if m else "unknown"
+    default = {"id": upload_id, "status": "uploaded", "nodes": []}
+
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    if not os.path.exists(path) or os.path.getsize(path) == 0:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(default, f, indent=2)
+        return default
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(default, f, indent=2)
+        return default
+
+
+# --- call the loader ---
+json_path = r"C:\Users\bjmba\CHIETA_LMS_fresh\upload_7e63da229b98466a862a494140c89d47_extract\structure_json.json"
+data = load_or_init_json(json_path)
+
+# --- media folder check ---
+media_folder = r"C:\Users\bjmba\CHIETA_LMS_fresh\media"
+os.makedirs(media_folder, exist_ok=True)   # make sure it exists
+actual_images = set(os.listdir(media_folder))
+
+# --- fix image references in nodes ---
+for node in data.get('nodes', []):
+    for block in node.get('content', []):
+        if block.get('type') == 'figure':
+            block['images'] = [
+                img for img in block.get('images', []) 
+                if img in actual_images
+            ]
+
+# --- save JSON back ---
+with open(json_path, 'w', encoding="utf-8") as f:
+    json.dump(data, f, indent=2)

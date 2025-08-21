@@ -1,6 +1,7 @@
 {# core/templates/core/administrator/partials/question_block.html #}
 {% load uuid_extras %}
 
+
 <div class="block card mb-3" 
      data-id="{{ q.id }}" 
      data-type="{{ q.type }}" 
@@ -51,7 +52,7 @@
           <div class="mt-3 block-content">
             {% if item.images %}
               {% for img in item.images %}
-                <img src="/media2/{{ img }}" class="img-fluid mb-2" alt="Question image">
+                <img src="/media/{{ img }}" class="img-fluid mb-2" alt="Question image">
               {% endfor %}
             {% elif item.data_uri %}
               <img src="{{ item.data_uri }}" class="img-fluid mb-2" alt="Question image">

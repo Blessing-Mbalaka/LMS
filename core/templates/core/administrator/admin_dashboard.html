@@ -194,6 +194,9 @@
                placeholder="Auto-filled" readonly>
       </div>
 
+      <!-- Paper Name -->
+<input type="hidden" name="paper_number" id="paper_number">
+
       <!-- Assessment File -->
       <div class="col-md-6">
         <label for="file" class="form-label">Assessment File</label>
@@ -293,4 +296,18 @@
       }
     });
   });
+
+
+
+
+
+  
+  document.getElementById('qualification').addEventListener('change', function () {
+      document.getElementById('paper_number').value = this.options[this.selectedIndex].text;
+    });
+    // Set initial value on page load
+    document.addEventListener('DOMContentLoaded', function () {
+      var qual = document.getElementById('qualification');
+      document.getElementById('paper_number').value = qual.options[qual.selectedIndex].text;
+    });
 </script>

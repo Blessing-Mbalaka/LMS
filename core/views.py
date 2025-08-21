@@ -724,6 +724,23 @@ def admin_dashboard(request):
             created_by=request.user,
             is_randomized=False
         )
+############################################################################
+############################################################################
+############################################################################
+            #Our Eisa tools are here
+        Assessment.objects.create(
+            qualification=qualification_obj,
+            paper=paper_number,
+            file=file_obj,           # the uploaded Word file
+            created_by=request.user,
+            paper_link=paper_obj,
+            status="Pending"         # The initial status in the pipeline
+)############################################################################
+#############################################################################
+#############################################################################
+#############################################################################
+        
+
 
         # CRITICAL: Save extracted content to database
         print("💾 Saving nodes to database...")
@@ -766,10 +783,13 @@ def admin_dashboard(request):
         except:
             pass
 
+        tools = Assessment.objects.select_related("qualification", "created_by").order_by("-created_at")
+
+
         # Redirect to paper review page
         return redirect('load_saved_paper', paper_pk=paper_obj.id)
 
-    # Continue with rest of the view...
+   
     tools = Assessment.objects.select_related("qualification", "created_by")\
                              .order_by("-created_at")
     total_users = CustomUser.objects.filter(is_superuser=False).count()
@@ -1055,6 +1075,15 @@ def upload_assessment(request):
                     use_gemini=False,  # Disable due to API issues
                     use_gemma=False    # Disable due to memory issues
                 )
+                
+                # 
+                if paper_obj and hasattr(paper_obj, 'extract_dir'):
+                    from utils import copy_images_to_media_folder
+                    media_dir = os.path.join(paper_obj.extract_dir, "media")
+                    copy_images_to_media_folder(media_dir)
+                    print("Copying images from temp media folder:", media_dir)
+
+
                 
                 if paper_obj:
                     # Create assessment record

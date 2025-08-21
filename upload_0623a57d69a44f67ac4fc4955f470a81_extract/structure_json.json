@@ -1,0 +1,1187 @@
+{
+  "source": "upload_0623a57d69a44f67ac4fc4955f470a81.docx",
+  "output_dir": "upload_0623a57d69a44f67ac4fc4955f470a81_extract",
+  "generated_at": 1755767129,
+  "counts": {
+    "blocks": 101,
+    "images": 4,
+    "tables": 28,
+    "questions": 21
+  },
+  "nodes": [
+    {
+      "id": "c3b2dd9a-b534-48c5-a0f1-9fb2b7016599",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 0,
+      "content": [
+        {
+          "type": "figure",
+          "images": [
+            "image_b57c374c6a304d86.jpg"
+          ],
+          "caption": ""
+        }
+      ]
+    },
+    {
+      "id": "2210b73b-d77e-4b26-8b29-f412889ac89d",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "EXTERNAL INTERGRATED SUMMATIVE ASSESSMENTQuality Controller, NQF4 EXTERNAL INTERGRATED SUMMATIVE ASSESSMENTQuality Controller, NQF4"
+        }
+      ]
+    },
+    {
+      "id": "6b0b6da5-38be-4798-af01-e17123d2079e",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 2,
+      "content": [
+        {
+          "type": "pagebreak"
+        }
+      ]
+    },
+    {
+      "id": "a392d6de-a172-482c-b599-33610121e852",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 3,
+      "content": [
+        {
+          "type": "table",
+          "rows": [
+            [
+              "STUDENT NAME & SURNAME",
+              ""
+            ],
+            [
+              "IDENTITY NUMBER",
+              ""
+            ],
+            [
+              "ASSESSMENT CENTRE",
+              ""
+            ],
+            [
+              "ACCREDITATION NUMBER",
+              ""
+            ],
+            [
+              "QUALIFICATION",
+              "QUALITY CONTROLLER"
+            ],
+            [
+              "QAQA ID",
+              "117309"
+            ],
+            [
+              "NQF LEVEL",
+              "4"
+            ],
+            [
+              "CREDITS",
+              "173"
+            ],
+            [
+              "PAPER NUMBER",
+              "1B"
+            ],
+            [
+              "DATE OF EISA DD/MM/YYYY",
+              ""
+            ],
+            [
+              "DURATION",
+              "2 HOURS"
+            ],
+            [
+              "TOTAL MARKS",
+              "120"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f58a8f4b-e41c-4420-b6c5-6da6d382c958",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 4,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "EXTERNAL INTEGRATED SUMMATIVE ASSESSMENT"
+        }
+      ]
+    },
+    {
+      "id": "a6aa3302-98f3-44b5-ba5e-c2cf336adff0",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 5,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "QUALITY CONTROLLER"
+        }
+      ]
+    },
+    {
+      "id": "b65c8592-be33-4320-bc73-c6a700834d81",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 6,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "QUESTION PAPER 1B"
+        }
+      ]
+    },
+    {
+      "id": "40a6bd37-a271-4acc-b149-731e6867c24c",
+      "number": null,
+      "type": "instruction",
+      "marks": null,
+      "parent_id": null,
+      "order": 7,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "GENERAL EISA RULES"
+        }
+      ]
+    },
+    {
+      "id": "388a9e4f-ea09-40af-9740-ab52161413ef",
+      "number": "1",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 8,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "1. Students are only allowed to use the supplied EISA booklets."
+        }
+      ]
+    },
+    {
+      "id": "643d3d41-3920-4357-9ed0-c33418090816",
+      "number": "2",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 9,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2. Students are only allowed to use a black pen for their answers."
+        }
+      ]
+    },
+    {
+      "id": "3f04052e-2d80-42e1-bf74-5c088fbff034",
+      "number": "3",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 10,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "3. Students to ensure that their name, surname and EISA registration number appears on the front of your EISA booklet."
+        }
+      ]
+    },
+    {
+      "id": "98b43fbf-e570-4a16-b63d-d2ae28f06abb",
+      "number": "4",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 11,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "4. This is a closed book examination; therefore, no other material or belongings are to be brought into the assessment centre. Should you bring any other material or belongings into the assessment centre, you will be required to leave such at the front of the assessment centre examination room. The assessment centre will not be held liable for any loss or damage to property brought into the assessment centre examination room."
+        }
+      ]
+    },
+    {
+      "id": "bc4092ac-e54a-471e-ba07-a5bc640372aa",
+      "number": "5",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 12,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "5. All EISA booklets must be handed back to the invigilator intact. No pages may be torn off from the EISA booklet. The removal of EISA booklets from the examination room is prohibited."
+        }
+      ]
+    },
+    {
+      "id": "607ff31f-41f3-4d30-a8cd-121ba9789526",
+      "number": "6",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 13,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "6. Students may make use of a calculator in this EISA."
+        }
+      ]
+    },
+    {
+      "id": "b650eba2-1df1-466e-9c59-8a0c32f41061",
+      "number": "7",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 14,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "7. Unless this is an online examination where access to a computer will be made available to you; the use of any communication devices, including smart watches, cell phones, tablets, iPads, headphones and laptops are prohibited."
+        }
+      ]
+    },
+    {
+      "id": "72181c4f-3189-49ee-94de-d0f2aba40b32",
+      "number": "8",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 15,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "8. All cell phones are to be switched off for the duration of the EISA."
+        }
+      ]
+    },
+    {
+      "id": "28e23c34-7f6b-4c14-b045-054719dbb06f",
+      "number": "9",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 16,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "9. The invigilator will not assist you with the explanation of questions related to the EISA."
+        }
+      ]
+    },
+    {
+      "id": "6532e114-1bde-4650-8a4b-9014c76e0e0d",
+      "number": "10",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 17,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "10. Students are prohibited from conversing in any manner with other students."
+        }
+      ]
+    },
+    {
+      "id": "3626e308-a09c-4762-b2c4-0b9b804147ae",
+      "number": "11",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 18,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "11. Students may not leave the examination venue within one hour of the start of the examination and in the last 10 minutes of the allotted examination period."
+        }
+      ]
+    },
+    {
+      "id": "5a5307a5-64df-4670-b902-014174ec323e",
+      "number": "12",
+      "type": "question",
+      "marks": null,
+      "parent_id": null,
+      "order": 19,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "12. Students who are found to be disruptive and unruly in the assessment centre will be requested to leave the assessment centre by the invigilator."
+        },
+        {
+          "type": "paragraph",
+          "text": "I HEREBY CONFIRM THAT I HAVE READ THE ABOVE EISA RULES AND DECLARE THAT I"
+        },
+        {
+          "type": "paragraph",
+          "text": "UNDERSTAND AND ACCEPT THE RULES."
+        },
+        {
+          "type": "paragraph",
+          "text": "________________________"
+        },
+        {
+          "type": "paragraph",
+          "text": "SIGNATURE OF STUDENT"
+        },
+        {
+          "type": "paragraph",
+          "text": "CANDIDATE INSTRUCTIONS"
+        },
+        {
+          "type": "paragraph",
+          "text": "Candidate must complete all question s in the EISA"
+        },
+        {
+          "type": "paragraph",
+          "text": "Candidates must ensure that they use only a black pen when completing this EISA."
+        },
+        {
+          "type": "paragraph",
+          "text": "Should you require additional space to complete your answer, please request additional paper from your invigilator."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ensure that you indicate your name, surname and EISA registration number at the top of the additional paper."
+        },
+        {
+          "type": "paragraph",
+          "text": "Also ensure that the question number is clearly marked on your additional paper."
+        },
+        {
+          "type": "paragraph",
+          "text": "-----------------------------------------------------------------------------------------------------------------"
+        },
+        {
+          "type": "pagebreak"
+        },
+        {
+          "type": "paragraph",
+          "text": "ur Sayzwani Abd Suki;Elmi Abu Bakar ,Shahrul Kamaruddin/ A Case Study on Improvement of Outgoing Quality Control Works for Manufacturing"
+        },
+        {
+          "type": "paragraph",
+          "text": "Products 4(1), pp. 12-21, 2015"
+        }
+      ]
+    },
+    {
+      "id": "fbfd4924-dd0c-4521-913e-c48bcdd05bb1",
+      "number": "1.1",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "388a9e4f-ea09-40af-9740-ab52161413ef",
+      "order": 20,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 1.1"
+        },
+        {
+          "type": "paragraph",
+          "text": "Complete a quality inspection checklist for input, inline and endline for product or service"
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.1 Case StudyAllocate ten mark each for number 1 Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Quality inspection is the measurements aimed at checking, measuring, or testing one or more product characteristics and relating the results to the requirements to confirm compliance. This task is usually performed by quality inspectors and does not fall within the responsibility of production workers"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Generate a checklist that is associated with the Quality Inspection activities of at least TWO (2) Inspection Methods, your checklists should include: 1. Names of the inspection Method you are using2. Brief description of the inspection method used3. Quality Inspection activities of each Method."
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Identify whether testing and/or inspecting is applicable in a product manufactured or service environment."
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.2 Constructive Response Allocate ten marks Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Quality parameter refer to the size characterizing the quality level of the final product/service, the quality of final goods or services can be described using some of the following dimensions below:"
+        },
+        {
+          "type": "figure",
+          "images": [
+            "image_a8a3ca11b9d3e795.emf"
+          ],
+          "caption": ""
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Identify any of the five (5) types of the quality parameters and discuss how each parameter is applicable in a product manufactured and service rendered."
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d37ac0e6-e6f0-49a1-a6cf-1166051065bd",
+      "number": "1.1.3",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "fbfd4924-dd0c-4521-913e-c48bcdd05bb1",
+      "order": 21,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "1.1.3 Complete a testing checklist for a product or service across all processes (input, inline and endline)"
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.3 Case StudyAllocate ten mark each for number 1 Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Testing is a procedure of using a method to identify the defects or bugs. For testing an application or software or product, we need to follow some principles to make the product defects free. We are going to learn about the seven essential principles of testing and the word testing can apply to a variety of context."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Generate a testing checklist that is associated with the Testing for Quality Control activities of at least TWO (2) Testing Methodology, your checklists should include: 1. Names of the testing Method you are using2. Brief description of the test method used3. Quality test activities of each Method."
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fe51993d-f376-430b-9262-f6bebf41faf2",
+      "number": "1.1.4",
+      "type": "question",
+      "marks": 15,
+      "parent_id": "fbfd4924-dd0c-4521-913e-c48bcdd05bb1",
+      "order": 22,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "1.1.4 Continuously inspect and test input, inline and endline to prevent non-conformance and make recommendations."
+        },
+        {
+          "type": "paragraph",
+          "text": "(15 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.4 Case Study Allocate ten Marks for number 1 and five Marks for number 2Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "After the testing/inspection process has been completed, there will be a set of results obtained which will need to be interpreted. In order to ensure that non-conformances are prevented and recommendations are made, there is a process of evaluation to see if the results obtained address non-conformances and recommendations can be made the investigation or purpose of testing/inspecting."
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "Mark"
+            ],
+            [
+              "1",
+              "Discuss the evaluation process in detail and provide industry example which is applicable in your work environment.",
+              "10"
+            ],
+            [
+              "2",
+              "Discuss test monitoring and what it involves.",
+              "5"
+            ],
+            [
+              "Total",
+              "15"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Apply knowledge of and adhere to good manufacturing principles (GMP) of product or good laboratory practices (GLP) of services"
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.5 Constructive Response Allocate 10 marks for number 1"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answers",
+              "Marks"
+            ],
+            [
+              "1",
+              "It is important to the manufacturing industry to regulate GMP in the workplace to ensure consistent quality and safety of products.List and discuss the 5 p’s of GMP",
+              "10"
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3a242280-fd99-4825-938a-6f9021a6a71e",
+      "number": "1.16",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "388a9e4f-ea09-40af-9740-ab52161413ef",
+      "order": 23,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "1.16 Apply different testing methods for different characteristics to test for product/service quality applicable in their environment"
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.6 Case Study Allocate two marks for no1 and eight marks for no2Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "Testing methodologies are applied in different types of industries. The types of tests conducted depend on the products/services being produced, these tests are important for a company to grow and to be competitive."
+        },
+        {
+          "type": "figure",
+          "images": [
+            "image_57392e8752b51405.png"
+          ],
+          "caption": ""
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "Discuss destructive testing in details and give industry example.",
+              "2"
+            ],
+            [
+              "2.",
+              "Discuss any 4 of the 5 types of destructive testing.",
+              "8"
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Apply knowledge of testing procedures of a product or service."
+        },
+        {
+          "type": "paragraph",
+          "text": "(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.7 Constructive Response Allocate one mark each for 1 to 5Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Testing Type",
+              "Characteristics",
+              "Benefits",
+              "Marks"
+            ],
+            [
+              "Different types of products/services require different types of testing procedures and standards, which can be defined in five ways. Complete the table below by filling in the characteristics and benefits of the types testing types listed ."
+            ],
+            [
+              "1",
+              "Material Testing",
+              "",
+              "",
+              "2"
+            ],
+            [
+              "2",
+              "Composition Analysis",
+              "",
+              "",
+              "2"
+            ],
+            [
+              "3",
+              "Regulatory Testing",
+              "",
+              "",
+              "2"
+            ],
+            [
+              "4",
+              "Metals Testing",
+              "",
+              "",
+              "2"
+            ],
+            [
+              "5",
+              "Trace Contamination Detection",
+              "",
+              "",
+              "2"
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Test if product/service conforms to the required standard"
+        },
+        {
+          "type": "paragraph",
+          "text": "(5 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "1.1.8 Multiple Choice Questions Allocate 1 mark each for number 1 to 5"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Multiple Choice Questions",
+              "Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "A non-functional type of testing and involves the process by which software or an application is tested to know its current system performance.Load TestingEndurance TestingPerformance TestingCapacity TestingStress Testing",
+              "",
+              "1"
+            ],
+            [
+              "2.",
+              "Performed to validate the system performance under normal and peak user load.Load TestingEndurance TestingPerformance TestingCapacity TestingStress Testing",
+              "",
+              "1"
+            ],
+            [
+              "3",
+              "Testing is done to identify the breaking point of the system when its subjected to a user load beyond the expected peak.       A.Load Testing       B.Endurance Testing       C.Performance Testing       D.Capacity Testing       E.Stress Testing",
+              "",
+              "1"
+            ],
+            [
+              "4",
+              "Non-functional type of software performance testing and typically checks the behaviour of the system when it is under significant load for a longer period of time.       A.  Load Testing       B.Endurance Testing       C.Performance Testing       D.Capacity Testing       E.Stress Testing",
+              "",
+              "1"
+            ],
+            [
+              "5",
+              "Also known as scalability testing, helps to identify the actual number of the users that the system can support with current hardware capacity.       A.  Load Testing       B.Endurance Testing       C.Performance Testing       D.Capacity Testing       E.Stress Testing",
+              "",
+              "1"
+            ],
+            [
+              "Total",
+              "5"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "050a7652-a730-4284-9d67-17cfff4e60f9",
+      "number": "2.1",
+      "type": "question",
+      "marks": null,
+      "parent_id": "643d3d41-3920-4357-9ed0-c33418090816",
+      "order": 24,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "Question 2.1"
+        }
+      ]
+    },
+    {
+      "id": "39aa0b9c-3c69-47f5-8dc1-10197452fb33",
+      "number": "2.1.1",
+      "type": "question",
+      "marks": 5,
+      "parent_id": "050a7652-a730-4284-9d67-17cfff4e60f9",
+      "order": 25,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2.1.1 Identify tools (what) and method (how) to use in processing information during manufacturing and service rendering"
+        },
+        {
+          "type": "paragraph",
+          "text": "(5 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.1 Multiple Choice Question Allocate one mark each for number 1 to 5"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Multiple Choice Questions",
+              "Answers",
+              "Marks"
+            ],
+            [
+              "1.",
+              "Used by quality assurance personnel to validate the quality of purchased raw materials based on set acceptance criteria Technical datasheetCertificate of ConformanceInspection checklistTesting checklist",
+              "",
+              "1"
+            ],
+            [
+              "2.",
+              "Documented information needs to be maintained by the organization to establishThe scope of the quality management system.The information which will not support the operation of processes.Measure to hide the quality policy and procedures.None of the above",
+              "",
+              "1"
+            ],
+            [
+              "3",
+              "They can be used to identify a set of priorities so you can determine what parameters have the biggest impact on the specific area of concern.Control ChartsFlow ChartsPareto ChartsAll of the above",
+              "",
+              "1"
+            ],
+            [
+              "4",
+              "They can be used in any field to break down complex processes in a way that is easy to understand.Control ChartsFlow ChartsPareto ChartsAll of the above",
+              "",
+              "1"
+            ],
+            [
+              "5",
+              "allow you to identify the stability and predictability of the process and identify common causes of variation.Control ChartsFlow ChartsPareto ChartsAll of the above",
+              "",
+              ""
+            ],
+            [
+              "Total",
+              "5"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c46a9eb4-b54c-4df0-bf3b-43dfa0f05640",
+      "number": "2.1.2",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "050a7652-a730-4284-9d67-17cfff4e60f9",
+      "order": 26,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2.1.2 Gather information using tools from samples taken and data from statistical process control (SPC)\t\t\t\t\t\t\t\t\t\t\t\t(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.2 Case Study Allocate 10 marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Case Study:"
+        },
+        {
+          "type": "paragraph",
+          "text": "The diagram below shows the statistical process control chart which is used for gathering information. A control chart is a good tool for monitoring performance and can be used to monitor any process that relates to the function of an organization. These charts allow you to identify the stability and predictability of the process and identify common causes of variation."
+        },
+        {
+          "type": "figure",
+          "images": [
+            "image_ed6b96e2cf5c40d1.jpg"
+          ],
+          "caption": ""
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "",
+              "Marks"
+            ],
+            [
+              "1",
+              "There are other statistical process control tools such as the Process Flow Chart, Histogram Chart and Pareto Chart.Study the data above and discuss why the Control Chart was used instead. You must cover the following in your answer:1.Control Limits (lower, upper and out of specification results)2.Interptretation of the graph peaks3. If other SPC charts would have provided the same feedback",
+              "",
+              "10"
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "16f390e9-ed5a-435f-849e-d3e2cb7ec057",
+      "number": "2.1.3",
+      "type": "question",
+      "marks": 10,
+      "parent_id": "050a7652-a730-4284-9d67-17cfff4e60f9",
+      "order": 27,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2.1.3 Analyse sample results and data collected from service delivered or manufacturing process\t\t\t\t\t\t\t\t\t\t\t\t(10 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.3 Constructive Respond Allocate 10 marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Questions and Answer",
+              "Marks"
+            ],
+            [
+              "1",
+              "With the aid of the data recorded above, analyse data which was gathered and recorded by following the following steps:How will you assess the quality and reliability of data collected (3)How will you sort and classify data collected (3)How will you interpret data collect and analyse the results (4)",
+              "10"
+            ],
+            [
+              "Total",
+              "10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "919b8fb3-aeb6-49de-b1f0-90bbc4709410",
+      "number": "2.1.4",
+      "type": "question",
+      "marks": 15,
+      "parent_id": "050a7652-a730-4284-9d67-17cfff4e60f9",
+      "order": 28,
+      "content": [
+        {
+          "type": "question_text",
+          "text": "2.1.4 Make recommendation for process improvements based on the analysis\t\t\t\t\t\t\t\t\t\t \t\t\t\t\t(15 Marks)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "2.1.4 Constructive Respond (Cognitive Category – Medium Order = 10 and High Order = 5)Allocate 15 marks for number 1Use discretion to allocate marks for any other relevant point that may be given by the student."
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Number",
+              "Question and Answer",
+              "Marks"
+            ],
+            [
+              "1",
+              "Use the table below to make explain how you will make recommendation on the data collected information on the SPC used in Q2.12 and Q2.1.3‘",
+              "15"
+            ],
+            [
+              "Total",
+              "15"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Marks Allocation Grid (For use by Assessor Only)"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Question",
+              "Marks",
+              "Allocated Marks"
+            ],
+            [
+              "1.1.1",
+              "10",
+              ""
+            ],
+            [
+              "1.1.2",
+              "10",
+              ""
+            ],
+            [
+              "1.1.3",
+              "10",
+              ""
+            ],
+            [
+              "1.1.4",
+              "15",
+              ""
+            ],
+            [
+              "1.1.5",
+              "10",
+              ""
+            ],
+            [
+              "1.1.6",
+              "10",
+              ""
+            ],
+            [
+              "1.1.7",
+              "10",
+              ""
+            ],
+            [
+              "1.1.8",
+              "5",
+              ""
+            ],
+            [
+              "Total Question 1.1",
+              "80",
+              ""
+            ],
+            [
+              "2.1.1",
+              "5",
+              ""
+            ],
+            [
+              "2.1.2",
+              "10",
+              ""
+            ],
+            [
+              "2.1.3",
+              "10",
+              ""
+            ],
+            [
+              "2.1.4",
+              "15",
+              ""
+            ],
+            [
+              "Total Question 2.1",
+              "40",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Assessor Details"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Assessor Name and Surname",
+              ""
+            ],
+            [
+              "Registration Number",
+              ""
+            ],
+            [
+              "Signature",
+              ""
+            ],
+            [
+              "Date",
+              ""
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Moderator Details"
+        },
+        {
+          "type": "table",
+          "rows": [
+            [
+              "Moderator Name and Surname",
+              ""
+            ],
+            [
+              "Registration Number",
+              ""
+            ],
+            [
+              "Signature",
+              ""
+            ],
+            [
+              "Date",
+              ""
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "paper_name": null,
+    "module": null,
+    "tags": []
+  }
+}
