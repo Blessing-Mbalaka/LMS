@@ -92,6 +92,33 @@ def redirect_user_by_role(user ):
         return redirect('student_dashboard')
     else:
         return redirect('home')
+    
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, NoReverseMatch
+from .models import Assessment
+
+def assessment_detail(request, pk):
+    a = get_object_or_404(Assessment, pk=pk)
+
+    # Try legacy route if it exists *and* we have an eisa_id
+    try:
+        if getattr(a, "eisa_id", None):
+            return redirect(reverse("view_assessment", args=[a.eisa_id]))
+    except NoReverseMatch:
+        pass  # fall through to fallback
+
+    # Collect likely content fields (robust to naming differences)
+    ctx = {
+        "assessment": a,
+        "paper": a,  # alias for older partials
+        "paper_json": getattr(a, "structure_json", None) or getattr(a, "extracted_json", None),
+        "paper_text": getattr(a, "extracted_text", None) or getattr(a, "paper_text", None),
+        "paper_file": getattr(a, "file", None) or getattr(a, "paper_file", None),
+        "memo_text": getattr(a, "memo_text", None) or getattr(a, "extracted_memo_text", None),
+        "memo_file": getattr(a, "memo_file", None),
+    }
+    return render(request, "core/assessment_detail_fallback.html", ctx)
+
 
 def register(request):
     if request.method == "POST":
@@ -1769,49 +1796,67 @@ def approved_assessments_for_learners (request):
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 
+# views.py
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Q
+from django.shortcuts import render, redirect, get_object_or_404
+
+from core.models import Assessment, AssessmentCentre, Qualification
+
+# Canonical statuses
+S_ETQA_QUEUE = "submitted_to_etqa"
+S_APPROVED   = "approved"
+
+# Accept historical/mixed variants so tonight's data still shows up
+ETQA_QUEUE_ALIASES = {S_ETQA_QUEUE, "Submitted to ETQA", "ToETQA", "to_etqa", "ToETQA", "submitted_to_ETQA"}
+APPROVED_ALIASES   = {S_APPROVED, "Approved by ETQA", "Approved"}
+
 @login_required
 def etqa_dashboard(request):
     centers = AssessmentCentre.objects.all()
     qualifications = Qualification.objects.all()
-    
-    
-    # Get all assessments submitted to ETQA
-    assessments_for_etqa = Assessment.objects.filter(status="Submitted to ETQA")
 
-    # Get selected qualification (if any)
-    selected_qualification = request.GET.get('qualification_id') or request.POST.get('qualification')
+    # EISA scoping (include unassigned so you can still see new items)
+    qs = Assessment.objects.all().select_related("qualification")
+    user_eisa = getattr(getattr(request.user, "profile", None), "eisa_id", None)
+    if user_eisa:
+        qs = qs.filter(Q(eisa_id=user_eisa) | Q(eisa_id__isnull=True))
 
-    # Filter assessments by qualification if one is selected
-    approved_assessments = Assessment.objects.filter(status="Submitted to ETQA")
+    # Selected qualification (GET from change, POST from form submit)
+    selected_qualification = request.GET.get("qualification_id") or request.POST.get("qualification")
     if selected_qualification:
-        approved_assessments = approved_assessments.filter(qualification_id=selected_qualification)
-    
-    created_batch = None
-    if request.method == 'POST':
-        # Get selected assessments
-        selected_ids = request.POST.getlist('assessment_ids')
+        qs = qs.filter(qualification_id=selected_qualification)
+
+    # Lists for template
+    assessments_for_etqa = qs.filter(status__in=ETQA_QUEUE_ALIASES).order_by("-created_at")
+    approved_assessments = qs.filter(status__in=APPROVED_ALIASES).order_by("-created_at")
+
+    # Handle approvals (bulk approve selected ids)
+    if request.method == "POST":
+        selected_ids = request.POST.getlist("assessment_ids")
         selected_assessments = Assessment.objects.filter(id__in=selected_ids)
-        
-        if not selected_assessments:
-            messages.error(request, "Please select at least one assessment")
-            return redirect('etqa_dashboard')
-            
-        # Process selected assessments
-        for assessment in selected_assessments:
-            assessment.status = "Approved by ETQA"
-            assessment.save()
-            
-        messages.success(request, f"Approved {len(selected_assessments)} assessments")
-        return redirect('etqa_dashboard')
+
+        if not selected_assessments.exists():
+            messages.error(request, "Please select at least one assessment.")
+            return redirect("etqa_dashboard")
+
+        # Move to canonical final status
+        updated = selected_assessments.update(status=S_APPROVED)
+        messages.success(request, f"Approved {updated} assessment(s).")
+        return redirect("etqa_dashboard")
+
+    created_batch = None  # keep your existing variable for the template
 
     return render(request, "core/etqa/etqa_dashboard.html", {
-        'centers': centers,
-        'qualifications': qualifications,
-        'selected_qualification': selected_qualification,
-        'approved_assessments': approved_assessments,
-        'assessments_for_etqa': assessments_for_etqa,
-        'created_batch': created_batch,
+        "centers": centers,
+        "qualifications": qualifications,
+        "selected_qualification": selected_qualification,
+        "approved_assessments": approved_assessments,
+        "assessments_for_etqa": assessments_for_etqa,
+        "created_batch": created_batch,
     })
+
 
 @login_required 
 def review_saved_selector(request):
@@ -2256,3 +2301,41 @@ def submit_paper_simple(request, paper_id):
     messages.success(request, f"Submitted {saved_new} answers for '{paper.name}'.")
     return redirect('papers_demo')
 #end of demo views
+
+
+
+# core/views.py
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, NoReverseMatch
+from django.template.loader import select_template, TemplateDoesNotExist
+from .models import Assessment  # adjust if located elsewhere
+
+def assessment_detail(request, pk):
+    a = get_object_or_404(Assessment, pk=pk)
+
+    # 1) Try to send to your existing legacy viewer by eisa_id (if present & route exists)
+    eisa = getattr(a, "eisa_id", None)
+    if eisa:
+        for route_name in ("view_assessment", "core:view_assessment"):
+            try:
+                return redirect(reverse(route_name, args=[eisa]))
+            except NoReverseMatch:
+                pass  # try next candidate
+
+    # 2) Otherwise, render an existing review template *by PK* if we can find one
+    candidate_templates = [
+        # 👇 put likely paths here; we'll try each in order
+        "core/assessor-developer/review_saved.html",
+        "core/assessor/review_saved.html",
+        "core/review_saved.html",
+        "core/components/review_saved.html",
+    ]
+    try:
+        tmpl = select_template(candidate_templates)
+        return render(request, tmpl.template.name, {"assessment": a, "paper": a})
+    except TemplateDoesNotExist:
+        # 3) Absolute fallback: a tiny built-in viewer so you can proceed tonight
+        return render(request, "core/assessment_detail_fallback.html", {
+            "assessment": a,
+            "paper": a,  # alias for older partials
+        })

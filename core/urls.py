@@ -8,6 +8,9 @@ from . import paper_forwarding
     
 urlpatterns = [
     
+
+    path("assessment/<int:pk>/", views.assessment_detail, name="assessment_detail"),
+    
     #dedicated paper forwarding Logic
     path("assessment/<int:pk>/to-assessor/", paper_forwarding.send_to_assessor, name="send_to_assessor"),
     path("assessment/<int:pk>/to-moderator/", paper_forwarding.send_to_moderator, name="send_to_moderator"),
