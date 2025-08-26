@@ -1342,18 +1342,38 @@ def assessment_archive(request):
         "all_qualifications":   all_quals,
         "all_statuses":         all_statuses,
     })
-# -----------------------------
-# 8) Assessor Dashboard (list)
-# -----------------------------
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+# from core.models import Assessment   # ensure this import exists
+
 @login_required
 def assessor_dashboard(request):
-    user=request.user
-    qualification=user.qualification
-    assessments = Assessment.objects.filter(qualification=qualification).order_by('-created_at')
-    return render(request, 'core/assessor-developer/assessor_dashboard.html', {
-        'assessments': assessments,
-        'qualification':qualification,
-        'user':user,
+    user = request.user
+
+    # Be defensive in case user has no qualification attribute
+    qualification = getattr(user, "qualification", None)
+
+    # Base queryset
+    qs = Assessment.objects.all()
+
+    # Scope by user's EISA centre, but include unassigned so nothing disappears
+    user_eisa = getattr(getattr(user, "profile", None), "eisa_id", None)
+    if user_eisa:
+        qs = qs.filter(Q(eisa_id=user_eisa) | Q(eisa_id__isnull=True))
+
+    # Keep your original qualification scoping if present
+    if qualification:
+        qs = qs.filter(qualification=qualification)
+
+    # Show only items waiting for the Assessor
+    assessments = qs.filter(status="submitted_to_assessor").order_by("-created_at")
+
+    return render(request, "core/assessor-developer/assessor_dashboard.html", {
+        "assessments": assessments,
+        "papers": assessments,         # alias for older partials
+        "qualification": qualification,
+        "user": user,
     })
 
 

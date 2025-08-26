@@ -3,9 +3,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 import core.views as views
+from . import paper_forwarding
 # import core.oldviews as oldviews
     
 urlpatterns = [
+    
+    #dedicated paper forwarding Logic
+    path("assessment/<int:pk>/to-assessor/", paper_forwarding.send_to_assessor, name="send_to_assessor"),
+    path("assessment/<int:pk>/to-moderator/", paper_forwarding.send_to_moderator, name="send_to_moderator"),
+    path("assessment/<int:pk>/to-qcto/", paper_forwarding.send_to_qcto, name="send_to_qcto"),
+    path("assessment/<int:pk>/to-etqa/", paper_forwarding.send_to_etqa, name="send_to_etqa"),
+    path("assessment/<int:pk>/approve/", paper_forwarding.approve_etqa, name="approve_etqa"),
     # Admin URLs
     path('administrator/', views.admin_dashboard, name='admin_dashboard'),
     path('administrator/user-management/', views.user_management, name='user_management'),

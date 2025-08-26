@@ -157,16 +157,12 @@
                 {{ assessment.status }}
               </td>
               <td>{{ assessment.qcto_notes|default:"—" }}</td>
-              <td>
-                {% if assessment.eisa_id %}
-                  <a href="{% url 'view_assessment' assessment.eisa_id %}"
-                     class="gradient-button small">
-                    View
-                  </a>
-                {% else %}
-                  <span class="text-muted fst-italic">No ID Available</span>
-                {% endif %}
-              </td>
+<td>
+  <a href="{% url 'assessment_detail' assessment.pk %}" class="gradient-button small">
+    View
+  </a>
+</td>
+
             </tr>
             {% empty %}
             <tr>
