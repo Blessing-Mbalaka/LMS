@@ -37,7 +37,7 @@ urlpatterns = [
 
     # Moderator URLs
     path('moderator/', views.moderator_developer_dashboard, name='moderator_developer'),
-    path('moderate/<str:eisa_id>/', views.moderate_assessment, name='moderate_assessment'),
+    path('moderate/<int:paper_id>/', views.moderate_assessment, name='moderate_assessment'),
     path('add-feedback/<str:eisa_id>/', views.add_feedback, name='add_feedback'),
 
     # ETQA URLs

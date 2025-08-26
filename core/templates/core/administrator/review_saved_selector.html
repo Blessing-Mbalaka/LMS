@@ -233,146 +233,192 @@
   
   
   {% block extra_js %}
-  <script>
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";").map(c => c.trim());
-        for (const cookie of cookies) {
-          if (cookie.startsWith(name + "=")) {
-            cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-            break;
-          }
+ <script>
+  // --- NEW: type labels + helpers -------------------------------------------
+  const TYPE_LABELS = {
+    question: 'Question',
+    instruction: 'Instruction',
+    case_study: 'Case Study',
+    rubric: 'Rubric',
+    table: 'Table',
+    image: 'Figure',
+    paragraph: 'Paragraph'
+  };
+  function badgeClassFor(type) {
+    switch (type) {
+      case 'question':    return 'bg-primary';
+      case 'instruction': return 'bg-info';
+      case 'case_study':  return 'bg-warning text-dark';
+      case 'rubric':      return 'bg-dark';
+      default:            return 'bg-secondary';
+    }
+  }
+  function ensureTypeBadge(blockEl) {
+    let badge = blockEl.querySelector('.type-badge');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'badge type-badge';
+      const headerLeft =
+        blockEl.querySelector('.card-header .type-badge')?.parentElement ||
+        blockEl.querySelector('.card-header div') ||
+        blockEl.querySelector('.card-header') ||
+        blockEl; // fallback
+      headerLeft.prepend(badge);
+    }
+    return badge;
+  }
+  function applyTypeToBadge(blockEl, type, reason='') {
+    const t = type || 'paragraph';
+    const badge = ensureTypeBadge(blockEl);
+    badge.textContent = TYPE_LABELS[t] || (t.charAt(0).toUpperCase() + t.slice(1));
+    badge.className = `badge ${badgeClassFor(t)} type-badge`;
+    if (reason) badge.title = reason; // tooltip if your API returns reasons
+  }
+  // ---------------------------------------------------------------------------
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";").map(c => c.trim());
+      for (const cookie of cookies) {
+        if (cookie.startsWith(name + "=")) {
+          cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+          break;
         }
       }
-      return cookieValue;
     }
+    return cookieValue;
+  }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const blocks = Array.from(document.querySelectorAll('.block'));
-      const mapByQn = {};
-      const parents = {};
-      const childrenCount = {};
+  document.addEventListener('DOMContentLoaded', () => {
+    const blocks = Array.from(document.querySelectorAll('.block'));
+    const mapByQn = {};
+    const parents = {};
+    const childrenCount = {};
 
-      // Map question numbers to DOM blocks
-      blocks.forEach(b => {
-        const qn = b.dataset.qn;
-        if (qn) mapByQn[qn] = b;
-      });
+    // --- NEW: hydrate badges on load so 'instruction' shows immediately ------
+    blocks.forEach(b => applyTypeToBadge(b, b.dataset.type || 'paragraph'));
+    // -------------------------------------------------------------------------
 
-      // Build parent-child structure
-      blocks.forEach(b => {
-        if (b.dataset.type !== 'question') return;
-        const parts = (b.dataset.qn || "").split('.');
-        if (parts.length < 2) return;
+    // Map question numbers to DOM blocks
+    blocks.forEach(b => {
+      const qn = b.dataset.qn;
+      if (qn) mapByQn[qn] = b;
+    });
 
-        const parentKey = parts.slice(0, -1).join('.');
-        const parentEl = mapByQn[parentKey];
-        if (!parentEl) return;
+    // Build parent-child structure
+    blocks.forEach(b => {
+      if (b.dataset.type !== 'question') return;
+      const parts = (b.dataset.qn || "").split('.');
+      if (parts.length < 2) return;
 
-        parents[b.dataset.id] = parentEl.dataset.id;
-        childrenCount[parentEl.dataset.id] = (childrenCount[parentEl.dataset.id] || 0) + 1;
+      const parentKey = parts.slice(0, -1).join('.');
+      const parentEl = mapByQn[parentKey];
+      if (!parentEl) return;
 
-        let wrap = parentEl.querySelector('.children');
-        if (!wrap) {
-          wrap = document.createElement('div');
-          wrap.className = 'children ms-4 mt-2';
-          parentEl.appendChild(wrap);
-        }
+      parents[b.dataset.id] = parentEl.dataset.id;
+      childrenCount[parentEl.dataset.id] = (childrenCount[parentEl.dataset.id] || 0) + 1;
 
-        wrap.appendChild(b);
-      });
+      let wrap = parentEl.querySelector('.children');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.className = 'children ms-4 mt-2';
+        parentEl.appendChild(wrap);
+      }
+      wrap.appendChild(b);
+    });
 
-      // Add "Parent of X" and "Child of Y" badges
-      blocks.forEach(b => {
-        const id = b.dataset.id;
-        const header = b.querySelector('.d-flex') || b;
-        let badge = null;
+    // Add "Parent of X" and "Child of Y" badges
+    blocks.forEach(b => {
+      const id = b.dataset.id;
+      const header = b.querySelector('.d-flex') || b;
+      let badge = null;
 
-        if (childrenCount[id]) {
-          badge = document.createElement('span');
-          badge.textContent = `Parent of ${childrenCount[id]}`;
-          badge.className = 'badge bg-primary text-white ms-2';
-        } else if (parents[id]) {
-          const pEl = document.querySelector(`.block[data-id="${parents[id]}"]`);
-          const pQn = pEl?.dataset.qn || '';
-          badge = document.createElement('span');
-          badge.textContent = `Child of ${pQn}`;
-          badge.className = 'badge bg-secondary text-white ms-2';
-        }
+      if (childrenCount[id]) {
+        badge = document.createElement('span');
+        badge.textContent = `Parent of ${childrenCount[id]}`;
+        badge.className = 'badge bg-primary text-white ms-2';
+      } else if (parents[id]) {
+        const pEl = document.querySelector(`.block[data-id="${parents[id]}"]`);
+        const pQn = pEl?.dataset.qn || '';
+        badge = document.createElement('span');
+        badge.textContent = `Child of ${pQn}`;
+        badge.className = 'badge bg-secondary text-white ms-2';
+      }
+      if (badge) header.appendChild(badge);
+    });
 
-        if (badge) header.appendChild(badge);
-      });
+    // Serialize all blocks on form submit
+    const form = document.getElementById('blocks-form');
+    if (form) {
+      form.addEventListener('submit', () => {
+        const blocksData = Array.from(document.querySelectorAll('.block')).map(b => {
+          const type = b.dataset.type || '';
+          const id = b.dataset.id;
+          const text = b.querySelector('.block-text')?.value?.trim()
+            || b.querySelector('.block-text')?.textContent?.trim()
+            || '';
 
-      // Serialize all blocks on form submit
-      const form = document.getElementById('blocks-form');
-      if (form) {
-        form.addEventListener('submit', () => {
-          const blocksData = Array.from(document.querySelectorAll('.block')).map(b => {
-            const type = b.dataset.type || '';
-            const id = b.dataset.id;
-            const text = b.querySelector('.block-text')?.value?.trim()
-              || b.querySelector('.block-text')?.textContent?.trim()
-              || '';
-
-            const content = Array.from(b.querySelectorAll('.block-content')).map(el => {
-              if (el.tagName === 'IMG') {
-                return { type: 'figure', data_uri: el.src };
-              }
-              if (el.tagName === 'TABLE') {
-                const rows = Array.from(el.querySelectorAll('tr')).map(row =>
-                  Array.from(row.querySelectorAll('td')).map(cell => cell.innerText.trim())
-                );
-                return { type: 'table', rows };
-              }
-              if (el.closest('.border.bg-light')) {
-                return { type: 'case_study', text: el.innerText.trim() };
-              }
-              return { type: 'question_text', text: el.innerText.trim() };
-            });
-
-            return {
-              id,
-              number: b.dataset.qn || '',
-              type,
-              marks: b.dataset.marks || '',
-              parent_id: parents[id] || null,
-              text,
-              content,
-              ...(type === 'figure' ? { data_uri: b.querySelector('img')?.src || '' } : {})
-            };
+          const content = Array.from(b.querySelectorAll('.block-content')).map(el => {
+            if (el.tagName === 'IMG') {
+              return { type: 'figure', data_uri: el.src };
+            }
+            if (el.tagName === 'TABLE') {
+              const rows = Array.from(el.querySelectorAll('tr')).map(row =>
+                Array.from(row.querySelectorAll('td')).map(cell => cell.innerText.trim())
+              );
+              return { type: 'table', rows };
+            }
+            if (el.closest('.border.bg-light')) {
+              return { type: 'case_study', text: el.innerText.trim() };
+            }
+            return { type: 'question_text', text: el.innerText.trim() };
           });
 
-          const outputField = document.getElementById('nodes-json');
-          if (outputField) {
-            outputField.value = JSON.stringify(blocksData);
-          }
-        });
-      }
-
-      // Optional: handle delete-block buttons
-      document.querySelectorAll('.delete-block-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const block = btn.closest('.block');
-          const hasChildren = block.querySelector('.children');
-          if (hasChildren) {
-            const confirmed = confirm('This block has child questions. Delete all?');
-            if (!confirmed) return;
-            hasChildren.remove();
-          }
-          block.remove();
-        });
-      });
-
-      // Auto-Classify with AI button
-      document.getElementById('ai-classify-btn').addEventListener('click', () => {
-        const blocks = Array.from(document.querySelectorAll('.block')).map(b => {
           return {
-            id: b.dataset.id,
-            text: b.querySelector('.block-text')?.value?.trim() || b.querySelector('.block-text')?.textContent?.trim() || '',
-            type: b.dataset.type || 'paragraph'
+            id,
+            number: b.dataset.qn || '',
+            type,
+            marks: b.dataset.marks || '',
+            parent_id: parents[id] || null,
+            text,
+            content,
+            ...(type === 'figure' ? { data_uri: b.querySelector('img')?.src || '' } : {})
           };
         });
+
+        const outputField = document.getElementById('nodes-json');
+        if (outputField) {
+          outputField.value = JSON.stringify(blocksData);
+        }
+      });
+    }
+
+    // Optional: handle delete-block buttons
+    document.querySelectorAll('.delete-block-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const block = btn.closest('.block');
+        const hasChildren = block.querySelector('.children');
+        if (hasChildren) {
+          const confirmed = confirm('This block has child questions. Delete all?');
+          if (!confirmed) return;
+          hasChildren.remove();
+        }
+        block.remove();
+      });
+    });
+
+    // Auto-Classify with AI button
+    const aiBtn = document.getElementById('ai-classify-btn');
+    if (aiBtn) {
+      aiBtn.addEventListener('click', () => {
+        const payloadBlocks = Array.from(document.querySelectorAll('.block')).map(b => ({
+          id: b.dataset.id,
+          text: b.querySelector('.block-text')?.value?.trim()
+             || b.querySelector('.block-text')?.textContent?.trim()
+             || '',
+          type: b.dataset.type || 'paragraph'
+        }));
 
         const paperPk = window.location.pathname.match(/\/review-paper\/(\d+)\//)?.[1];
         if (!paperPk) {
@@ -386,39 +432,44 @@
             "Content-Type": "application/json",
             "X-CSRFToken": getCookie("csrftoken")
           },
-          body: JSON.stringify({ blocks })
+          body: JSON.stringify({ blocks: payloadBlocks })
         })
-          .then(res => res.json())
-          .then(data => {
-            if (data.error) throw new Error(data.error);
-            const types = data.types;
-            if (!Array.isArray(types)) throw new Error("Response format invalid");
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) throw new Error(data.error);
+          const types = data.types;
+          const reasons = data.reasons || []; // optional if your API returns reasons
+          if (!Array.isArray(types)) throw new Error("Response format invalid");
 
-            // Update DOM with new types
-            document.querySelectorAll('.block').forEach((b, i) => {
-              b.dataset.type = types[i] || 'paragraph';
-              const badge = b.querySelector('.type-badge');
-              if (badge) badge.textContent = types[i];
-            });
-
-            alert("✅ Classification updated.");
-          })
-          .catch(err => {
-            console.error(err);
-            alert("❌ Classification failed.");
+          // Update DOM with new types (text + styling)
+          document.querySelectorAll('.block').forEach((b, i) => {
+            const newType = types[i] || 'paragraph';
+            b.dataset.type = newType;
+            applyTypeToBadge(b, newType, reasons[i] || '');
           });
-      });
 
-      // Randomize button
-      document.getElementById('randomize-btn').addEventListener('click', () => {
+          alert("✅ Classification updated.");
+        })
+        .catch(err => {
+          console.error(err);
+          alert("❌ Classification failed.");
+        });
+      });
+    }
+
+    // Randomize button
+    const randBtn = document.getElementById('randomize-btn');
+    if (randBtn) {
+      randBtn.addEventListener('click', () => {
         const paperId = document.getElementById('paper-select').value;
         if (!paperId) {
           alert('Please select a paper first');
           return;
         }
-
         window.location.href = `/randomize/paper_structure/${paperId}/`;
       });
-    });
-  </script>
+    }
+  });
+</script>
+
   {% endblock %}

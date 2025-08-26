@@ -34,7 +34,7 @@
         
         <li class="nav-item">
           <a class="nav-link{% if request.resolver_match.url_name == 'generate_tool_page' %} active{% endif %}"
-             href="{% url 'generate_tool_page' %}">
+
             <i class="fa fa-cogs"></i>
             <span>Generate Assessment</span>
           </a>
@@ -120,7 +120,7 @@
       <!-- ===== UPLOAD / GENERATE BUTTONS ===== -->
       <div class="upload-section d-flex mb-4">
         
-        <a href="{% url 'generate_tool_page' %}" class="gradient-button">
+        
           Generate EISA Tool
         </a>
       </div>

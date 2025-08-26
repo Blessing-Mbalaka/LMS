@@ -1439,27 +1439,25 @@ def moderator_developer_dashboard(request):
 
 
 
-def moderate_assessment(request, eisa_id):
-    # Fetch the assessment (raises 404 if not found)
-    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+def moderate_assessment(request, identifier):
+    assessment = Assessment.objects.filter(eisa_id=identifier).first()
+    if not assessment and identifier.isdigit():
+        assessment = Assessment.objects.filter(paper_link_id=int(identifier)).first()
+    if not assessment:
+        raise Http404("Assessment not found.")
 
+    questions = assessment.generated_questions.all()
     if request.method == 'POST':
-        # Read form inputs
-        decision = request.POST.get('decision')
-        notes    = request.POST.get('moderator_notes', '')
-
-        # Save the moderator’s notes
+        notes = request.POST.get('moderator_notes', '').strip()
         assessment.moderator_notes = notes
-
-        # Toggle status for the QCTO flow
-        if decision == 'approve':
-            assessment.status = 'Submitted to QCTO'
-        else:
-            assessment.status = 'Returned for Changes'
+        assessment.status = 'Submitted to Moderator'
         assessment.save()
+        return redirect('assessor_dashboard')
 
-        # Redirect back to your moderator-developer dashboard
-        return redirect('moderator_developer')
+    return render(request, 'core/assessor-developer/view_assessment.html', {
+        'assessment': assessment,
+        'questions': questions
+    })
 
     # GET: render the moderation form
     return render(
@@ -2182,7 +2180,8 @@ def papers_demo(request):
     Simple demo page: list ALL papers from the DB in a table.
     No status/qualification filtering (for now).
     """
-    papers = Paper.objects.select_related('qualification').order_by('-created_at')
+    #papers = Paper.objects.select_related('qualification').order_by('-created_at')
+    papers = Paper.objects.filter(qualification=request.user.qualification)
     return render(request, 'core/student/papers_demo.html', {
         'papers': papers,
         'user': request.user,

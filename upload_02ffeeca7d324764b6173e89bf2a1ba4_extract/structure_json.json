@@ -1,0 +1,17 @@
+{
+  "source": "upload_02ffeeca7d324764b6173e89bf2a1ba4.docx",
+  "output_dir": "upload_02ffeeca7d324764b6173e89bf2a1ba4_extract",
+  "generated_at": 1756197850,
+  "counts": {
+    "blocks": 0,
+    "images": 0,
+    "tables": 0,
+    "questions": 0
+  },
+  "nodes": [],
+  "metadata": {
+    "paper_name": null,
+    "module": null,
+    "tags": []
+  }
+}
