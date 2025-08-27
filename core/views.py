@@ -1623,8 +1623,21 @@ def qcto_dashboard(request):
     QCTO dashboard: list assessments submitted by the moderator for QCTO review.
     Only those with status 'Submitted to QCTO' appear here.
     """
+
+    # Add this to your QCTO dashboard view in views.py
+
+    QCTO_QUEUE_ALIASES = [
+        "Submitted to QCTO",
+        "submitted_to_qcto",
+        "Submitted to QCTO ",
+        "submitted to qcto",
+        "ToQCTO",
+        "to_qcto"
+    ]
+
+   
     pending_assessments = Assessment.objects.filter(
-        status="Submitted to QCTO"
+        status__in=QCTO_QUEUE_ALIASES
     ).order_by("-created_at")
     return render(
         request,
@@ -1639,12 +1652,13 @@ def qcto_dashboard(request):
 from django.views.decorators.http import require_http_methods
 
 @require_http_methods(["GET", "POST"])
-def qcto_moderate_assessment(request, eisa_id):
+def qcto_moderate_assessment(request, pk):
     """
     QCTO review step: only handles assessments with status 'Submitted to QCTO'.
     On 'approve', status becomes 'Submitted to ETQA'; on 'reject', status becomes 'Rejected'.
     """
-    assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+    assessment = get_object_or_404(Assessment, pk=pk)
+
 
     if assessment.status != "Submitted to QCTO":
 
@@ -1738,18 +1752,18 @@ def qcto_compliance(request):
 @require_http_methods(["GET", "POST"])
 def qcto_assessment_review(request):
     if request.method == "POST":
-        eisa_id = request.POST.get("eisa_id")
-        assessment = get_object_or_404(Assessment, eisa_id=eisa_id)
+        pk = request.POST.get("pk")
+        assessment = get_object_or_404(Assessment, pk=pk)
 
         notes    = request.POST.get("qcto_notes", "").strip()
         decision = request.POST.get("decision")
 
         if decision == "approve":
             assessment.status = "Submitted to ETQA"
-            messages.success(request, f"{eisa_id} approved and forwarded to ETQA.")
+            messages.success(request, f"{pk} approved and forwarded to ETQA.")
         elif decision == "reject":
             assessment.status = "Rejected"
-            messages.success(request, f"{eisa_id} has been rejected.")
+            messages.success(request, f"{pk} has been rejected.")
         else:
             messages.error(request, "Invalid decision.")
 
@@ -1810,11 +1824,11 @@ def approved_assessments_view(request):
 @login_required
 def assessment_progress_tracker(request):
     archived_statuses = [
-        "Approved by ETQA",
-        "Rejected",
-        "Submitted to ETQA",
-        "Approved by Moderator",
-        "Submitted to Moderator",
+"Approved by ETQA", "approved", "etqa_approved", "Approved",
+    "Rejected", "rejected",
+    "Submitted to ETQA", "submitted_to_etqa", "ToETQA", "to_etqa", "Submitted to ETQA ", "submitted_to_ETQA",
+    "Approved by Moderator", "approved_by_moderator",
+    "Submitted to Moderator", "submitted_to_moderator", "Submitted to Moderator ", "ToModerator", "to_moderator"
     ]
 
     assessments = Assessment.objects.filter(status__in=archived_statuses).order_by('-created_at')

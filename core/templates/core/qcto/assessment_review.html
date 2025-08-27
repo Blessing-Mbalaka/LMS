@@ -1,61 +1,139 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>QCTO Final Assessment Review | CHIETA</title>
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    
-    
-    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 20px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    thead { background: #580658; color: #fff; }
-    .btn { display: inline-block; padding: 6px 12px; background: #552a74; color: #fff; border-radius: 4px; text-decoration: none; }
-    .btn:hover { opacity: 0.9; }
-    .no-data { text-align: center; padding: 20px; font-style: italic; }
- 
-  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
 
-    /***********new sidebar style and contnet*****************/
- .main-content { flex: 1; margin-left: 280px; padding: 30px;   background-color: #efeaea;
-    background-image: url("{% static 'core/images/Frame.png' %}");
-    background-repeat: no-repeat;
-    background-size: cover;
-    opacity: 0.9;}
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
 
-    .sidebar { width: 250px; background: linear-gradient(to bottom, #f1f1f1, white, #e0e0e0, #f5f5f5, #3c1c53); padding: 20px; color: var(--dark-purple); border-right: 1px solid var(--gold); position: fixed; height: 100%; overflow-y: auto; }
-    .sidebar-header { text-align: center; margin-bottom: 30px; }
-    .sidebar-header img { max-width: 50%; margin-bottom: 15px; }
-    .sidebar-header h4 { color: var(--dark-purple); font-weight: 600; }
-    .sidebar-menu { list-style: none; padding: 0; }
-    .sidebar-menu li { margin-bottom: 5px; }
-    .sidebar-menu li a { display: block; padding: 10px 15px; color: var(--dark-purple); text-decoration: none; border-radius: 5px; transition: all 0.3s; }
-    .sidebar-menu li.active a { background-color: var(--dark-purple); color: white; }
-    .sidebar li {    margin-bottom: 10px;    /* optional spacing between items */  }
-    .sidebar li a:hover{ background: #613085; color: white;}
-    .sidebar ul {  list-style-type: none; padding-left: 0;    /* removes default padding */
-  }
+    thead {
+      background: #580658;
+      color: #fff;
+    }
 
-  /*********************end of new sid ebar************/
-  
+    .btn {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #552a74;
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      font-style: italic;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 30px;
+      background-color: #efeaea;
+      background-image: url("{% static 'core/images/Frame.png' %}");
+      background-repeat: no-repeat;
+      background-size: cover;
+      opacity: 0.9;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(to bottom, #f1f1f1, white, #e0e0e0, #f5f5f5, #3c1c53);
+      padding: 20px;
+      color: var(--dark-purple);
+      border-right: 1px solid var(--gold);
+      position: fixed;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .sidebar-header img {
+      max-width: 50%;
+      margin-bottom: 15px;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar-menu li {
+      margin-bottom: 5px;
+    }
+
+    .sidebar-menu li a {
+      display: block;
+      padding: 10px 15px;
+      color: var(--dark-purple);
+      text-decoration: none;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .sidebar-menu li.active a {
+      background-color: var(--dark-purple);
+      color: white;
+    }
+
+    .sidebar li a:hover {
+      background: #613085;
+      color: white;
+    }
   </style>
 </head>
+
 <body>
   <div class="sidebar">
-     <div class="sidebar-header">
+    <div class="sidebar-header">
       <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
     </div>
     <ul class="sidebar-menu">
-    <li><a href="{% url 'qcto_dashboard' %}" class="{% if request.resolver_match.url_name == 'qcto_dashboard' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-    <li class="active"><a href="{% url 'qcto_assessment_review' %}" class="{% if request.resolver_match.url_name == 'qcto_assessment_review' %}active{% endif %}"><i class="fas fa-check-square"></i> Final Review</a></li>
-    <li><a href="{% url 'qcto_compliance' %}" class="{% if request.resolver_match.url_name == 'qcto_compliance' %}active{% endif %}"><i class="fas fa-clipboard-check"></i> Compliance</a></li>
-    <li><a href="{% url 'qcto_reports' %}" class="{% if request.resolver_match.url_name == 'qcto_reports' %}active{% endif %}"><i class="fas fa-chart-line"></i> Reports</a></li>
-    <li><a href="{% url 'qcto_archive' %}" class="{% if request.resolver_match.url_name == 'qcto_archive' %}active{% endif %}"><i class="fas fa-archive"></i> Archive</a></li>
-    <li><a href="{% url 'logout' %}" ><i class="logout fas fa-sign-out-alt"></i> Log Out</a></li>
+      <li><a href="{% url 'qcto_dashboard' %}"
+          class="{% if request.resolver_match.url_name == 'qcto_dashboard' %}active{% endif %}">
+          <i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+      <li class="active"><a href="{% url 'qcto_assessment_review' %}"
+          class="{% if request.resolver_match.url_name == 'qcto_assessment_review' %}active{% endif %}">
+          <i class="fas fa-check-square"></i> Final Review</a></li>
+      <li><a href="{% url 'qcto_compliance' %}"
+          class="{% if request.resolver_match.url_name == 'qcto_compliance' %}active{% endif %}">
+          <i class="fas fa-clipboard-check"></i> Compliance</a></li>
+      <li><a href="{% url 'qcto_reports' %}"
+          class="{% if request.resolver_match.url_name == 'qcto_reports' %}active{% endif %}">
+          <i class="fas fa-chart-line"></i> Reports</a></li>
+      <li><a href="{% url 'qcto_archive' %}"
+          class="{% if request.resolver_match.url_name == 'qcto_archive' %}active{% endif %}">
+          <i class="fas fa-archive"></i> Archive</a></li>
+      <li><a href="{% url 'logout' %}"><i class="logout fas fa-sign-out-alt"></i> Log Out</a></li>
     </ul>
   </div>
+
   <div class="main">
     <div class="main-content">
       <h2>QCTO Final Assessment Review</h2>
@@ -66,49 +144,43 @@
             <th>Qualification</th>
             <th>Questions</th>
             <th>View</th>
-            <th>QCTO Notes</th>
-            <th>Action</th>
+            <th>QCTO Notes / Action</th>
           </tr>
         </thead>
         <tbody>
-  {% for a in assessments %}
-    <tr>
-  <td>{{ a.eisa_id }}</td>
-  <td>{{ a.qualification.name }}</td>
-  <td>{% include 'core/includes/_question_list.html' with assessment=a %}</td>
-
-  <!-- ✅ Only show structured extracted view -->
-  <td>
-    {% if a.paper_link %}
-      <a href="{% url 'load_saved_paper' a.paper_link.pk %}" class="btn">
-        <i class="fas fa-eye"></i> View Paper
-      </a>
-    {% else %}
-      <span class="text-muted">No extracted paper</span>
-    {% endif %}
-  </td>
-
-  <td>
-    <form method="post" action="{% url 'qcto_assessment_review' %}">
-      {% csrf_token %}
-      <input type="hidden" name="eisa_id" value="{{ a.eisa_id }}"/>
-      <textarea name="qcto_notes" rows="2" style="width:100%;">{{ a.qcto_notes }}</textarea>
-  </td>
-  <td>
-      <button type="submit" name="decision" value="approve" class="btn">Approve</button>
-      <button type="submit" name="decision" value="reject" class="btn">Reject</button>
-    </form>
-  </td>
-</tr>
-
-  {% empty %}
-    <tr><td colspan="6" class="no-data">No assessments to review.</td></tr>
-  {% endfor %}
-</tbody>
-
+          {% for a in assessments %}
+          <tr>
+            <td>{{ a.eisa_id }}</td>
+            <td>{{ a.qualification.name }}</td>
+            <td>{% include 'core/includes/_question_list.html' with assessment=a %}</td>
+            <td>
+              {% if a.paper_link %}
+              <a href="{% url 'load_saved_paper' a.paper_link.pk %}" class="btn">
+                <i class="fas fa-eye"></i> View Paper
+              </a>
+              {% else %}
+              <span class="text-muted">No extracted paper</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post" action="{% url 'qcto_assessment_review' %}">
+                {% csrf_token %}
+                <input type="hidden" name="pk" value="{{ a.pk }}" />
+                <textarea name="qcto_notes" rows="2" style="width:100%;">{{ a.qcto_notes }}</textarea>
+                <button type="submit" name="decision" value="approve" class="btn btn-sm btn-success">Approve</button>
+                <button type="submit" name="decision" value="reject" class="btn btn-sm btn-danger">Reject</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="no-data">No assessments to review.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>
+</body>
 
- </body>
 </html>

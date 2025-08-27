@@ -114,48 +114,53 @@
             <th class="text-center">Actions</th> <!-- CHANGE: consistent header -->
           </tr>
         </thead>
-<tbody>
-  {% for a in assessments %}
-  <tr>
-    <td>{{ a.eisa_id }}</td>
-    <td>{{ a.qualification.name|default:"—" }}</td>
-    <td>{{ a.paper|default:"—" }}</td>
-    <td>{{ a.comment|default:"-" }}</td>
+        <tbody>
+          {% for a in assessments %}
+          <tr>
+            <td>{{ a.eisa_id }}</td>
+            <td>{{ a.qualification.name|default:"—" }}</td>
+            <td>{{ a.paper|default:"—" }}</td>
+            <td>{{ a.comment|default:"-" }}</td>
 
-    {# === View paper (standard eye button with fallbacks) === #}
-    <td class="text-center">
-      {% if a.paper_link_id %}
-      <a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' a.paper_link_id %}"
-        title="Review extracted">
-        <i class="far fa-eye"></i>
-      </a>
-      {% elif a.eisa_id %}
-      <a class="btn btn-sm btn-outline-primary" href="{% url 'view_assessment' a.eisa_id %}" title="Open legacy view">
-        <i class="far fa-eye"></i>
-      </a>
-      {% else %}
-      <a class="btn btn-sm btn-outline-secondary" href="{% url 'assessment_detail' a.pk %}" title="Assessment details">
-        <i class="far fa-eye"></i>
-      </a>
-      {% endif %}
-    </td>
+            {# === View paper (standard eye button with fallbacks) === #}
+            <td class="text-center">
+              {% if a.paper_link_id %}
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' a.paper_link_id %}"
+                title="Review extracted">
+                <i class="far fa-eye"></i>
+              </a>
+              {% elif a.eisa_id %}
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'view_assessment' a.eisa_id %}"
+                title="Open legacy view">
+                <i class="far fa-eye"></i>
+              </a>
+              {% else %}
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'assessment_detail' a.pk %}"
+                title="Assessment details">
+                <i class="far fa-eye"></i>
+              </a>
+              {% endif %}
+            </td>
 
-    {# === Actions (notes + approve/reject) === #}
-    <td class="action-buttons">
-      <form method="post" action="{% url 'qcto_moderate_assessment' a.eisa_id %}">
-        {% csrf_token %}
-        <textarea name="qcto_notes" placeholder="Enter QCTO notes...">{{ a.qcto_notes }}</textarea><br>
-        <button type="submit" name="decision" value="approve" class="approve-btn">Approve</button>
-        <button type="submit" name="decision" value="reject" class="reject-btn">Reject</button>
-      </form>
-    </td>
-  </tr>
-  {% empty %}
-  <tr>
-    <td colspan="6">No assessments available.</td>
-  </tr>
-  {% endfor %}
-</tbody>
+            {# === Actions (notes + approve/reject) === #}
+            <td class="action-buttons">
+              <form method="post" action="{% url 'forward_assessment' a.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-primary">Forward</button>
+              </form>
+              <form method="post" action="{% url 'qcto_moderate_assessment' a.eisa_id %}">
+                {% csrf_token %}
+                <textarea name="qcto_notes" placeholder="Enter QCTO notes...">{{ a.qcto_notes }}</textarea><br>
+                <button type="submit" name="decision" value="reject" class="reject-btn">Reject</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">No assessments available.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
 
       </table>
     </div>
