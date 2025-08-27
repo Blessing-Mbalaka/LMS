@@ -90,10 +90,12 @@ urlpatterns = [
          views.randomize_paper_structure_view, 
          name='randomize_paper_structure'),
 
+    path('tracking-overview/', views.assessment_tracking_overview, name='assessment_tracking_overview'),
+
     # Save Blocks URL
   # urls.py
-path('save-blocks/<int:paper_id>/', views.save_blocks_view, name='save_blocks')
-
+path('save-blocks/<int:paper_id>/', views.save_blocks_view, name='save_blocks'),
+path('forward-assessment/<int:pk>/', views.forward_assessment, name='forward_assessment'),
 ]
 
 if settings.DEBUG:

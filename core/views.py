@@ -1,6 +1,8 @@
 import os
 import traceback
 from django.contrib import messages
+
+from .paper_forwarding import S_TO_ASSESSOR, S_TO_ETQA
 from rest_framework.parsers import MultiPartParser, JSONParser
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
@@ -1114,20 +1116,32 @@ def upload_assessment(request):
 
                 
                 if paper_obj:
-                    # Create assessment record
-                    assessment_obj = Assessment.objects.create(
-                        eisa_id=eisa_id,
-                        qualification=qualification_obj, 
+                    # Create RAW assessment (uploaded docx itself) → goes straight to ETQA
+                    raw_assessment = Assessment.objects.create(
+                        eisa_id=f"EISA-{uuid.uuid4().hex[:8].upper()}",
+                        qualification=qualification_obj,
                         paper=paper_number,
                         saqa_id=saqa,
-                        file=file,
+                        file=file,          # original uploaded .docx
                         memo=memo,
                         comment=comment,
-                        forward_to_moderator=forward,
                         created_by=request.user,
-                        paper_link=paper_obj,
-                        status="Submitted to Moderator" if forward else "Submitted to ETQA"
+                        status=S_TO_ETQA
+
                     )
+
+                    # Create EXTRACTED assessment (linked to structured Paper) → starts pipeline
+                    extracted_assessment = Assessment.objects.create(
+                        eisa_id=f"EISA-{uuid.uuid4().hex[:8].upper()}",
+                        qualification=qualification_obj,
+                        paper=f"{paper_number} (Extracted)",
+                        saqa_id=saqa,
+                        created_by=request.user,
+                        paper_link=paper_obj,   # link to extracted Paper + ExamNodes
+                        status=S_TO_ASSESSOR  # ✅ pipeline starts here
+
+                    )
+
 
                     # Count what was extracted
                     nodes = ExamNode.objects.filter(paper=paper_obj)
@@ -1436,7 +1450,7 @@ def assessor_dashboard(request):
         qs = qs.filter(qualification=qualification)
 
     # Show only items waiting for the Assessor
-    assessments = qs.filter(status__iexact="Submitted to Assessor").order_by("-created_at")
+    assessments = qs.filter(status__in=[S_TO_ASSESSOR, "Pending"]).order_by("-created_at")
     return render(request, "core/assessor-developer/assessor_dashboard.html", {
         "assessments": assessments,
         "papers": assessments,         # alias for older partials
@@ -1466,7 +1480,9 @@ def submit_generated_paper(request):
             memo=None,
             forward_to_moderator=True,
             moderator_notes=content,
-            status="Submitted to ETQA"
+            
+
+            status=S_TO_ETQA
         )
 
         return JsonResponse({"status": "success", "message": "Paper submitted to moderator."})
@@ -1832,66 +1848,6 @@ def approved_assessments_for_learners (request):
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 
-# views.py
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db.models import Q
-from django.shortcuts import render, redirect, get_object_or_404
-
-from core.models import Assessment, AssessmentCentre, Qualification
-
-# Canonical statuses
-S_ETQA_QUEUE = "submitted_to_etqa"
-S_APPROVED   = "approved"
-
-# Accept historical/mixed variants so tonight's data still shows up
-ETQA_QUEUE_ALIASES = {S_ETQA_QUEUE, "Submitted to ETQA", "ToETQA", "to_etqa", "ToETQA", "submitted_to_ETQA"}
-APPROVED_ALIASES   = {S_APPROVED, "Approved by ETQA", "Approved"}
-
-@login_required
-def etqa_dashboard(request):
-    centers = AssessmentCentre.objects.all()
-    qualifications = Qualification.objects.all()
-
-    # EISA scoping (include unassigned so you can still see new items)
-    qs = Assessment.objects.all().select_related("qualification")
-    user_eisa = getattr(getattr(request.user, "profile", None), "eisa_id", None)
-    if user_eisa:
-        qs = qs.filter(Q(eisa_id=user_eisa) | Q(eisa_id__isnull=True))
-
-    # Selected qualification (GET from change, POST from form submit)
-    selected_qualification = request.GET.get("qualification_id") or request.POST.get("qualification")
-    if selected_qualification:
-        qs = qs.filter(qualification_id=selected_qualification)
-
-    # Lists for template
-    assessments_for_etqa = qs.filter(status__in=ETQA_QUEUE_ALIASES).order_by("-created_at")
-    approved_assessments = qs.filter(status__in=APPROVED_ALIASES).order_by("-created_at")
-
-    # Handle approvals (bulk approve selected ids)
-    if request.method == "POST":
-        selected_ids = request.POST.getlist("assessment_ids")
-        selected_assessments = Assessment.objects.filter(id__in=selected_ids)
-
-        if not selected_assessments.exists():
-            messages.error(request, "Please select at least one assessment.")
-            return redirect("etqa_dashboard")
-
-        # Move to canonical final status
-        updated = selected_assessments.update(status=S_APPROVED)
-        messages.success(request, f"Approved {updated} assessment(s).")
-        return redirect("etqa_dashboard")
-
-    created_batch = None  # keep your existing variable for the template
-
-    return render(request, "core/etqa/etqa_dashboard.html", {
-        "centers": centers,
-        "qualifications": qualifications,
-        "selected_qualification": selected_qualification,
-        "approved_assessments": approved_assessments,
-        "assessments_for_etqa": assessments_for_etqa,
-        "created_batch": created_batch,
-    })
 
 
 @login_required 
@@ -2396,3 +2352,77 @@ def open_assessment_paper(request, pk):
             pass
     # Last resort: your fallback detail
     return redirect('assessment_detail', pk=a.pk)
+# Canonical statuses
+S_ETQA_QUEUE = "submitted_to_etqa"
+S_APPROVED   = "approved"
+
+# Accept historical/mixed variants so tonight's data still shows up
+ETQA_QUEUE_ALIASES = {S_ETQA_QUEUE, "Submitted to ETQA", "ToETQA", "to_etqa", "ToETQA", "submitted_to_ETQA"}
+APPROVED_ALIASES   = {S_APPROVED, "Approved by ETQA", "Approved"}
+
+@login_required
+def etqa_dashboard(request):
+    centers = AssessmentCentre.objects.all()
+    qualifications = Qualification.objects.all()
+
+    # EISA scoping (include unassigned so you can still see new items)
+    qs = Assessment.objects.all().select_related("qualification")
+    user_eisa = getattr(getattr(request.user, "profile", None), "eisa_id", None)
+    if user_eisa:
+        qs = qs.filter(Q(eisa_id=user_eisa) | Q(eisa_id__isnull=True))
+
+    # Selected qualification (GET from change, POST from form submit)
+    selected_qualification = request.GET.get("qualification_id") or request.POST.get("qualification")
+    if selected_qualification:
+        qs = qs.filter(qualification_id=selected_qualification)
+
+    # Lists for template
+    assessments_for_etqa = qs.filter(status__in=ETQA_QUEUE_ALIASES).order_by("-created_at")
+    approved_assessments = qs.filter(status__in=APPROVED_ALIASES).order_by("-created_at")
+
+    # Handle approvals (bulk approve selected ids)
+    if request.method == "POST":
+        selected_ids = request.POST.getlist("assessment_ids")
+        selected_assessments = Assessment.objects.filter(id__in=selected_ids)
+
+        if not selected_assessments.exists():
+            messages.error(request, "Please select at least one assessment.")
+            return redirect("etqa_dashboard")
+
+        # Move to canonical final status
+        updated = selected_assessments.update(status=S_APPROVED)
+        messages.success(request, f"Approved {updated} assessment(s).")
+        return redirect("etqa_dashboard")
+
+    created_batch = None  # keep your existing variable for the template
+
+    return render(request, "core/etqa/etqa_dashboard.html", {
+        "centers": centers,
+        "qualifications": qualifications,
+        "selected_qualification": selected_qualification,
+        "approved_assessments": approved_assessments,
+        "assessments_for_etqa": assessments_for_etqa,
+        "created_batch": created_batch,
+    })
+from django.shortcuts import render
+from core.models import Assessment
+
+def assessment_tracking_overview(request):
+    assessments = Assessment.objects.select_related('qualification', 'paper_link', 'created_by').order_by('-created_at')
+    return render(request, 'core/assessor-developer/assessment_tracking_overview.html', {
+        'assessments': assessments
+    })
+
+from django.views.decorators.http import require_POST
+@require_POST
+def forward_assessment(request, pk):
+    assessment = get_object_or_404(Assessment, pk=pk)
+    # Forward status order: Pending → Submitted to Moderator → Submitted to QCTO → Submitted to ETQA
+    if assessment.status == "Pending":
+        assessment.status = "Submitted to Moderator"
+    elif assessment.status == "Submitted to Moderator":
+        assessment.status = "Submitted to QCTO"
+    elif assessment.status == "Submitted to QCTO":
+        assessment.status = "Submitted to ETQA"
+    assessment.save()
+    return redirect(request.META.get('HTTP_REFERER', 'assessor_dashboard'))

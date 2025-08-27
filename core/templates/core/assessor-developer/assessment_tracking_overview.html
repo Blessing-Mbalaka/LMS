@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Assessment Tracking Overview</title>
+</head>
+
+<body>
+    <h2>Assessment Tracking Overview</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Qualification</th>
+                <th>Paper</th>
+                <th>Created By</th>
+                <th>Status</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assessment in assessments %}
+            <tr>
+                <td>{{ assessment.pk }}</td>
+                <td>{{ assessment.qualification.name }}</td>
+                <td>{{ assessment.paper_link.name|default:assessment.paper }}</td>
+                <td>{{ assessment.created_by.email }}</td>
+                <td>{{ assessment.status }}</td>
+                <td>{{ assessment.created_at }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No assessments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+
+</html>
