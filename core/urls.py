@@ -8,6 +8,8 @@ from . import paper_forwarding
     
 urlpatterns = [
     
+    # urls.py
+    path('assessment/<int:pk>/review-paper/', views.open_assessment_paper, name='open_assessment_paper'),
 
     path("assessment/<int:pk>/", views.assessment_detail, name="assessment_detail"),
     

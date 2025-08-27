@@ -136,6 +136,13 @@
         <table class="report-table">
           <thead>
             <tr>
+              <td>
+  {% if a.paper_link_id %}
+    <a class="btn btn-sm btn-outline-primary"
+       href="{% url 'open_assessment_paper' a.pk %}">Review extracted</a>
+  {% endif %}
+</td>
+
               <th>Qualification</th>
               <th>Validated Count</th>
             </tr>
@@ -145,6 +152,13 @@
               <tr>
                 <td>{{ row.qualification }}</td>
                 <td>{{ row.validated_count }}</td>
+                <td>
+  {% if a.paper_link_id %}
+    <a class="btn btn-sm btn-outline-primary"
+       href="{% url 'open_assessment_paper' a.pk %}">Review extracted</a>
+  {% endif %}
+</td>
+
               </tr>
             {% empty %}
               <tr><td colspan="2">No validated assessments yet.</td></tr>

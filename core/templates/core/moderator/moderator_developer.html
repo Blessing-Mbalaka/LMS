@@ -74,45 +74,59 @@
                 <th>Status</th>
                 <th>Paper</th>
                 <th>Moderate</th>
+                <th>Action</th>
               </tr>
             </thead>
-            <tbody>
-              {% for asmt in pending_assessments %}
-              <tr>
-                <td>{{ asmt.eisa_id }}</td>
-                <td>{{ asmt.qualification.name }}</td>
-                <td>{{ asmt.created_by.email }}</td>
-                <td>{{ asmt.created_at|date:"Y-m-d" }}</td>
-                <td><span class="status-badge status-{{ asmt.status|slugify }}">{{ asmt.status }}</span></td>
-                <td>
-                  {% if asmt.paper_link %}
-                  <a href="{% url 'load_saved_paper' asmt.paper_link.pk %}" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-eye"></i> View
-                  </a>
-                  {% else %}
-                  <span class="text-muted">No extracted paper</span>
-                  {% endif %}
-                </td>
+          <tbody>
+            {% for asmt in pending_assessments %}
+            <tr>
+              <td>{{ asmt.eisa_id|default:"—" }}</td>
+              <td>{{ asmt.qualification.name|default:"—" }}</td>
+              <td>{{ asmt.created_by.email|default:"—" }}</td>
+              <td>{{ asmt.created_at|date:"Y-m-d" }}</td>
+              <td><span class="status-badge status-{{ asmt.status|slugify }}">{{ asmt.status }}</span></td>
+          
+              {# CHANGE: single Action column with 3-way fallback #}
+              <td class="text-center">
+                {# 1) Extracted pipeline → open structured review #}
+                {% if asmt.paper_link_id %}
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' asmt.paper_link_id %}"
+                  title="Review extracted">
+                  <i class="fa-regular fa-eye"></i>
+                </a>
+          
+                {# 2) Legacy pipeline → open legacy EISA view #}
+                {% elif asmt.eisa_id %}
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'view_assessment' asmt.eisa_id %}"
+                  title="Open legacy view">
+                  <i class="fa-regular fa-eye"></i>
+                </a>
+          
+                {# 3) Fallback → minimal assessment detail page #}
+                {% else %}
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'assessment_detail' asmt.pk %}"
+                  title="Assessment details">
+                  <i class="fa-regular fa-eye"></i>
+                </a>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              {# CHANGE: colspan 7 -> 6 because we merged to one action column #}
+              <td colspan="6" class="text-center py-4">No assessments pending moderation.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
 
-
-                <td>
-                  <a href="{% url 'moderate_assessment' asmt.id %}" class="btn btn-sm btn-gold">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="7" class="text-center py-4">No assessments pending moderation.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+
+  </script>
 </body>
 
 </html>

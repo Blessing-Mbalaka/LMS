@@ -1,0 +1,44 @@
+{# Reusable "review" link. Works with either a Paper or an Assessment. #}
+{# Inputs (any of these are optional):
+- paper : a Paper object (preferred when you already have it)
+- assessment : an Assessment object (we'll read .paper_link_id / .eisa_id)
+- icon_only : True/False (default True) -> icon-only vs button with text
+- btn_class : override classes (default "btn btn-sm btn-outline-primary")
+- title_text : tooltip text override
+#}
+
+{% with
+pid=paper.id|default:assessment.paper_link_id
+show_icon_only=icon_only|default:True
+btn=btn_class|default:"btn btn-sm btn-outline-primary"
+title_default="Review extracted paper"
+%}
+
+{% if pid %}
+<a class="{{ btn }}" href="{% url 'load_saved_paper' pid %}" title="{{ title_text|default:title_default }}">
+    {# inline eye svg (no external icon libs required) #}
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+        aria-hidden="true">
+        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8" />
+        <path d="M8 5.5a2.5 2.5 0 1 1 0 5.001A2.5 2.5 0 0 1 8 5.5" />
+    </svg>
+    {% if not show_icon_only %}<span class="ms-1">Review</span>{% endif %}
+</a>
+
+{% elif assessment and assessment.eisa_id %}
+{# graceful fallback to legacy assessment view (no extracted paper) #}
+<a class="btn btn-sm btn-outline-secondary" href="{% url 'view_assessment' assessment.eisa_id %}"
+    title="Open legacy view">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+        aria-hidden="true">
+        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8" />
+        <path d="M8 5.5a2.5 2.5 0 1 1 0 5.001A2.5 2.5 0 0 1 8 5.5" />
+    </svg>
+    {% if not show_icon_only %}<span class="ms-1">Legacy</span>{% endif %}
+</a>
+
+{% else %}
+<span class="text-muted small" title="No extracted paper attached">—</span>
+{% endif %}
+
+{% endwith %}

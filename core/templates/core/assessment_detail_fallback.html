@@ -149,4 +149,35 @@
 
 </body>
 
+
+
+
+
+<hr>
+<div class="d-flex flex-wrap gap-2">
+    {% comment %} Move forward based on current canonical status {% endcomment %}
+    {% if assessment.status|lower in:"uploaded,pending" %}
+    <form method="post" action="{% url 'send_to_assessor' assessment.pk %}">{% csrf_token %}
+        <button class="btn btn-primary btn-sm">Submit to Assessor</button>
+    </form>
+    {% elif assessment.status == "Submitted to Assessor" %}
+    <form method="post" action="{% url 'send_to_moderator' assessment.pk %}">{% csrf_token %}
+        <button class="btn btn-primary btn-sm">Submit to Moderator</button>
+    </form>
+    {% elif assessment.status == "Submitted to Moderator" %}
+    <form method="post" action="{% url 'send_to_qcto' assessment.pk %}">{% csrf_token %}
+        <button class="btn btn-primary btn-sm">Submit to QCTO</button>
+    </form>
+    {% elif assessment.status == "Submitted to QCTO" %}
+    <form method="post" action="{% url 'send_to_etqa' assessment.pk %}">{% csrf_token %}
+        <button class="btn btn-primary btn-sm">Submit to ETQA</button>
+    </form>
+    {% elif assessment.status == "Submitted to ETQA" %}
+    <form method="post" action="{% url 'approve_etqa' assessment.pk %}">{% csrf_token %}
+        <button class="btn btn-success btn-sm">Approve (ETQA)</button>
+    </form>
+    {% endif %}
+</div>
+
+
 </html>

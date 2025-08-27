@@ -14,6 +14,34 @@ import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
 
+
+
+# at top
+from django.conf import settings
+from django.db import models
+
+# If you already have a Paper model, keep using it. Adjust the import/name if different.
+# Example:
+# class Paper(models.Model): ...
+
+class PaperReview(models.Model):
+    DECISIONS = (("approved", "Approved"), ("rejected", "Rejected"))
+
+    paper = models.ForeignKey("core.Paper", on_delete=models.CASCADE, related_name="reviews")  # adjust app/model if needed
+    assessment = models.ForeignKey("core.Assessment", null=True, blank=True, on_delete=models.SET_NULL)
+    by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    role = models.CharField(max_length=32, blank=True)  # e.g. 'assessor', 'moderator', 'qcto', 'etqa'
+    decision = models.CharField(max_length=16, choices=DECISIONS)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.paper_id} {self.decision} by {self.by} ({self.role})"
+
+
 class Qualification(models.Model):
     # Define constants at class level
     QUALIFICATION_TYPES = [

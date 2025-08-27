@@ -9,8 +9,9 @@ import json
 import random
 from django.db import models
 from django.urls import reverse
-import time
+import time 
 import re
+from django.db import IntegrityError
 from .forms import EmailRegistrationForm
 import uuid
 import csv
@@ -1165,123 +1166,166 @@ def upload_assessment(request):
 # 4) DRF endpoint: returns JSON (for AJAX)
 # ---------------------------------------
 from django.db import transaction
-
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, JSONParser
+from django.http import JsonResponse
+from django.db.models import Q
+import json, random, re, traceback
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, JSONParser])
 def generate_tool(request):
     """
     Accepts POST with:
-      - qualification (string)
+      - qualification (string: id, code, or name)
       - mark_target (int or numeric string)
       - optional file (PDF/DOCX)
-
-    Returns JSON:
-      {
-        "questions": [
-           { "text": "...", "marks": 5, "case_study": "..." }, …
-        ],
-        "total": <sum of marks>
-      }
+    Returns JSON: {"questions": [...], "total": <int>}
     """
+
+    # --- tiny, safe text extractor (no extra deps) --------------------------
+    def _extract_text(uploaded_file, content_type: str) -> str:
+        try:
+            pos = uploaded_file.tell()
+        except Exception:
+            pos = None
+        try:
+            data = uploaded_file.read()
+            if not data:
+                return ""
+            try:
+                return data.decode("utf-8", "ignore")
+            except Exception:
+                return ""
+        finally:
+            try:
+                if pos is not None:
+                    uploaded_file.seek(pos)
+            except Exception:
+                pass
+
     try:
-        qual = request.data.get("qualification", "").strip()
-        raw_target = request.data.get("mark_target", "").strip()
-        demo_file = request.FILES.get("file", None)
+        qual       = (request.data.get("qualification") or "").strip()
+        raw_target = (request.data.get("mark_target") or "").strip()
+        demo_file  = request.FILES.get("file")
 
         # Validate mark_target
         if not raw_target.isdigit():
-            return JsonResponse(
-                {"error": "mark_target must be a number."},
-                status=400
-            )
+            return JsonResponse({"error": "mark_target must be a number."}, status=400)
         target = int(raw_target)
 
-        # If a file was uploaded, use Gemini path
-        if demo_file:
-            text = extract_text(demo_file, demo_file.content_type)
+        all_qs = []
 
-            # Optional: provide a few example questions from your in‐memory bank
-            samples = QUESTION_BANK.get(qual, [])[:3]
-            examples = "\n".join(f"- {q['text']}" for q in samples)
+        # -------- If a file was uploaded, use Gemini path -------------------
+        if demo_file:
+            text = _extract_text(demo_file, getattr(demo_file, "content_type", "") or "")
+
+            # Optional examples from your in-memory bank
+            samples  = QUESTION_BANK.get(qual, [])[:3]
+            examples = "\n".join(f"- {s.get('text','')}" for s in samples)
 
             prompt = (
                 f"You’re an assessment generator for **{qual}**.\n"
                 f"Here are some example questions:\n{examples}\n\n"
-                "Now, given the following past‐paper text, generate JSON under the key 'questions',\n"
-                "where each item has 'text', 'marks', and 'case_study'.\n\n"
-                f"Past‐Papers Text:\n{text}"
+                "Return pure JSON with a top-level key 'questions' where each item has "
+                "'text' (string), 'marks' (integer), and optional 'case_study' (string).\n\n"
+                f"Past-Papers Text:\n{text}"
             )
 
             resp = genai_client.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=[prompt]
             )
-            raw = resp.text.strip()
+            raw = (getattr(resp, "text", "") or "").strip()
             if not raw:
-                return JsonResponse({"error": "Gemini returned an empty response."}, status=500)
+                return JsonResponse({"error": "Gemini returned an empty response."}, status=502)
 
-            # Clean up JSON fences, smart quotes, etc.
-            cleaned = re.sub(r"^```json", "", raw)
-            cleaned = re.sub(r"```$", "", cleaned)
-            cleaned = cleaned.replace("“", '"').replace("”", '"')
+            # Clean up JSON fences & smart quotes
+            cleaned = re.sub(r"^```(?:json)?\s*", "", raw).strip()
+            cleaned = re.sub(r"\s*```$", "", cleaned).strip()
+            cleaned = cleaned.replace("“", '"').replace("”", '"').replace("’", "'")
 
+            # Parse JSON robustly
             try:
                 data = json.loads(cleaned)
-            except json.JSONDecodeError as err:
-                return JsonResponse({
-                    "error": "Invalid JSON received from Gemini.",
-                    "details": str(err),
-                    "raw_snippet": cleaned[:200]
-                }, status=500)
+            except json.JSONDecodeError:
+                m = re.search(r"(\{.*\}|\[.*\])", cleaned, re.S)
+                if not m:
+                    return JsonResponse(
+                        {"error": "Invalid JSON from model.", "raw_snippet": cleaned[:300]},
+                        status=502
+                    )
+                try:
+                    data = json.loads(m.group(1))
+                except Exception as err:
+                    return JsonResponse(
+                        {"error": "Invalid JSON from model.", "details": str(err), "raw_snippet": cleaned[:300]},
+                        status=502
+                    )
 
-            if "questions" not in data:
-                return JsonResponse({
-                    "error": "Missing 'questions' key in Gemini output.",
-                    "raw": cleaned
-                }, status=500)
+            if not isinstance(data, dict) or "questions" not in data:
+                return JsonResponse(
+                    {"error": "Missing 'questions' key in model output.", "raw_snippet": cleaned[:300]},
+                    status=502
+                )
 
-            all_qs = data["questions"]
+            items = data.get("questions") or []
+            if isinstance(items, dict):
+                items = [items]
 
-        # Otherwise, pull from QuestionBankEntry (database)
+            for q in items:
+                if not isinstance(q, dict):
+                    continue
+                q_text = (q.get("text") or "").strip()
+                try:
+                    q_marks = int(q.get("marks", 0))
+                except Exception:
+                    q_marks = 0
+                if q_text:
+                    all_qs.append({
+                        "text": q_text,
+                        "marks": max(q_marks, 0),
+                        "case_study": str(q.get("case_study") or "")
+                    })
+
+        # -------- Otherwise, pull from QuestionBankEntry (database) ---------
         else:
-            # 1) Fetch all QuestionBankEntry matching this qualification
-            entries = list(QuestionBankEntry.objects.filter(qualification=qual))
+            # Resolve qualification by id, code, or name
+            qual_obj = Qualification.objects.filter(
+                Q(id__iexact=str(qual)) | Q(code__iexact=str(qual)) | Q(name__iexact=str(qual))
+            ).first() if qual else None
+
+            if not qual_obj:
+                return JsonResponse({"error": f"Unknown qualification '{qual}'."}, status=404)
+
+            entries = list(QuestionBankEntry.objects.filter(qualification=qual_obj))
             if not entries:
                 return JsonResponse(
                     {"error": f"No questions found in the bank for qualification '{qual}'."},
                     status=404
                 )
 
-            # 2) Shuffle and pick until mark_target is reached (or just under)
             random.shuffle(entries)
-            selected = []
-            total = 0
-
-            for entry in entries:
-                entry_marks = entry.marks or 0
-                if total + entry_marks <= target:
-                    selected.append({
-                        "text": entry.text,
-                        "marks": entry_marks,
-                        "case_study": entry.case_study or ""
+            running = 0
+            for e in entries:
+                m = int(e.marks or 0)
+                if running + m <= target:
+                    all_qs.append({
+                        "text": e.text,
+                        "marks": m,
+                        "case_study": str(e.case_study) if getattr(e, "case_study", None) else ""
                     })
-                    total += entry_marks
-                if total >= target:
+                    running += m
+                if running >= target:
                     break
 
-            all_qs = selected
-
-        # If we got here, all_qs is a list of dicts with keys "text", "marks", and "case_study"
-        # Now ensure we don't exceed mark target again (in case Gemini returned too many)
+        # -------- Second pass: cap to target and sanitize -------------------
         random.shuffle(all_qs)
         final_selection = []
         running_sum = 0
-
         for q in all_qs:
-            try:
-                m = int(q.get("marks", 0))
-            except (ValueError, TypeError):
+            m = int(q.get("marks") or 0)
+            if m < 0:
                 m = 0
             if running_sum + m <= target:
                 final_selection.append(q)
@@ -1289,16 +1333,14 @@ def generate_tool(request):
             if running_sum >= target:
                 break
 
-        return JsonResponse({
-            "questions": final_selection,
-            "total": running_sum
-        })
+        return JsonResponse({"questions": final_selection, "total": running_sum})
 
     except Exception as e:
-        return JsonResponse({
-            "error": str(e),
-            "traceback": traceback.format_exc().splitlines()[:5]  # send first few lines
-        }, status=500)
+        return JsonResponse(
+            {"error": str(e), "traceback": traceback.format_exc().splitlines()[:5]},
+            status=500
+        )
+
 #================End of Generate Tool==============================================
 
 
@@ -1394,8 +1436,7 @@ def assessor_dashboard(request):
         qs = qs.filter(qualification=qualification)
 
     # Show only items waiting for the Assessor
-    assessments = qs.filter(status="submitted_to_assessor").order_by("-created_at")
-
+    assessments = qs.filter(status__iexact="Submitted to Assessor").order_by("-created_at")
     return render(request, "core/assessor-developer/assessor_dashboard.html", {
         "assessments": assessments,
         "papers": assessments,         # alias for older partials
@@ -1506,12 +1547,7 @@ def moderate_assessment(request, identifier):
         'questions': questions
     })
 
-    # GET: render the moderation form
-    return render(
-        request,
-        'core/moderator/moderate_assessment.html',  # make sure this path matches your file location
-        {'assessment': assessment}
-    )
+  
 
 @require_http_methods(["POST"])
 def add_feedback(request, eisa_id):
@@ -2007,7 +2043,7 @@ def student_dashboard(request):
 
     # Only include assessments with papers and nodes
     assessments = Assessment.objects.filter(
-        status="etqa_approved",  # note: make sure this matches your STATUS_CHOICES value
+        status__in=["Approved by ETQA", "approved", "etqa_approved"],
         qualification=user_qualification,
         paper_link__isnull=False
     ).select_related(
@@ -2339,3 +2375,24 @@ def assessment_detail(request, pk):
             "assessment": a,
             "paper": a,  # alias for older partials
         })
+
+
+# views.py
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, NoReverseMatch
+
+@login_required
+def open_assessment_paper(request, pk):
+    a = get_object_or_404(Assessment, pk=pk)
+    # Prefer extracted Paper review if present
+    if a.paper_link_id:
+        return redirect('load_saved_paper', paper_pk=a.paper_link_id)
+    # Legacy viewer by eisa_id
+    if getattr(a, "eisa_id", None):
+        try:
+            return redirect(reverse('view_assessment', args=[a.eisa_id]))
+        except NoReverseMatch:
+            pass
+    # Last resort: your fallback detail
+    return redirect('assessment_detail', pk=a.pk)

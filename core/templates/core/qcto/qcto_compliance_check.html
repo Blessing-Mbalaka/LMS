@@ -1,15 +1,18 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>QCTO Compliance Check | CHIETA</title>
   <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+  <!-- Font Awesome 5.x in this page, so use "fas"/"far" classes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     .content {
       padding: 20px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -19,15 +22,19 @@
       overflow: hidden;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    th, td {
+
+    th,
+    td {
       padding: 12px;
       text-align: center;
       border-bottom: 1px solid #eee;
     }
+
     thead {
       background-color: #580658;
-      color: white;
+      color: #fff;
     }
+
     textarea {
       width: 90%;
       padding: 6px;
@@ -35,13 +42,35 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
+
     .action-buttons form {
       display: inline-block;
       margin: 4px 2px;
     }
-    .approve-btn { background-color: green; color: white; padding: 6px 12px; border: none; border-radius: 6px; }
-    .reject-btn { background-color: red; color: white; padding: 6px 12px; border: none; border-radius: 6px; }
-    .info-btn    { background-color: orange; color: white; padding: 6px 12px; border: none; border-radius: 6px; }
+
+    .approve-btn {
+      background-color: green;
+      color: #fff;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .reject-btn {
+      background-color: red;
+      color: #fff;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .info-btn {
+      background-color: orange;
+      color: #fff;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+    }
 
     .sidebar ul {
       list-style-type: none;
@@ -51,8 +80,21 @@
     .sidebar li {
       margin-bottom: 10px;
     }
+
+    /* CHANGE: keeps the eye button neat */
+    .action-cell .btn {
+      min-width: 36px;
+    }
+
+    .action-stack {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      align-items: center;
+    }
   </style>
 </head>
+
 <body>
   <div class="dashboard-container">
     <div class="sidebar">
@@ -65,53 +107,59 @@
           <tr>
             <th>EISA ID</th>
             <th>Qualification</th>
-            <th>Paper No.</th>
+            <!-- CHANGE: Column label simplified -->
+            <th>Paper</th>
             <th>Issues Found</th>
             <th>Reviewer Comments</th>
-            <th>Actions</th>
+            <th class="text-center">Actions</th> <!-- CHANGE: consistent header -->
           </tr>
         </thead>
-        <tbody>
-          {% for a in assessments %}
-        <tr>
-  <td>{{ a.eisa_id }}</td>
-  <td>{{ a.get_qualification_display }}</td>
-  <td>
-    {% if a.paper_link %}
-      <a href="{% url 'load_saved_paper' a.paper_link.pk %}" class="btn btn-sm btn-outline-primary">
-        <i class="fas fa-eye"></i> View
-      </a>
-    {% else %}
-      <span class="text-muted">No extracted paper</span>
-    {% endif %}
-  </td>
-  <td>{{ a.comment|default:"-" }}</td>
-  <td colspan="2" class="action-buttons">
-    <form method="post" action="{% url 'qcto_moderate_assessment' a.eisa_id %}">
-      {% csrf_token %}
-      <textarea
-        name="qcto_notes"
-        placeholder="Enter comments…"
-        style="width:90%;padding:6px;border-radius:6px;border:1px solid #ccc;resize:vertical;"
-      >{{ a.qcto_notes }}</textarea>
-      <br/>
-      <button type="submit" name="decision" value="approve" class="approve-btn">
-        Approve
-      </button>
-      <button type="submit" name="decision" value="reject" class="reject-btn">
-        Reject
-      </button>
-    </form>
-  </td>
-</tr>
+<tbody>
+  {% for a in assessments %}
+  <tr>
+    <td>{{ a.eisa_id }}</td>
+    <td>{{ a.qualification.name|default:"—" }}</td>
+    <td>{{ a.paper|default:"—" }}</td>
+    <td>{{ a.comment|default:"-" }}</td>
 
-          {% empty %}
-          <tr><td colspan="6">No assessments available.</td></tr>
-          {% endfor %}
-        </tbody>
+    {# === View paper (standard eye button with fallbacks) === #}
+    <td class="text-center">
+      {% if a.paper_link_id %}
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' a.paper_link_id %}"
+        title="Review extracted">
+        <i class="far fa-eye"></i>
+      </a>
+      {% elif a.eisa_id %}
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'view_assessment' a.eisa_id %}" title="Open legacy view">
+        <i class="far fa-eye"></i>
+      </a>
+      {% else %}
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'assessment_detail' a.pk %}" title="Assessment details">
+        <i class="far fa-eye"></i>
+      </a>
+      {% endif %}
+    </td>
+
+    {# === Actions (notes + approve/reject) === #}
+    <td class="action-buttons">
+      <form method="post" action="{% url 'qcto_moderate_assessment' a.eisa_id %}">
+        {% csrf_token %}
+        <textarea name="qcto_notes" placeholder="Enter QCTO notes...">{{ a.qcto_notes }}</textarea><br>
+        <button type="submit" name="decision" value="approve" class="approve-btn">Approve</button>
+        <button type="submit" name="decision" value="reject" class="reject-btn">Reject</button>
+      </form>
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="6">No assessments available.</td>
+  </tr>
+  {% endfor %}
+</tbody>
+
       </table>
     </div>
   </div>
-
 </body>
+
 </html>

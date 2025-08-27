@@ -1,0 +1,15 @@
+{% comment %} expects obj = Assessment {% endcomment %}
+{% if obj.paper_link_id %}
+<a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' obj.paper_link_id %}"
+    title="Review extracted">
+    <i class="fa-regular fa-eye"></i>
+</a>
+{% elif obj.eisa_id %}
+<a class="btn btn-sm btn-outline-primary" href="/assessor/view/{{ obj.eisa_id }}/" title="Open legacy view">
+    <i class="fa-regular fa-eye"></i>
+</a>
+{% else %}
+<a class="btn btn-sm btn-outline-secondary" href="{% url 'assessment_detail' obj.pk %}" title="Assessment details">
+    <i class="fa-regular fa-eye"></i>
+</a>
+{% endif %}

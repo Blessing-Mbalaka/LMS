@@ -3,12 +3,14 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ETQA Implementation | CHIETA</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}" />
+
   <style>
     :root {
       --dark-purple: #3c1c53;
@@ -67,23 +69,21 @@
       color: var(--dark-purple);
       text-decoration: none;
       border-radius: 5px;
-      transition: all 0.3s;
+      transition: all .3s;
     }
 
     .sidebar-menu li.active a {
       background-color: var(--dark-purple);
-      color: white;
+      color: #fff;
     }
 
     .sidebar li {
       margin-bottom: 10px;
-      /* optional spacing between items */
     }
 
     .sidebar ul {
       list-style-type: none;
       padding-left: 0;
-      /* removes default padding */
     }
 
     .main-content {
@@ -91,15 +91,15 @@
       margin-left: 280px;
       padding: 30px;
       background-color: #efeaea;
-      background-image: url("{% static 'core/images/Frame.png' %}");
+      background-image:url("{% static 'core/images/Frame.png' %}");
       background-repeat: no-repeat;
       background-size: cover;
-      opacity: 0.9;
+      opacity: .9;
     }
 
     .btn-purple {
       background-color: var(--dark-purple);
-      color: white;
+      color: #fff;
       border: none;
       padding: 8px 20px;
       border-radius: 4px;
@@ -107,7 +107,7 @@
 
     .btn-gold {
       background-color: var(--gold);
-      color: white;
+      color: #fff;
       border: none;
       padding: 8px 20px;
       border-radius: 4px;
@@ -115,14 +115,14 @@
 
     .card {
       border: none;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 0 15px rgba(0, 0, 0, .05);
       margin-bottom: 20px;
       border-radius: 8px;
     }
 
     .card-header {
-      background-color: white;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      background: #fff;
+      border-bottom: 1px solid rgba(0, 0, 0, .1);
       padding: 15px 20px;
       font-weight: 600;
       color: var(--dark-purple);
@@ -130,10 +130,10 @@
     }
 
     .form-container {
-      background-color: white;
+      background: #fff;
       padding: 25px;
       border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 0 15px rgba(0, 0, 0, .05);
       margin-bottom: 30px;
     }
 
@@ -163,17 +163,17 @@
     input[type="number"]:focus {
       border-color: var(--gold);
       outline: none;
-      box-shadow: 0 0 0 2px rgba(187, 134, 65, 0.2);
+      box-shadow: 0 0 0 2px rgba(187, 134, 65, .2);
     }
 
     .batch-summary {
       width: 100%;
       border-collapse: collapse;
       margin: 20px 0;
-      background-color: white;
+      background: #fff;
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 0 15px rgba(0, 0, 0, .05);
     }
 
     .batch-summary th,
@@ -194,14 +194,13 @@
       border-bottom: none;
     }
 
-    .question-list {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
+    .table thead th {
+      background-color: #f1f1f8;
+      color: #2d1f3b;
     }
 
-    .question-list li {
-      margin-bottom: 5px;
+    .action-cell .btn {
+      min-width: 36px;
     }
   </style>
 </head>
@@ -211,82 +210,102 @@
     <div class="sidebar">
       <div class="sidebar-header">
         <img src="{% static 'core/images/logo_simplebbbbbbbbbbbbbb.png' %}" alt="CHIETA Logo">
-
       </div>
       <ul class="sidebar-menu">
-        <li><a href="{% url 'etqa_dashboard' %}" class="nav-item"><i class="fas fa-calendar-alt"></i> Assessment
-            Scheduling</a></li>
-        <!-- <li><a href="#"><i class="fas fa-building"></i> Assessment Centers</a></li>
-      <li><a href="#"><i class="fas fa-calendar-alt"></i> Scheduling</a></li> -->
-        
-        <!-- <li><a href="#"><i class="fas fa-users"></i> Learner Batches</a></li>
-      <li><a href="#"><i class="fas fa-chart-line"></i> Completion Tracking</a></li>
-      <li><a href="#"><i class="fas fa-cog"></i> Configuration</a></li> -->
+        <li class="active">
+          <a href="{% url 'etqa_dashboard' %}" class="nav-item">
+            <i class="fas fa-calendar-alt"></i> Assessment Scheduling
+          </a>
+        </li>
         <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt logout"></i> Log Out</a></li>
       </ul>
-      <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199px">
+      <img src="{% static 'core/images/rb_2149331949.png' %}" alt="Sidebar Art" width="199">
     </div>
-    <div class="main-content">
 
+    <div class="main-content">
       <div class="welcome-container">
-        <div class="image-container">
-          <!-- <img src="{% static 'core/images/rb_2148892786.png' %}" alt="Profile Picture" width="390px" height="190px"> -->
-        </div>
         <div class="welcome-box">
           <h2>ETQA Assessment Scheduling</h2>
-
           <button class="gradient-button">Innovating for Impact</button>
         </div>
       </div>
 
-      <!-- form for creating batch -->
+      <!-- Create Batch -->
       <div class="form-container">
         <form method="post">
           {% csrf_token %}
-          <div class="form-group">
-            <label for="center">Assessment Centre:</label>
-            <select id="center" name="center" class="form-control" required>
-              {% for center in centers %}
-              <option value="{{ center.id }}">{{ center.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
+
           <div class="form-group">
             <label for="qualification">Qualification:</label>
-            <select id="qualification" name="qualification" class="form-control" onchange="loadAssessments()" required>
-              <option value="">Select</option>
-              {% for qualification in qualifications %}
-                <option value="{{ qualification.id }}" {% if qualification.id|stringformat:"s" == selected_qualification %}selected{% endif %}>{{ qualification.name }}</option>
-              {% endfor %}
-            </select>
+        <select id="qualification" name="qualification" class="form-control" onchange="loadAssessments()" required>
+          <option value="">Select</option>
+          {% for qualification in qualifications %}
+          <option value="{{ qualification.id }}" {% if qualification.id|stringformat:"s" == selected_qualification %}selected{% endif %}>{{ qualification.name }}</option>
+          {% empty %}
+          <option disabled>No qualifications available</option>
+          {% endfor %}
+        </select>
           </div>
+
           {% if approved_assessments %}
           <div class="form-group">
             <label for="assessment">Approved Assessment:</label>
-            <select id="assessment" name="assessment" class="form-control" required>
-              {% for approved_assessment in approved_assessments %}
-              <option value="{{ approved_assessment.id }}">{{ approved_assessment.paper }} ({{
-                approved_assessment.eisa_id }})</option>
-              {% endfor %}
-            </select>
+            <div class="d-flex gap-2">
+              <select id="assessment" name="assessment" class="form-control" required>
+                {% for approved_assessment in approved_assessments %}
+                <option value="{{ approved_assessment.id }}"
+                  data-paper-id="{{ approved_assessment.paper_link_id|default_if_none:'' }}"
+                  data-eisa="{{ approved_assessment.eisa_id }}">
+                  {{ approved_assessment.paper }} ({{ approved_assessment.eisa_id }})
+                </option>
+                {% endfor %}
+              </select>
+              <!-- Review selected (eye) -->
+              <button type="button" class="btn btn-outline-secondary" title="Review selected"
+                onclick="reviewSelectedApproved()">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
           </div>
           {% endif %}
+
           <div class="form-group">
             <label for="date">Assessment Date:</label>
             <input type="date" id="date" name="date" class="form-control" required>
           </div>
-          <!-- <div class="form-group">
-          <label for="number_of_learners">Number of Learners:</label>
-          <input type="number" id="number_of_learners" name="number_of_learners" class="form-control" min="1" required>
-        </div> -->
+
           <button type="submit" class="btn-purple">Create Batch</button>
         </form>
       </div>
 
+      <!-- Created Batch Summary -->
       {% if created_batch %}
       <div class="form-container">
         <h3 style="color: var(--dark-purple); margin-bottom: 20px;">Created Batch Summary</h3>
         <table class="batch-summary">
+          <tr>
+            <th>Quick Review</th>
+            <td class="action-cell">
+              {% with cb=created_batch.assessment %}
+              {% if cb.paper_link_id %}
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' cb.paper_link_id %}"
+                title="Review extracted">
+                <i class="fa-regular fa-eye"></i>
+              </a>
+              {% elif cb.eisa_id %}
+              <a class="btn btn-sm btn-outline-primary" href="/assessor/view/{{ cb.eisa_id }}/"
+                title="Open legacy view">
+                <i class="fa-regular fa-eye"></i>
+              </a>
+              {% else %}
+              <a class="btn btn-sm btn-outline-secondary"
+                href="{% url 'assessment_detail' created_batch.assessment.pk %}" title="Assessment details">
+                <i class="fa-regular fa-eye"></i>
+              </a>
+              {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
           <tr>
             <th>Centre</th>
             <td>{{ created_batch.center.name }}</td>
@@ -303,20 +322,160 @@
             <th>Date</th>
             <td>{{ created_batch.assessment_date }}</td>
           </tr>
-
         </table>
-        <form method="post" action="{% url 'submit_to_center' created_batch.id %}">{% csrf_token %}
+
+        <form method="post" action="{% url 'submit_to_center' created_batch.id %}">
+          {% csrf_token %}
           <button type="submit" class="btn-gold">Submit to Center</button>
         </form>
       </div>
       {% endif %}
+
+      <!-- Awaiting ETQA Review -->
+      <div class="card">
+        <div class="card-header">Awaiting ETQA Review</div>
+        <div class="card-body">
+          {% if assessments_for_etqa %}
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>EISA ID</th>
+                  <th>Qualification</th>
+                  <th>Paper</th>
+                  <th>Created</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for a in assessments_for_etqa %}
+                <tr>
+                  <td class="text-nowrap">{{ a.eisa_id|default:"—" }}</td>
+                  <td>{{ a.qualification.name|default:"—" }}</td>
+                  <td>{{ a.paper|default:"—" }}</td>
+                  <td class="text-nowrap">{{ a.created_at|date:"Y-m-d H:i" }}</td>
+                  <td class="text-center action-cell">
+                    {% if a.paper_link_id %}
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' a.paper_link_id %}"
+                      title="Review extracted">
+                      <i class="fa-regular fa-eye"></i>
+                    </a>
+                    {% elif a.eisa_id %}
+                    <a class="btn btn-sm btn-outline-primary" href="/assessor/view/{{ a.eisa_id }}/"
+                      title="Open legacy view">
+                      <i class="fa-regular fa-eye"></i>
+                    </a>
+                    {% else %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'assessment_detail' a.pk %}"
+                      title="Assessment details">
+                      <i class="fa-regular fa-eye"></i>
+                    </a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">No assessments waiting in the ETQA queue.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Approved Assessments -->
+      <div class="card">
+        <div class="card-header">Approved Assessments</div>
+        <div class="card-body">
+          {% if approved_assessments %}
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>EISA ID</th>
+                  <th>Qualification</th>
+                  <th>Paper</th>
+                  <th>Approved On</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for a in approved_assessments %}
+                <tr>
+                  <td class="text-nowrap">{{ a.eisa_id|default:"—" }}</td>
+                  <td>{{ a.qualification.name|default:"—" }}</td>
+                  <td>{{ a.paper|default:"—" }}</td>
+                  <td class="text-nowrap">{{ a.updated_at|default:a.created_at|date:"Y-m-d H:i" }}</td>
+                  <td class="text-center action-cell">
+                    {% if a.paper_link_id %}
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' a.paper_link_id %}"
+                      title="Review extracted">
+                      <i class="fa-regular fa-eye"></i>
+                    </a>
+                    {% elif a.eisa_id %}
+                    <a class="btn btn-sm btn-outline-primary" href="/assessor/view/{{ a.eisa_id }}/"
+                      title="Open legacy view">
+                      <i class="fa-regular fa-eye"></i>
+                    </a>
+                    {% else %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'assessment_detail' a.pk %}"
+                      title="Assessment details">
+                      <i class="fa-regular fa-eye"></i>
+                    </a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">No approved assessments yet.</p>
+          {% endif %}
+        </div>
+      </div>
+
     </div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // preserve qualification filter on change
     function loadAssessments() {
       const qualificationId = document.getElementById('qualification').value;
       window.location.href = qualificationId ? `?qualification_id=${qualificationId}` : window.location.pathname;
+    }
+
+    // Pre-built patterns (replace /0/ with the real ID)
+    const URL_LOAD_SAVED_PAPER_PATTERN = "{% url 'load_saved_paper' 0 %}";
+    const URL_ASSESSMENT_DETAIL_PATTERN = "{% url 'assessment_detail' 0 %}";
+
+    function gotoLoadSavedPaper(paperId) {
+      const url = URL_LOAD_SAVED_PAPER_PATTERN.replace('/0/', `/${paperId}/`);
+      window.location.href = url;
+    }
+    function gotoLegacyView(eisaId) {
+      window.location.href = `/assessor/view/${eisaId}/`;
+    }
+    function gotoAssessmentDetail(pk) {
+      const url = URL_ASSESSMENT_DETAIL_PATTERN.replace('/0/', `/${pk}/`);
+      window.location.href = url;
+    }
+
+    // "Review selected" next to Approved Assessment select
+    function reviewSelectedApproved() {
+      const sel = document.getElementById('assessment');
+      if (!sel) return;
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt) return;
+
+      const paperId = opt.dataset.paperId;
+      const eisaId = opt.dataset.eisa;
+      const pk = opt.value;
+
+      if (paperId) return gotoLoadSavedPaper(paperId);
+      if (eisaId) return gotoLegacyView(eisaId);
+      return gotoAssessmentDetail(pk);
     }
   </script>
 </body>

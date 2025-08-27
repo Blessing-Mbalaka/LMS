@@ -141,35 +141,39 @@
             </tr>
           </thead>
           <tbody>
-            {% for assessment in assessments %}
+            {% for a in assessments %}
             <tr>
-              <td>{{ assessment.eisa_id|default:"N/A" }}</td>
-              <td>{{ assessment.qualification }}</td>
-              <td>{{ assessment.paper }}</td>
-              <td>
-                {% if assessment.moderator %}
-                  {{ assessment.moderator.get_full_name|default:assessment.moderator.email }}
+              <td class="text-nowrap">{{ a.eisa_id|default:"—" }}</td>
+              <td>{{ a.qualification.name|default:"—" }}</td>
+              <td>{{ a.paper|default:"—" }}</td>
+              <td class="text-nowrap">{{ a.created_at|date:"Y-m-d H:i" }}</td>
+          
+              <!-- CHANGE: quick-review “eye” button w/ pipeline fallback -->
+              <td class="text-center">
+                {# 1) NEW (extracted) pipeline: open structured review page if paper_link exists #}
+                {% if a.paper_link_id %}
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'load_saved_paper' a.paper_link_id %}"
+                  title="Review extracted">
+                  <i class="fa-regular fa-eye"></i>
+                </a>
+          
+                {# 2) LEGACY (generated) pipeline: open legacy EISA page if eisa_id exists #}
+                {% elif a.eisa_id %}
+                <a class="btn btn-sm btn-outline-primary" href="/assessor/view/{{ a.eisa_id }}/" title="Open legacy view">
+                  <i class="fa-regular fa-eye"></i>
+                </a>
+          
+                {# 3) SAFETY: fallback minimal detail page #}
                 {% else %}
-                  –
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'assessment_detail' a.pk %}" title="Assessment details">
+                  <i class="fa-regular fa-eye"></i>
+                </a>
                 {% endif %}
               </td>
-              <td class="status-{{ assessment.status|slugify }}">
-                {{ assessment.status }}
-              </td>
-              <td>{{ assessment.qcto_notes|default:"—" }}</td>
-<td>
-  <a href="{% url 'assessment_detail' assessment.pk %}" class="gradient-button small">
-    View
-  </a>
-</td>
-
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="7" class="text-center">No assessments found.</td>
             </tr>
             {% endfor %}
           </tbody>
+
         </table>
       </section>
     </div>
