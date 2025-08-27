@@ -1522,10 +1522,20 @@ def view_assessment(request, eisa_id):
 @login_required
 # @staff_member_required
 def moderator_developer_dashboard(request):
+    MODERATOR_QUEUE_ALIASES = [
+    "Submitted to Moderator",
+    "submitted to moderator",
+    "Submitted to Moderator ",
+    "Submitted to moderator",
+    "ToModerator",
+    "to_moderator"
+]
+
     pending = Assessment.objects.filter(
-        status__in=["Pending", "Submitted to Moderator"],
-        paper__isnull=False  #  exclude assessments with no paper
+        status__in=["Pending"] + MODERATOR_QUEUE_ALIASES,
+        paper__isnull=False
     ).order_by("-created_at")
+        
 
     forwarded = Assessment.objects.filter(
         status="Submitted to ETQA",
